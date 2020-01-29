@@ -13,6 +13,8 @@
 
     <!-- Admin -->
     <ApplicationManifest>app.manifest</ApplicationManifest>
+
+    <ApplicationIcon>SWAPS.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>

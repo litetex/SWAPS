@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "SWAPS - Conf": {
+      "commandName": "Project",
+      "commandLineArgs": "-l -c config.json"
+    },
+    "SWAPS - GenConf": {
+      "commandName": "Project",
+      "commandLineArgs": "-l --genconf config.json"
+    }
+  }
+}

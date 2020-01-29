@@ -1,0 +1,16 @@
+{
+  "Name": "LiveUpdate_NoAutoService_Launcher",
+  "ServiceConfig": {
+    "ServiceName": "MSI_LiveUpdate_Service"
+  },
+  "ProcessConfig": {
+    "WorkDir": "C:\\Program Files (x86)\\MSI\\Live Update",
+    "FilePath": "C:\\Program Files (x86)\\MSI\\Live Update\\Live Update.exe",
+    "Args": "/START",
+    "Timeout": null
+  },
+  "CrashOnUpdateServiceNotFound": false,
+  "ServiceStartTimeout": "00:00:10",
+  "ServiceShutdownDelay": "00:00:01",
+  "StayingOpenBeforeEnding": "00:00:00.5000000"
+}

@@ -1,4 +1,5 @@
 ﻿using CommandLine;
+using CoreFrameworkBase.Crash;
 using CoreFrameworkBase.Logging;
 using SWAPS.CMD;
 using System;

@@ -1,11 +1,11 @@
 {
-  "Name": "LiveUpdate_NoAutoService_Launcher",
+  "Name": "SomeUpdater_NoAutoService_Launcher",
   "ServiceConfig": {
-    "ServiceName": "MSI_LiveUpdate_Service"
+    "ServiceName": "Some_Updater_Service"
   },
   "ProcessConfig": {
-    "WorkDir": "C:\\Program Files (x86)\\MSI\\Live Update",
-    "FilePath": "C:\\Program Files (x86)\\MSI\\Live Update\\Live Update.exe",
+    "WorkDir": "C:\\Program Files (x86)\\Some\\Live Update",
+    "FilePath": "C:\\Program Files (x86)\\Some\\Live Update\\Live Update.exe",
     "Args": "/START",
     "Timeout": null
   },

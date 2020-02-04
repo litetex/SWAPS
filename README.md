@@ -3,7 +3,7 @@
 [![Build Develop](https://dev.azure.com/litetex/SWAPS/_apis/build/status/Develop?label=build%20develop)](https://dev.azure.com/litetex/SWAPS/_build/latest?definitionId=1)
 
 # SWAPS
-Start programm without auto-starting service
+Start a program/process without a auto-starting service
 
 ### Requirements
 * Windows

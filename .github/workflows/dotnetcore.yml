@@ -34,7 +34,7 @@ jobs:
         #TODO: a) should work parallel b) less redundant code
         #Variant: Win64
       - name: Publish win-x64 - Dotnet Publish Release
-        working-directory: Aves
+        working-directory: SWAPS
         run: dotnet publish -c Release -r win-x64 /p:PublishSingleFile=true
         
       - name: Pack win-x64 - Zip

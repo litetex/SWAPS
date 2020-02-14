@@ -33,27 +33,8 @@ namespace SWAPS
             }
             StartProgramAndWait();
 
-            try
-            {
-               using ServiceController svc = GetService();
+            using (ServiceController svc = GetService())
                StopService(svc);
-            }
-            catch (Win32Exception win32ex)
-            {
-               Log.Error("Win32Error: Code=" + win32ex.ErrorCode);
-               if (win32ex.ErrorCode != 1060)
-                  throw;
-
-               Log.Warn("Program maybe updating: Service couldn't be found");
-               if (Config.CrashOnUpdateServiceNotFound)
-                  throw;
-            }
-            catch (Exception e)
-            {
-               Log.Error("Error stopping service! ExceptionType: " + e.GetType());
-
-               throw;
-            }
 
             Thread.Sleep((int)Config.StayingOpenBeforeEnding.TotalMilliseconds);
          }
@@ -67,11 +48,36 @@ namespace SWAPS
 
       private void StopService(ServiceController svc)
       {
-         Log.Info($"Stoping '{Config.ServiceConfig.ServiceName}'... Waiting 1 Sec");
+         Log.Info($"Stopping '{Config.ServiceConfig.ServiceName}'... Waiting 1 Sec");
          Thread.Sleep((int)Config.ServiceShutdownDelay.TotalMilliseconds);
 
-         svc.Stop();
-         Log.Info("Stopped");
+         try
+         {
+            svc.Stop();
+            Log.Info("Stopped");
+         }
+         catch (InvalidOperationException invOpex)
+         {
+            Log.Error($"{nameof(InvalidOperationException)} while shuting down service");
+            if (invOpex.InnerException is Win32Exception win32ex)
+            {
+               Log.Error("Win32Error: Code=" + win32ex.ErrorCode);
+               if (win32ex.ErrorCode != 1060)
+                  throw;
+
+               Log.Warn("Program maybe updating: Service couldn't be found");
+               if (Config.CrashOnUpdateServiceNotFound)
+                  throw;
+            }
+            else
+               throw;
+         }
+         catch (Exception e)
+         {
+            Log.Error("Failed to stop service! ExceptionType: " + e.GetType());
+
+            throw;
+         }
 
       }
 

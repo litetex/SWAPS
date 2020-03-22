@@ -18,13 +18,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Litetex.CoreFrameworkBase" Version="1.0.7385.37039" />
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="3.1.0" />
     <PackageReference Include="CommandLineParser" Version="2.7.82" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\CoreFrameworkBase\CoreFrameworkBase.csproj" />
   </ItemGroup>
 
 </Project>

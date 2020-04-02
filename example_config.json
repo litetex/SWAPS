@@ -11,6 +11,7 @@
   },
   "CrashOnUpdateServiceNotFound": false,
   "ServiceStartTimeout": "00:00:10",
+  "ServiceProperlyStartedDelay": "00:00:01",
   "ServiceShutdownDelay": "00:00:01",
   "StayingOpenBeforeEnding": "00:00:00.5000000"
 }

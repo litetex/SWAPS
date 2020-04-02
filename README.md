@@ -15,5 +15,4 @@ Start a program/process without a auto-starting service
 * Stops the service after the subprocess/program has finished
 * Create logs with ``-l``
 
-### Example config
-[example_config.json](example_config.json)
+#### [Example config](example_config.json)

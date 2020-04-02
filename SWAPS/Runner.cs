@@ -31,6 +31,10 @@ namespace SWAPS
                StartService(svc);
                WaitForServiceReachingStatus(svc, ServiceControllerStatus.Running, Config.ServiceStartTimeout);
             }
+
+            Log.Info($"Waiting {Config.ServiceProperlyStartedDelay} for the service to become fully operational");
+            Thread.Sleep((int)Config.ServiceProperlyStartedDelay.TotalMilliseconds);
+
             StartProgramAndWait();
 
             using (ServiceController svc = GetService())

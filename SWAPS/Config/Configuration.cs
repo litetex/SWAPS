@@ -27,6 +27,10 @@ namespace SWAPS.Config
       /// </summary>
       public TimeSpan ServiceStartTimeout { get; set; } = TimeSpan.FromSeconds(10);
 
+      /// <summary>
+      /// Delay after the service got started, used for waiting, until the service is fully operational
+      /// </summary>
+      public TimeSpan ServiceProperlyStartedDelay { get; set; } = TimeSpan.FromSeconds(0);
 
       /// <summary>
       /// Time to wait to shutdown the service after the launched process was stopped

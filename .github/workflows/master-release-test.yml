@@ -1,0 +1,35 @@
+name: Master Test CI
+
+on: 
+  push:
+    branches: 
+      - 'master-release-test'
+
+# Don't use a cache here: 
+#  This is the last instance that can detect missing dependecies
+
+jobs:
+  build_release:
+    name: Test Release Build
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        
+      - name: Setup - .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.1.201
+      
+      - name: Build - Dotnet Build Release
+        run: dotnet build --configuration Release
+
+      - name: Publish win-x64 - Dotnet Publish Release
+        working-directory: SWAPS
+        run: dotnet publish -c Release -r win-x64 /p:PublishSingleFile=true
+        
+      - name: Upload packed - Upload to artifacts
+        uses: actions/upload-artifact@v1.0.0
+        with:
+          name: SWAPS
+          path: SWAPS/bin/Release/netcoreapp3.1/win-x64/publish/SWAPS.exe

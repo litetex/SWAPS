@@ -11,8 +11,7 @@ on:
 jobs:
   build_release:
     name: Build & Release
-    #no integration tests so far
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
       - uses: actions/checkout@v2
@@ -20,27 +19,30 @@ jobs:
       - name: Setup - .NET Core
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 3.1.102
+          dotnet-version: 3.1.201
       
       - name: Build - Dotnet Build Release
         run: dotnet build --configuration Release
+                  
+      - name: Publish win-x64 - Dotnet Publish Release
+        working-directory: SWAPS
+        run: dotnet publish -c Release -r win-x64 /p:PublishSingleFile=true
         
+      - name: Upload to artifacts
+        uses: actions/upload-artifact@v1.0.0
+        with:
+          name: SWAPS
+          path: SWAPS/bin/Release/netcoreapp3.1/win-x64/publish/SWAPS.exe
+        
+      - name: Pack win-x64 - Zip
+        working-directory: SWAPS/bin/Release/netcoreapp3.1/win-x64/publish/
+        run: Compress-Archive -Path SWAPS.exe -DestinationPath SWAPS.zip
+      
       - name: Release - Create Draft for Release
         id: create_draft
         uses: release-drafter/release-drafter@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
-        #Pack variants
-        #TODO: a) should work parallel b) less redundant code
-        #Variant: Win64
-      - name: Publish win-x64 - Dotnet Publish Release
-        working-directory: SWAPS
-        run: dotnet publish -c Release -r win-x64 /p:PublishSingleFile=true
-        
-      - name: Pack win-x64 - Zip
-        working-directory: SWAPS/bin/Release/netcoreapp3.1/win-x64/publish/
-        run: zip --junk-paths SWAPS.zip SWAPS.exe
         
       - name: Release win-x64 - Upload Release Asset
         uses: actions/upload-release-asset@v1.0.2

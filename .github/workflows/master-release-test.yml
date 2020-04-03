@@ -10,8 +10,7 @@ on:
 
 jobs:
   build_release:
-    name: Build & Release
-    #no integration tests so far
+    name: Build
     runs-on: windows-latest
 
     steps:

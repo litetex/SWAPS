@@ -32,5 +32,5 @@ jobs:
       - name: Upload packed - Upload to artifacts
         uses: actions/upload-artifact@v1.0.0
         with:
-          name: SWAPS.exe
+          name: SWAPS
           path: SWAPS/bin/Release/netcoreapp3.1/win-x64/publish/SWAPS.exe

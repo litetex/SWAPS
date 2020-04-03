@@ -54,7 +54,7 @@ jobs:
         uses: actions/download-artifact@v1
         with:
           name: SWAPS_zipped
-          path: temp_artf/SWAPS.zip
+          path: temp_artf/SWAPS
                 
       - name: Release - Create Draft for Release
         id: create_draft
@@ -68,6 +68,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_draft.outputs.upload_url }} 
-          asset_path: ./temp_artf/SWAPS.zip
+          asset_path: ./temp_artf/SWAPS/SWAPS.zip
           asset_name: SWAPS-win-x64.zip
           asset_content_type: application/zip

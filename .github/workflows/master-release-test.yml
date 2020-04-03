@@ -31,7 +31,7 @@ jobs:
         
       - name: Pack win-x64 - Zip
         working-directory: SWAPS/bin/Release/netcoreapp3.1/win-x64/publish/
-        run: zip --junk-paths SWAPS.zip SWAPS.exe
+        run: Compress-Archive -Path SWAPS.exe -DestinationPath SWAPS.zip
         
       - name: Upload packed - Upload to artifacts
         uses: actions/upload-artifact@v1.0.0

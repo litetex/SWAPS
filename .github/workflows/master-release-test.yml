@@ -10,7 +10,7 @@ on:
 
 jobs:
   build_release:
-    name: Build
+    name: Test Release Build
     runs-on: windows-latest
 
     steps:

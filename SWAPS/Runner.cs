@@ -4,6 +4,7 @@ using SWAPS.Service;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Diagnostics.Contracts;
 using System.ServiceProcess;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,6 +17,7 @@ namespace SWAPS
 
       public Runner(Configuration configuration)
       {
+         Contract.Requires(configuration != null);
          Config = configuration;
       }
 

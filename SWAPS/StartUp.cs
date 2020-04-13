@@ -30,6 +30,13 @@ namespace SWAPS
             WriteJsonConfig();
             return;
          }
+         if(CmdOption.GenerateShortcut)
+         {
+            Log.Info("MODE: Generate shortcut");
+
+            GenerateShortcut();
+            return;
+         }
 
          Log.Info("MODE: Normal start");
          ReadJsonConfig();
@@ -37,7 +44,7 @@ namespace SWAPS
          DoStart();
       }
 
-      public void WriteJsonConfig()
+      protected void WriteJsonConfig()
       {
          Log.Info("Writing json config");
 
@@ -50,7 +57,15 @@ namespace SWAPS
          Log.Info($"Saving: success");
       }
 
-      public void ReadJsonConfig()
+      protected void GenerateShortcut()
+      {
+         Log.Info("Checking if config is valid...");
+         ReadJsonConfig();
+         Log.Info("Config is valid");
+
+      }
+
+      protected void ReadJsonConfig()
       {
          Log.Info("Reading json config");
 
@@ -63,7 +78,7 @@ namespace SWAPS
          Log.Info($"Loading: success");
       }
 
-      private void DoStart()
+      protected void DoStart()
       {
          Log.Info("Starting");
          new Runner(Config).Run();

@@ -12,15 +12,19 @@
     <Revision>$([MSBuild]::Divide($([System.DateTime]::get_UtcNow().get_TimeOfDay().get_TotalSeconds()), 2).ToString('F0'))</Revision>
     <VersionPrefix>1.0.$(Build).$(Revision)</VersionPrefix>
 
+    <!-- Admin -->
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+
     <ApplicationIcon>SWAPS.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="JKang.IpcServiceFramework.Client" Version="2.3.1" />
+    <PackageReference Include="JKang.IpcServiceFramework.Server" Version="2.3.1" />
     <PackageReference Include="Litetex.CoreFrameworkBase" Version="1.0.7388.35542" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.3" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.3" />
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="3.1.0" />
     <PackageReference Include="CommandLineParser" Version="2.7.82" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
 
   <ItemGroup>

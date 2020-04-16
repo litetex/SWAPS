@@ -1,10 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-
-    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
 
     <!-- Emulate .NET Frameworks versioning behavior 'GenerateVersionFromPatternAndCurrentTime' (UTC based) -->
     <!-- https://github.com/dotnet/sdk/issues/8416#issuecomment-354095128 -->
@@ -12,19 +9,10 @@
     <Revision>$([MSBuild]::Divide($([System.DateTime]::get_UtcNow().get_TimeOfDay().get_TotalSeconds()), 2).ToString('F0'))</Revision>
     <VersionPrefix>1.0.$(Build).$(Revision)</VersionPrefix>
 
-    <ApplicationIcon>SWAPS.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="JKang.IpcServiceFramework.Client" Version="2.3.1" />
-    <PackageReference Include="Litetex.CoreFrameworkBase" Version="1.0.7388.35542" />
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="3.1.0" />
-    <PackageReference Include="CommandLineParser" Version="2.7.82" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\SWAPS.Shared\SWAPS.Shared.csproj" />
   </ItemGroup>
 
 </Project>

@@ -3,6 +3,8 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
 
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+
     <!-- Emulate .NET Frameworks versioning behavior 'GenerateVersionFromPatternAndCurrentTime' (UTC based) -->
     <!-- https://github.com/dotnet/sdk/issues/8416#issuecomment-354095128 -->
     <Build>$([System.DateTime]::op_Subtraction($([System.DateTime]::get_UtcNow().get_Date()),$([System.DateTime]::new(2000,1,1))).get_TotalDays())</Build>
@@ -13,7 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="3.1.0" />
-    <PackageReference Include="Litetex.CoreFrameworkBase" Version="1.0.7414.29410-dev" />
+    <PackageReference Include="Litetex.CoreFrameworkBase" Version="1.0.7414.30512" />
     <PackageReference Include="Serilog" Version="2.9.0" />
   </ItemGroup>
 

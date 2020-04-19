@@ -1,9 +1,14 @@
 ﻿using CommandLine;
 using CoreFrameworkBase.Crash;
 using CoreFrameworkBase.Logging;
+using CoreFrameworkBase.Logging.Initalizer;
+using CoreFrameworkBase.Logging.Initalizer.Impl;
+using Serilog;
 using SWAPS.Admin.CMD;
+using SWAPS.Shared;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -21,9 +26,9 @@ namespace SWAPS.Admin
 
       public static void Run(string[] args)
       {
-         if(!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
          {
-            LoggerInitializer.Current.InitLogger(false);
+            CurrentLoggerInitializer.InitializeWith(GetLoggerInitializer());
             Log.Error("Only Windows is supported");
             Environment.Exit(-1);
             return;
@@ -33,19 +38,22 @@ namespace SWAPS.Admin
          try
          {
 
-            CrashDetector.Current.Init();
+            new CrashDetector()
+            {
+               LoggerInitializer = GetLoggerInitializer(true)
+            }.Init();
 #endif
          Parser.Default.ParseArguments<CmdOption>(args)
                   .WithParsed((opt) =>
                   {
-                     LoggerInitializer.Current.InitLogger(opt.LogToFile);
+                     CurrentLoggerInitializer.InitializeWith(GetLoggerInitializer(opt.LogToFile, opt.LogFilePathBase64));
 
                      var starter = new StartUp(opt);
                      starter.Start();
                   })
                   .WithNotParsed((ex) =>
                   {
-                     LoggerInitializer.Current.InitLogger();
+                     CurrentLoggerInitializer.InitializeWith(GetLoggerInitializer());
                      foreach (var error in ex)
                         Log.Error($"Failed to parse: {error.Tag}");
                   });
@@ -54,11 +62,25 @@ namespace SWAPS.Admin
          catch (Exception ex)
          {
 
-            LoggerInitializer.Current.InitLogger(true);
+            CurrentLoggerInitializer.InitializeWith(GetLoggerInitializer(true));
             Log.Fatal(ex);
 
          }
 #endif
+      }
+
+      static ILoggerInitializer GetLoggerInitializer(bool writeFile = false, string logfilePathBase64 = null)
+      {
+         string logfilePath =
+            logfilePathBase64 == null ? null :
+            Encoding.UTF8.GetString(Convert.FromBase64String(logfilePathBase64));
+
+         return new SWAPSDefaultLoggerInitializer()
+         {
+            WriteFile = writeFile,
+            PresetLogfilePath = logfilePath,
+            OutputTemplateFile = "{Timestamp:HH:mm:ss,fff} {Log4NetLevel} [ADM] {ThreadId,-2} {Message:lj}{NewLine}{Exception}",
+         };
       }
    }
 }

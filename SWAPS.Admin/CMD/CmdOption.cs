@@ -7,8 +7,11 @@ namespace SWAPS.Admin.CMD
    /// </summary>
    public class CmdOption
    {
-      [Option('l', "logfile", Default = false, HelpText = "Logs into ./logs")]
+      [Option('l', "logtofile", Default = false, HelpText = "Logs into ./logs")]
       public bool LogToFile { get; set; } = false;
+
+      [Option("logfilepath", HelpText = "Logfile to log into; Transmitted in UTF-8/Base64")]
+      public string LogFilePathBase64 { get; set; } = null;
 
       [Option("comstarttimeout", Default = 5000, HelpText = "Timeout after start, when no communication happens (in ms)")]
       public long StartCommunicationTimeout { get; set; } = 5000;

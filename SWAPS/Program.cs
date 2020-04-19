@@ -1,7 +1,10 @@
 ﻿using CommandLine;
 using CoreFrameworkBase.Crash;
 using CoreFrameworkBase.Logging;
+using CoreFrameworkBase.Logging.Initalizer;
+using CoreFrameworkBase.Logging.Initalizer.Impl;
 using SWAPS.CMD;
+using SWAPS.Shared;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -23,7 +26,7 @@ namespace SWAPS
       {
          if(!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
          {
-            LoggerInitializer.Current.InitLogger(false);
+            CurrentLoggerInitializer.InitializeWith(GetLoggerInitializer());
             Log.Error("Only Windows is supported");
             Environment.Exit(-1);
             return;
@@ -33,19 +36,22 @@ namespace SWAPS
          try
          {
 
-            CrashDetector.Current.Init();
+            new CrashDetector()
+            {
+               LoggerInitializer = GetLoggerInitializer(true)
+            }.Init();
 #endif
          Parser.Default.ParseArguments<CmdOption>(args)
                   .WithParsed((opt) =>
                   {
-                     LoggerInitializer.Current.InitLogger(opt.LogToFile);
+                     CurrentLoggerInitializer.InitializeWith(GetLoggerInitializer(opt.LogToFile));
 
                      var starter = new StartUp(opt);
                      starter.Start();
                   })
                   .WithNotParsed((ex) =>
                   {
-                     LoggerInitializer.Current.InitLogger();
+                     CurrentLoggerInitializer.InitializeWith(GetLoggerInitializer());
                      foreach (var error in ex)
                         Log.Error($"Failed to parse: {error.Tag}");
                   });
@@ -54,11 +60,17 @@ namespace SWAPS
          catch (Exception ex)
          {
 
-            LoggerInitializer.Current.InitLogger(true);
+            CurrentLoggerInitializer.InitializeWith(GetLoggerInitializer(true));
             Log.Fatal(ex);
 
          }
 #endif
       }
+
+      static ILoggerInitializer GetLoggerInitializer(bool writeFile = false) =>
+         new SWAPSDefaultLoggerInitializer()
+         {
+            WriteFile = writeFile
+         };
    }
 }

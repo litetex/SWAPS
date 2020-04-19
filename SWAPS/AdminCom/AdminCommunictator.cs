@@ -1,4 +1,6 @@
-﻿using JKang.IpcServiceFramework;
+﻿using CoreFrameworkBase.Logging.Initalizer;
+using CoreFrameworkBase.Logging.Initalizer.Impl;
+using JKang.IpcServiceFramework;
 using SWAPS.Shared;
 using SWAPS.Shared.Admin;
 using SWAPS.Shared.Admin.Services;
@@ -52,6 +54,14 @@ namespace SWAPS.AdminCom
 
       private void StartAdminProcess()
       {
+         string currentLogFilePath = ((DefaultLoggerInitializer)CurrentLoggerInitializer.Current).LogfilePath;
+         if (File.Exists(currentLogFilePath))
+         {
+            currentLogFilePath = Path.GetFullPath(currentLogFilePath);
+         }
+         else
+            currentLogFilePath = null;
+
          using Process p = new Process()
          {
             StartInfo = new ProcessStartInfo()
@@ -59,7 +69,8 @@ namespace SWAPS.AdminCom
                FileName = Path.Combine(
                   @"..\..\..\..\SWAPS.Admin\bin\Debug\netcoreapp3.1",//Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName), 
                   "SWAPS.Admin.exe"),
-               Arguments = $"--comstarterpid {Process.GetCurrentProcess().Id} --comtcpport {AdminComPort}",
+               Arguments = $"--comstarterpid {Process.GetCurrentProcess().Id} --comtcpport {AdminComPort}" +
+                  $"{(!string.IsNullOrWhiteSpace(currentLogFilePath) ? $" -l --logfilepath {Convert.ToBase64String(Encoding.UTF8.GetBytes(currentLogFilePath))}" : "")}",
                Verb = "runas",
                UseShellExecute = true,
                //RedirectStandardError = true,
@@ -129,7 +140,7 @@ namespace SWAPS.AdminCom
             if (Stopped)
                return;
 
-            Log.Info("Killing admin process");
+            Log.Info("Stopping admin process");
 
             AppDomain.CurrentDomain.ProcessExit -= ProcessExit;
 

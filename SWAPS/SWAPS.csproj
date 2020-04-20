@@ -19,7 +19,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Litetex.CoreFrameworkBase" Version="1.0.7388.35542" />
+    <PackageReference Include="Litetex.CoreFrameworkBase" Version="1.0.7414.30512" />
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="3.1.0" />
     <PackageReference Include="CommandLineParser" Version="2.7.82" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />

@@ -1,8 +1,7 @@
 ﻿using CommandLine;
-using CoreFrameworkBase.Crash;
-using CoreFrameworkBase.Logging;
-using CoreFrameworkBase.Logging.Initalizer;
-using CoreFrameworkBase.Logging.Initalizer.Impl;
+using CoreFramework.CrashLogging;
+using CoreFramework.Logging.Initalizer;
+using CoreFramework.Logging.Initalizer.Impl;
 using SWAPS.CMD;
 using System;
 using System.Collections.Generic;

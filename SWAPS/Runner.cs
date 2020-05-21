@@ -1,5 +1,4 @@
-﻿using CoreFrameworkBase.Logging;
-using SWAPS.Config;
+﻿using SWAPS.Config;
 using SWAPS.Service;
 using System;
 using System.ComponentModel;

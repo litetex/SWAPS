@@ -1,4 +1,5 @@
-﻿using SWAPS.CMD;
+﻿using CoreFramework.Config;
+using SWAPS.CMD;
 using SWAPS.Config;
 using System;
 using System.Diagnostics.Contracts;
@@ -58,7 +59,7 @@ namespace SWAPS
             Config.Config.SavePath = CmdOption.ConfigPath;
 
          Log.Info($"Loading '{Config.Config.SavePath}'");
-         Config.Load(CoreFrameworkBase.Config.JsonConfig.LoadFileNotFoundAction.THROW_EX);
+         Config.Load(LoadFileNotFoundAction.THROW_EX);
 
          Log.Info($"Loading: success");
       }

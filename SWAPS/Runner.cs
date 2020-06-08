@@ -3,7 +3,6 @@ using SWAPS.AdminCom;
 using SWAPS.AdminCom.Service;
 using SWAPS.Config;
 using SWAPS.Shared.Admin.Services;
-using SWAPS.Service;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;

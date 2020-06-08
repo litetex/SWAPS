@@ -1,4 +1,4 @@
-﻿using CoreFrameworkBase.Logging.Initalizer.Impl;
+﻿using CoreFramework.Logging.Initalizer.Impl;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,9 @@ using System.Text;
 
 namespace SWAPS.Shared
 {
+#pragma warning disable S101 // Types should be named in PascalCase
    public class SWAPSDefaultLoggerInitializer : DefaultLoggerInitializer
+#pragma warning restore S101 // Types should be named in PascalCase
    {
       public string PresetLogfilePath { get; set; }
 
@@ -24,8 +26,8 @@ namespace SWAPS.Shared
          baseConf.WriteTo.File(
             LogfilePath,
             shared: true,
-            outputTemplate: OutputTemplateFile,
-            restrictedToMinimumLevel: MinimumLogEventLevelFile ?? MinimumLogEventLevel);
+            outputTemplate: Config.OutputTemplateFile,
+            restrictedToMinimumLevel: Config.MinimumLogEventLevelFile ?? Config.MinimumLogEventLevel);
       }
    }
 }

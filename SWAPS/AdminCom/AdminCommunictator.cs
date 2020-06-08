@@ -1,5 +1,5 @@
-﻿using CoreFrameworkBase.Logging.Initalizer;
-using CoreFrameworkBase.Logging.Initalizer.Impl;
+﻿using CoreFramework.Logging.Initalizer;
+using CoreFramework.Logging.Initalizer.Impl;
 using JKang.IpcServiceFramework;
 using SWAPS.Shared;
 using SWAPS.Shared.Admin;

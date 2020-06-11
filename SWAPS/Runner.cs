@@ -1,5 +1,4 @@
-﻿using CoreFrameworkBase.Logging;
-using SWAPS.Config;
+﻿using SWAPS.Config;
 using SWAPS.Service;
 using System;
 using System.ComponentModel;
@@ -65,8 +64,8 @@ namespace SWAPS
             Log.Error($"{nameof(InvalidOperationException)} while shuting down service");
             if (invOpex.InnerException is Win32Exception win32ex)
             {
-               Log.Error("Win32Error: Code=" + win32ex.ErrorCode);
-               if (win32ex.ErrorCode != 1060)
+               Log.Error("Win32Error: Code=" + win32ex.NativeErrorCode);
+               if (win32ex.NativeErrorCode != 1060)
                   throw;
 
                Log.Warn("Program maybe updating: Service couldn't be found");

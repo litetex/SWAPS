@@ -29,9 +29,9 @@
       },
       "Microsoft.Windows.Compatibility": {
         "type": "Direct",
-        "requested": "[3.1.0, )",
-        "resolved": "3.1.0",
-        "contentHash": "8rPxICe6kb6Ubi/MDvVfwJfv20iZ1dqb9ipT9Fm+3qdwLPtWN/6hmEjC7s38AagZoIEWxfxL8sVqTw+BgXjOAg==",
+        "requested": "[3.1.1, )",
+        "resolved": "3.1.1",
+        "contentHash": "vHZqViEz3KyJu63c6KvmpLOnN8CUfVytyQFI3+HBXSUUYlN5J5O2D3troLHiaw4arzZwuL2qgQeI3RsUPXTyQQ==",
         "dependencies": {
           "Microsoft.Win32.Registry": "4.7.0",
           "Microsoft.Win32.Registry.AccessControl": "4.7.0",
@@ -43,7 +43,7 @@
           "System.Data.DataSetExtensions": "4.5.0",
           "System.Data.Odbc": "4.7.0",
           "System.Data.OleDb": "4.7.0",
-          "System.Data.SqlClient": "4.8.0",
+          "System.Data.SqlClient": "4.8.2",
           "System.Diagnostics.EventLog": "4.7.0",
           "System.Diagnostics.PerformanceCounter": "4.7.0",
           "System.DirectoryServices": "4.7.0",
@@ -311,8 +311,8 @@
       },
       "System.Data.SqlClient": {
         "type": "Transitive",
-        "resolved": "4.8.0",
-        "contentHash": "xsSRvrPbeXgD6rAqFGw1FZsMLaoDVwzgflHig8OLypDpiyb4XISChy2XOutoNsQIkBP9SJ4nSvhd8uStDU7AiA==",
+        "resolved": "4.8.2",
+        "contentHash": "80vGtW6uLB4AkyrdVuKTXYUyuXDPAsSKbTVfvjndZaRAYxzFzWhJbvUfeAKrN+128ycWZjLIAl61dFUwWHOOTw==",
         "dependencies": {
           "Microsoft.Win32.Registry": "4.7.0",
           "System.Security.Principal.Windows": "4.7.0",

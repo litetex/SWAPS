@@ -17,7 +17,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Litetex.CoreFramework.Config.Json" Version="2020.7.7.1732" />
+    <PackageReference Include="Litetex.CoreFramework.Config.Json" Version="2020.8.22.1043" />
     <PackageReference Include="Litetex.CoreFramework.CrashLogging" Version="2020.8.22.1043" />
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="3.1.1" />
     <PackageReference Include="CommandLineParser" Version="2.8.0" />

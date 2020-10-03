@@ -2,8 +2,7 @@ name: Master CI
 
 on: 
   push:
-    branches: 
-      - 'master'
+    branches: [ master ]
 
 jobs:
   build:
@@ -26,7 +25,7 @@ jobs:
         run: dotnet publish -c Release -r win-x64 /p:PublishSingleFile=true
         
       - name: Upload executable - Upload artifact
-        uses: actions/upload-artifact@v1.0.0
+        uses: actions/upload-artifact@v2
         with:
           name: SWAPS
           path: SWAPS/bin/Release/netcoreapp3.1/win-x64/publish/SWAPS.exe
@@ -48,7 +47,7 @@ jobs:
     
     steps:
       - name: Download build - Download Artifact
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v2
         with:
           name: SWAPS_zipped
           path: temp_artf/SWAPS

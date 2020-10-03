@@ -5,9 +5,6 @@ on:
     branches: 
       - 'master'
 
-# Don't use a cache here: 
-#  This is the last instance that can detect missing dependecies
-
 jobs:
   build:
     name: Build
@@ -39,7 +36,7 @@ jobs:
         run: Compress-Archive -Path SWAPS.exe -DestinationPath SWAPS.zip
         
       - name: Upload zipped - Upload artifact
-        uses: actions/upload-artifact@v1.0.0
+        uses: actions/upload-artifact@v2
         with:
           name: SWAPS_zipped
           path: SWAPS/bin/Release/netcoreapp3.1/win-x64/publish/SWAPS.zip

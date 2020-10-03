@@ -48,7 +48,7 @@ jobs:
     
     steps:
       - name: Download build - Download Artifact
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v2.0.5
         with:
           name: SWAPS_zipped
           path: temp_artf/SWAPS

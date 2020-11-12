@@ -1,6 +1,6 @@
 [![Build](https://img.shields.io/github/workflow/status/litetex/SWAPS/Master%20CI)](https://github.com/litetex/SWAPS/actions)
 [![Latest Version](https://img.shields.io/github/v/release/litetex/SWAPS)](https://github.com/litetex/SWAPS/releases)
-![Platform: Windows](https://img.shields.io/badge/platform-windows-5936b0.svg?logo=windows&labelColor=0078d6)
+![Platform: Windows](https://img.shields.io/badge/windows-supported-5936b0.svg?logo=windows)
 
 [![Build Develop](https://dev.azure.com/litetex/SWAPS/_apis/build/status/Develop?label=build%20develop)](https://dev.azure.com/litetex/SWAPS/_build/latest?definitionId=1)
 

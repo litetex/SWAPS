@@ -15,6 +15,6 @@ Start a program/process without a auto-starting service
 * Set service startup-type to demand
 * Starts the service before launching the subprocess/program
 * Stops the service after the subprocess/program has finished
-* Create logs with ``-l``
+* Create log files with ``-l``
 
 #### [Example config](example_config.json)

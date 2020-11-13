@@ -2,28 +2,32 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using System.Timers;
 
-namespace SWAPS.Admin.Communication
+namespace SWAPS
 {
-   public class PIDAliveChecker
+   public class ProcessAliveChecker
    {
       private int PID { get; set; }
 
-      private System.Timers.Timer CheckIfStarteIsAliveTimer { get; set; }
+      private Timer CheckAliveTimer { get; set; }
 
-      public PIDAliveChecker(int pid, TimeSpan interval, Action pidDeathAction)
+      public ProcessAliveChecker(int pid, TimeSpan interval, Action pidDeathAction, bool stopTimerOnProcessDeath = true)
       {
          PID = pid;
 
-         CheckIfStarteIsAliveTimer = new System.Timers.Timer(interval.TotalMilliseconds)
+         CheckAliveTimer = new Timer(interval.TotalMilliseconds)
          {
             AutoReset = true,
             Enabled = true
          };
-         CheckIfStarteIsAliveTimer.Elapsed += (s, ev) =>
+         CheckAliveTimer.Elapsed += (s, ev) =>
          {
             if (CheckIfStarterPIDAlive())
                return;
+
+            if (stopTimerOnProcessDeath)
+               Stop();
 
             pidDeathAction();
          };
@@ -31,12 +35,12 @@ namespace SWAPS.Admin.Communication
 
       public void Start()
       {
-         CheckIfStarteIsAliveTimer.Start();
+         CheckAliveTimer.Start();
       }
 
       public void Stop()
       {
-         CheckIfStarteIsAliveTimer.Stop();
+         CheckAliveTimer.Stop();
       }
 
       private bool CheckIfStarterPIDAlive()

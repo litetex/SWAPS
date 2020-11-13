@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="JKang.IpcServiceFramework.Client" Version="2.3.1" />
+    <PackageReference Include="WebSocketSharp-NonPreRelease" Version="1.0.0" />
     <PackageReference Include="Litetex.CoreFramework.Config.Json" Version="2020.8.22.1043" />
     <PackageReference Include="Serilog.Enrichers.Thread" Version="3.1.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />

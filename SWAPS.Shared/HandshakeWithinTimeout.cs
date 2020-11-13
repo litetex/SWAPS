@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SWAPS.Admin.Communication
+namespace SWAPS
 {
    public class HandshakeWithinTimeout
    {

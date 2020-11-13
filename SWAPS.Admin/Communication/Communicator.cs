@@ -25,7 +25,7 @@ namespace SWAPS.Admin.Communication
       private ComConfig Config { get; set; }
 
       #region Tasks
-      private PIDAliveChecker StarterPIDAliveChecker { get; set; }
+      private ProcessAliveChecker StarterPIDAliveChecker { get; set; }
 
       private HandshakeWithinTimeout HandshakeWithinTimeout { get; set; }
       #endregion Tasks
@@ -54,10 +54,10 @@ namespace SWAPS.Admin.Communication
       {
          Stopped = new TaskCompletionSource<bool>();
 
-         StarterPIDAliveChecker = new PIDAliveChecker(Config.StarterPID, TimeSpan.FromSeconds(2), () => Stop());
+         StarterPIDAliveChecker = new ProcessAliveChecker(Config.StarterPID, TimeSpan.FromSeconds(2), () => Stop());
 
          Log.Info($"Doing inital check if starter process[PID={Config.StarterPID}] is alive");
-         if (!PIDAliveChecker.CheckIfStarterPIDAlive(Config.StarterPID))
+         if (!ProcessAliveChecker.CheckIfStarterPIDAlive(Config.StarterPID))
             throw new ArgumentException($"StarterPID={Config.StarterPID} not found!");
 
          Log.Info($"Starting {nameof(StarterPIDAliveChecker)}; StarterPID={Config.StarterPID}");

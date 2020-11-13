@@ -1,0 +1,11 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace SWAPS.Shared.Com.IPC.Payload
+{
+   public interface IComAnswer : IComMessage
+   {
+      Guid OriginalID { get; set; }
+   }
+}

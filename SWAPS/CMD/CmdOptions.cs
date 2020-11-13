@@ -5,7 +5,7 @@ namespace SWAPS.CMD
    /// <summary>
    /// Possible options that can be used when calling over commandline
    /// </summary>
-   public class CmdOption
+   public class CmdOptions
    {
       [Option('l', "logfile", Default = false, HelpText = "Logs into ./logs")]
       public bool LogToFile { get; set; } = false;

@@ -16,6 +16,8 @@ namespace SWAPS
    /// </summary>
    public static class Program
    {
+      public static CmdOptions CmdOption { get; private set; }
+
       static void Main(string[] args)
       {
          Run(args);
@@ -58,9 +60,10 @@ namespace SWAPS
                }
             };
 #endif
-            Parser.Default.ParseArguments<CmdOption>(args)
+            Parser.Default.ParseArguments<CmdOptions>(args)
                      .WithParsed((opt) =>
                      {
+                        CmdOption = opt;
                         if (opt.LogToFile)
                         {
                            var logConf = GetDefaultLoggerConfiguration();

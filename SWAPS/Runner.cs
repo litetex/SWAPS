@@ -1,6 +1,6 @@
-using CoreFramework.Logging;
 using SWAPS.AdminCom;
 using SWAPS.AdminCom.Service;
+using SWAPS.CMD;
 using SWAPS.Config;
 using SWAPS.Shared.Admin.Services;
 using System;
@@ -18,9 +18,12 @@ namespace SWAPS
 
       protected Configuration Config { get; set; }
 
-      public Runner(Configuration configuration)
+      protected CmdOptions CmdOptions { get; set; }
+
+      public Runner(Configuration configuration, CmdOptions cmdOptions)
       {
          Config = configuration;
+         CmdOptions = cmdOptions;
       }
 
       public void Run()
@@ -29,7 +32,7 @@ namespace SWAPS
          {
             Console.Title = Config.Name;
 
-            AdminCommunictator = new AdminCommunictator();
+            AdminCommunictator = new AdminCommunictator(CmdOptions.LogToFile);
             AdminCommunictator.Start();
 
             using (var serviceCom = new ServiceCom<IServiceControllerService>(AdminCommunictator.PublicClient, TimeSpan.FromSeconds(10)))
@@ -49,7 +52,6 @@ namespace SWAPS
          catch (Exception e)
          {
             Log.Error(e);
-            Console.ReadKey();
          }
          finally
          {

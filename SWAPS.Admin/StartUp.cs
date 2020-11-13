@@ -11,9 +11,9 @@ namespace SWAPS.Admin
    {
       public static Communicator Communicator { get; private set; }
 
-      private CmdOption CmdOption { get; set; }
+      private CmdOptions CmdOption { get; set; }
 
-      public StartUp(CmdOption cmdOption)
+      public StartUp(CmdOptions cmdOption)
       {
          CmdOption = cmdOption;
       }

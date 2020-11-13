@@ -10,10 +10,12 @@ namespace SWAPS.Shared
    {
       public static int GetFreeTcpPort()
       {
-         TcpListener l = new TcpListener(IPAddress.Loopback, 0);
+         var l = new TcpListener(IPAddress.Loopback, 0);
          l.Start();
-         int port = ((IPEndPoint)l.LocalEndpoint).Port;
+
+         var port = ((IPEndPoint)l.LocalEndpoint).Port;
          l.Stop();
+
          return port;
       }
    }

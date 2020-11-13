@@ -10,11 +10,11 @@ namespace SWAPS
 {
    public class StartUp
    {
-      private CmdOption CmdOption { get; set; }
+      private CmdOptions CmdOption { get; set; }
 
       private Configuration Config { get; set; } = new Configuration();
 
-      public StartUp(CmdOption cmdOption)
+      public StartUp(CmdOptions cmdOption)
       {
          CmdOption = cmdOption;
       }
@@ -67,7 +67,7 @@ namespace SWAPS
       private void DoStart()
       {
          Log.Info("Starting");
-         new Runner(Config).Run();
+         new Runner(Config, CmdOption).Run();
          Log.Info("Done");
       }
    }

@@ -1,6 +1,4 @@
-﻿using CoreFramework.Logging.Initalizer;
-using CoreFramework.Logging.Initalizer.Impl;
-using JKang.IpcServiceFramework;
+﻿using JKang.IpcServiceFramework;
 using SWAPS.Shared;
 using SWAPS.Shared.Admin;
 using SWAPS.Shared.Admin.Services;
@@ -19,6 +17,8 @@ namespace SWAPS.AdminCom
 {
    public class AdminCommunictator
    {
+      private bool LogToFile { get; set; }
+
       private IpcServiceClient<IAdminControllerService> Client { get; set; }
 
       public IpcServiceClient<IAdminControllerService> PublicClient { get; set; }
@@ -30,9 +30,9 @@ namespace SWAPS.AdminCom
       private bool Stopped { get; set; } = false;
       private readonly object lockStop = new object();
 
-      public AdminCommunictator()
+      public AdminCommunictator(bool logToFile)
       {
-         //Nothing so far
+         LogToFile = logToFile;
       }
 
       public void Start()
@@ -54,32 +54,23 @@ namespace SWAPS.AdminCom
 
       private void StartAdminProcess()
       {
-         string currentLogFilePath = ((DefaultLoggerInitializer)CurrentLoggerInitializer.Current).LogfilePath;
-         if (File.Exists(currentLogFilePath))
-         {
-            currentLogFilePath = Path.GetFullPath(currentLogFilePath);
-         }
-         else
-            currentLogFilePath = null;
-
-         using Process p = new Process()
+         using var p = new Process()
          {
             StartInfo = new ProcessStartInfo()
             {
                FileName = Path.Combine(
-                  @"..\..\..\..\SWAPS.Admin\bin\Debug\netcoreapp3.1",//Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName), 
+#if !DEBUG
+                  Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName),
+#else
+                  @"..\..\..\..\SWAPS.Admin\bin\Debug\netcoreapp3.1",
+#endif
                   "SWAPS.Admin.exe"),
-               Arguments = $"--comstarterpid {Process.GetCurrentProcess().Id} --comtcpport {AdminComPort}" +
-                  $"{(!string.IsNullOrWhiteSpace(currentLogFilePath) ? $" -l --logfilepath {Convert.ToBase64String(Encoding.UTF8.GetBytes(currentLogFilePath))}" : "")}",
+               Arguments = $"--comstarterpid {Process.GetCurrentProcess().Id} --comtcpport {AdminComPort}{(LogToFile ? $" -l" : "")}",
                Verb = "runas",
                UseShellExecute = true,
-               //RedirectStandardError = true,
-               //RedirectStandardOutput = true,
-               //CreateNoWindow = true,
-               //UseShellExecute = false
             }
          };
-         
+
          p.Start();
          Log.Info($"Started '{p.StartInfo.FileName} {p.StartInfo.Arguments}' with PID {p.Id}");
          AdminProcessID = p.Id;
@@ -120,7 +111,7 @@ namespace SWAPS.AdminCom
       {
          PublicClient = null;
 
-         if(Client == null)
+         if (Client == null)
          {
             Log.Warn("No client to order shutdown");
             return;
@@ -130,11 +121,11 @@ namespace SWAPS.AdminCom
          Client.InvokeAsync(s => s.DoShutdown());
       }
 
-
       public void Stop()
       {
          if (Stopped)
             return;
+
          lock (lockStop)
          {
             if (Stopped)
@@ -149,7 +140,6 @@ namespace SWAPS.AdminCom
                TerminateClient();
 
                // AdminProcess is not accessible here anymore: there is no process associated with this instance
-
                if (AdminProcessID == null || Process.GetProcessById(AdminProcessID.Value) == null)
                {
                   Log.Info("Admin process is not running");
@@ -157,21 +147,20 @@ namespace SWAPS.AdminCom
                }
 
                var adminProcess = Process.GetProcessById(AdminProcessID.Value);
- 
+
                Log.Info("Waiting for admin process termination");
                if (adminProcess.WaitForExit(2000))
                {
                   Log.Info("Admin process has exited");
                   return;
                }
-               
+
                Log.Info("Admin process took too long to exit; Killing it!");
                adminProcess.Kill();
 
                Thread.Sleep(2000);
                if (Process.GetProcessById(AdminProcessID.Value) != null)
                   throw new InvalidOperationException("Sent kill message to process but still running");
-
             }
             catch (Exception ex)
             {
@@ -189,7 +178,5 @@ namespace SWAPS.AdminCom
          Log.Info("Process exit; Ensuring admin process is getting killed");
          Stop();
       }
-
-      
    }
 }

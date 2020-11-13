@@ -1,8 +1,4 @@
 ﻿using CommandLine;
-using CoreFramework.CrashLogging;
-using CoreFramework.Logging;
-using CoreFramework.Logging.Initalizer;
-using CoreFramework.Logging.Initalizer.Impl;
 using Serilog;
 using SWAPS.Admin.CMD;
 using SWAPS.Shared;
@@ -26,9 +22,16 @@ namespace SWAPS.Admin
 
       public static void Run(string[] args)
       {
+         Serilog.Log.Logger = GetDefaultLoggerConfiguration().CreateLogger();
+
+         AppDomain.CurrentDomain.ProcessExit += (s, ev) =>
+         {
+            Log.Debug("Shutting down logger; Flushing...");
+            Serilog.Log.CloseAndFlush();
+         };
+
          if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
          {
-            InitLog();
             Log.Error("Only Windows is supported");
             Environment.Exit(-1);
             return;
@@ -37,29 +40,44 @@ namespace SWAPS.Admin
 #if !DEBUG
          try
          {
-
-            new CrashDetector()
+            AppDomain.CurrentDomain.UnhandledException += (s, ev) =>
             {
-               SupplyLoggerInitalizer = () => {
-                  InitLog(li => li.Config.WriteFile = true);
-                  return CurrentLoggerInitializer.Current;
+               try
+               {
+                  if (ev?.ExceptionObject is Exception ex)
+                  {
+                     Log.Fatal("An unhandled error occured", ex);
+                     return;
+                  }
+                  Log.Fatal($"An unhandled error occured {ev}");
                }
-            }.Init();
+               catch (Exception ex)
+               {
+                  Console.Error.WriteLine($"Failed to catch unhandled error '{ev?.ExceptionObject ?? ev}': {ex}");
+               }
+            };
 #endif
-         Parser.Default.ParseArguments<CmdOption>(args)
+         Parser.Default.ParseArguments<CmdOptions>(args)
                   .WithParsed((opt) =>
                   {
-                     InitLog(li => {
-                        li.Config.WriteFile = opt.LogToFile;
-                        li.PresetLogfilePath = DecodeLogFilePathFromBase64(opt.LogFilePathBase64);
-                     });
+                     if (opt.LogToFile)
+                     {
+                        var logConf = GetDefaultLoggerConfiguration();
+
+                        logConf.WriteTo.File(Path.Combine("logs", "adminlog.log"),
+                              outputTemplate: "{Timestamp:HH:mm:ss,fff} {Level:u3} {ThreadId,-2} {Message:lj}{NewLine}{Exception}",
+                              rollingInterval: RollingInterval.Day,
+                              rollOnFileSizeLimit: true);
+
+                        Serilog.Log.Logger = logConf.CreateLogger();
+                        Log.Info("Logger will also write to file");
+                     }
 
                      var starter = new StartUp(opt);
                      starter.Start();
                   })
                   .WithNotParsed((ex) =>
                   {
-                     InitLog();
                      foreach (var error in ex)
                         Log.Error($"Failed to parse: {error.Tag}");
                   });
@@ -67,21 +85,17 @@ namespace SWAPS.Admin
          }
          catch (Exception ex)
          {
-
-            InitLog(li => li.Config.WriteFile = true);
             Log.Fatal(ex);
-
          }
 #endif
       }
 
-      static void InitLog(Action<SWAPSDefaultLoggerInitializer> initAction = null)
+      private static LoggerConfiguration GetDefaultLoggerConfiguration()
       {
-         CurrentLoggerInitializer.InitLogging(il =>
-         {
-            initAction?.Invoke((SWAPSDefaultLoggerInitializer)il);
-            ((SWAPSDefaultLoggerInitializer)il).Config.OutputTemplateFile = "{Timestamp:HH:mm:ss,fff} {Log4NetLevel} [ADM] {ThreadId,-2} {Message:lj}{NewLine}{Exception}";
-         });
+         return new LoggerConfiguration()
+            .Enrich.WithThreadId()
+            .MinimumLevel.Information()
+            .WriteTo.Console(outputTemplate: "{Timestamp:HH:mm:ss,fff} {Level:u3} {ThreadId,-2} {Message:lj}{NewLine}{Exception}");
       }
 
       static string DecodeLogFilePathFromBase64(string logfilePathBase64)

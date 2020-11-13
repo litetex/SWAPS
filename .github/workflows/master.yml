@@ -1,73 +1,70 @@
 name: Master CI
 
 on: 
+  workflow_dispatch:
   push:
-    branches: 
-      - 'master'
-
-# Don't use a cache here: 
-#  This is the last instance that can detect missing dependecies
+    branches: [ master ]
 
 jobs:
-  build:
-    name: Build
-    runs-on: windows-latest
+  create_release:
+    runs-on: ubuntu-latest
+    outputs:
+       upload_url: ${{ steps.create_draft.outputs.upload_url }}
+       version: ${{ steps.create_version.outputs.version }}
 
     steps:
-      - uses: actions/checkout@v2
-        
-      - name: Setup - .NET Core
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: 3.1
-      
-      - name: Build - Dotnet Build Release
-        run: dotnet build --configuration Release
-                  
-      - name: Publish win-x64 - Dotnet Publish Release
-        working-directory: SWAPS
-        run: dotnet publish -c Release -r win-x64 /p:PublishSingleFile=true
-        
-      - name: Upload executable - Upload artifact
-        uses: actions/upload-artifact@v1.0.0
-        with:
-          name: SWAPS
-          path: SWAPS/bin/Release/netcoreapp3.1/win-x64/publish/SWAPS.exe
-        
-      - name: Pack win-x64 - Zip
-        working-directory: SWAPS/bin/Release/netcoreapp3.1/win-x64/publish/
-        run: Compress-Archive -Path SWAPS.exe -DestinationPath SWAPS.zip
-        
-      - name: Upload zipped - Upload artifact
-        uses: actions/upload-artifact@v1.0.0
-        with:
-          name: SWAPS_zipped
-          path: SWAPS/bin/Release/netcoreapp3.1/win-x64/publish/SWAPS.zip
-  
-  release:
-    name: Release
-    runs-on: ubuntu-latest
-    needs: [build]
-    
-    steps:
-      - name: Download build - Download Artifact
-        uses: actions/download-artifact@v1
-        with:
-          name: SWAPS_zipped
-          path: temp_artf/SWAPS
-                
-      - name: Release - Create Draft for Release
+      - name: Release - Create Draft for a Release
         id: create_draft
         uses: release-drafter/release-drafter@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate version - Cut away the first letter (v)
+        id: create_version
+        run: |
+          tag_name=${{ steps.create_draft.outputs.tag_name }}
+          echo "::set-output name=version::$(echo ${tag_name:1})"
+
+  build_variants:
+    name: Build
+    # windows-latest is required; building with linux results in NETSDK1100 error
+    runs-on: windows-latest
+    needs: [create_release]
+    strategy:
+      matrix:
+        os: [win-x64, win-x86]
+        configuration: [Release]
+        project: [SWAPS]
         
-      - name: Release win-x64 - Upload Release Asset
-        uses: actions/upload-release-asset@v1.0.2
+    steps:
+      - uses: actions/checkout@v2
+        
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '3.1'
+        
+      - name: Publish ${{ matrix.os }} ${{ matrix.configuration }} - dotnet publish 
+        working-directory: ${{ matrix.project }}
+        run: dotnet publish -c ${{ matrix.configuration }} -r ${{ matrix.os }} -p:PublishSingleFile=true -p:AssemblyVersion=${{ needs.create_release.outputs.version }} 
+        
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.project }}-${{ matrix.os }}
+          path: ${{ matrix.project }}/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.os }}/publish/${{ matrix.project }}.exe
+      
+      - name: Pack ${{ matrix.os }} - Zip
+        run: Compress-Archive ${{ matrix.project }}.exe ${{ matrix.project }}.zip
+        working-directory: ${{ matrix.project }}/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.os }}/publish/
+        
+      - name: Release ${{ matrix.os }} - Upload Release Asset
+        uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_draft.outputs.upload_url }} 
-          asset_path: ./temp_artf/SWAPS/SWAPS.zip
-          asset_name: SWAPS-win-x64.zip
+          upload_url: ${{ needs.create_release.outputs.upload_url }} 
+          asset_path: ./${{ matrix.project }}/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.os }}/publish/${{ matrix.project }}.zip
+          asset_name: ${{ matrix.project }}-${{ matrix.os }}.zip
           asset_content_type: application/zip
+  

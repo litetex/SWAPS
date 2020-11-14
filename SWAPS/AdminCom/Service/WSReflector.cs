@@ -10,6 +10,7 @@ namespace SWAPS.AdminCom.Service
    {
       protected override void OnMessage(MessageEventArgs e)
       {
+         SWAPS.Log.Debug("Reflecting", e.Data);
          Send(e.Data);
       }
    }

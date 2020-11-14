@@ -1,7 +1,9 @@
 ﻿using SWAPS.AdminCom.Service;
+using SWAPS.AdminCom.Util;
 using SWAPS.Shared;
 using SWAPS.Shared.Com.Admin;
 using SWAPS.Shared.Com.IPC;
+using SWAPS.Shared.Com.IPC.Payload;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -18,6 +20,11 @@ namespace SWAPS.AdminCom
 {
    public class AdminCommunictator
    {
+      public ServiceManager<ServiceStart,bool> StartServiceManager { get; set; }
+
+      public ServiceManager<ServiceStop, bool> StopServiceManager { get; set; }
+
+
       private AdminComConfig AdminComConfig { get; set; } = new AdminComConfig();
 
       private HandshakeWithinTimeout HandshakeWithinTimeout { get; set; } = new HandshakeWithinTimeout();
@@ -89,7 +96,11 @@ namespace SWAPS.AdminCom
          Server.AddWebSocketService<WSReflector>(ComServices.REFLECTOR);
          Server.AddWebSocketService<WsHandshake>(ComServices.HANDSHAKE, () => new WsHandshake(HandshakeWithinTimeout));
 
-         Server.AddWebSocketService<WSServiceStart>(ComServices.SERVICE_START);
+         StartServiceManager.Broadcaster = data => Server.WebSocketServices[ComServices.SERVICE_START].Sessions.Broadcast(data);
+         Server.AddWebSocketService<WSServiceStart>(ComServices.SERVICE_START, () => new WSServiceStart(StartServiceManager));
+
+         StopServiceManager.Broadcaster = data => Server.WebSocketServices[ComServices.SERVICE_STOP].Sessions.Broadcast(data);
+         Server.AddWebSocketService<WSServiceStop>(ComServices.SERVICE_STOP, () => new WSServiceStop(StopServiceManager));
 
          Server.AddWebSocketService<WSShutdownAdmin>(ComServices.SHUTDOWN_ADMIN);
       }

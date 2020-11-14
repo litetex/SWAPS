@@ -8,9 +8,9 @@ using WebSocketSharp.Server;
 
 namespace SWAPS.AdminCom.Service
 {
-   public class WSServiceStart : WSSyncInvoker<ServiceStart,bool>
+   public class WSServiceStop : WSSyncInvoker<ServiceStop, bool>
    {
-      public WSServiceStart(ServiceManager<ServiceStart, bool> serviceManager) : base(serviceManager)
+      public WSServiceStop(ServiceManager<ServiceStop, bool> serviceManager) : base(serviceManager)
       {
 
       }

@@ -2,7 +2,7 @@ using SWAPS.AdminCom;
 using SWAPS.AdminCom.Service;
 using SWAPS.CMD;
 using SWAPS.Config;
-using SWAPS.Shared.Admin.Services;
+using SWAPS.Shared.Com.IPC.Payload;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -35,17 +35,30 @@ namespace SWAPS
             AdminCommunictator = new AdminCommunictator(CmdOptions.LogToFile);
             AdminCommunictator.Start();
 
-            using (var serviceCom = new ServiceCom<IServiceControllerService>(AdminCommunictator.PublicClient, TimeSpan.FromSeconds(10)))
-            {
-               serviceCom.RPC(s => s.StartUp(Config.ServiceConfig.ServiceName, Config.ServiceStartTimeout));
+            AdminCommunictator.StartServiceManager
+               .Invoke(
+               new ServiceStart()
+               {
+                  Name = Config.ServiceConfig.ServiceName,
+                  Timeout = Config.ServiceStartTimeout
+               },
+               Config.ServiceStartTimeout.Add(TimeSpan.FromSeconds(10)))
+               .Wait();
 
-               Log.Info($"Waiting {Config.ServiceProperlyStartedDelay} for the service to become fully operational");
-               Thread.Sleep((int)Config.ServiceProperlyStartedDelay.TotalMilliseconds);
+            Log.Info($"Waiting {Config.ServiceProperlyStartedDelay} for the service to become fully operational");
+            Thread.Sleep((int)Config.ServiceProperlyStartedDelay.TotalMilliseconds);
 
-               StartProgramAndWait();
+            StartProgramAndWait();
 
-               serviceCom.RPC(s => s.ShutDown(Config.ServiceConfig.ServiceName, Config.CrashOnUpdateServiceNotFound));
-            }
+            AdminCommunictator.StopServiceManager
+               .Invoke(
+               new ServiceStop()
+               {
+                  Name = Config.ServiceConfig.ServiceName,
+                  CrashOnServiceNotFound = Config.CrashOnUpdateServiceNotFound
+               },
+               TimeSpan.FromSeconds(10))
+               .Wait();
 
             Thread.Sleep((int)Config.StayingOpenBeforeEnding.TotalMilliseconds);
          }

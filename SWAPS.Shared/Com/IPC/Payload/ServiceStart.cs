@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SWAPS.Shared.Com.IPC.Payload
 {
-   public interface IServiceStart
+   public class ServiceStart
    {
       /// <summary>
       /// Name of the Service to start

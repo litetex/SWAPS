@@ -57,7 +57,11 @@ namespace SWAPS.Admin
                }
             };
 #endif
-         Parser.Default.ParseArguments<CmdOptions>(args)
+         var parser = new Parser(settings =>
+         {
+            settings.CaseSensitive = false;
+         });
+         parser.ParseArguments<CmdOptions>(args)
                   .WithParsed((opt) =>
                   {
                      if (opt.LogToFile)

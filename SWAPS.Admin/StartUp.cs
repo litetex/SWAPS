@@ -29,12 +29,7 @@ namespace SWAPS.Admin
       private void DoStart()
       {
          Log.Info("Starting");
-         Communicator = new Communicator(new Config.ComConfig()
-         {
-            StarterTimeout = TimeSpan.FromMilliseconds(CmdOption.StartCommunicationTimeout),
-            ComTCPPort = CmdOption.ComTCPPort,
-            StarterPID = CmdOption.StarterPID
-         });
+         Communicator = new Communicator(CmdOption);
          Communicator.Run();
          Log.Info("Done");
       }

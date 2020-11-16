@@ -6,23 +6,23 @@ namespace SWAPS.Shared.Com.Admin
 {
    public class AdminComConfig
    {
-      public bool LogToFile { get; set; } = false;
+      public virtual bool LogToFile { get; set; } = false;
 
 
-      public TimeSpan StartInactivityShutdownTimeout { get; set; } = TimeSpan.FromSeconds(5);
+      public virtual TimeSpan StartInactivityShutdownTimeout { get; set; } = TimeSpan.FromSeconds(30);
 
-      public ushort ComPort { get; set; }
+      public virtual ushort ComPort { get; set; }
 
-      public int ParentPID { get; set; }
+      public virtual int ParentPID { get; set; }
 
 
-      // TODO: No hardcode
-      public string Username { get; set; } = "user";
+      // TODO: Don't hardcode
+      public virtual string Username { get; set; } = "user";
 
-      // TODO: No hardcode
-      public string Password { get; set; } = "pw";
+      // TODO: Don't hardcode
+      public virtual string Password { get; set; } = "pw";
 
-      public string ServerCertPublicKey { get; set; } = "todo";
+      public virtual string ServerCertPublicKey { get; set; } = "todo";
 
 
       public string CreateCMDArgs =>

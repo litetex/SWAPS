@@ -1,23 +1,37 @@
-﻿using CommandLine;
+﻿using System;
+using CommandLine;
+using SWAPS.Shared.Com.Admin;
 
 namespace SWAPS.Admin.CMD
 {
    /// <summary>
    /// Possible options that can be used when calling over commandline
    /// </summary>
-   public class CmdOptions
+   public class CmdOptions : AdminComConfig
    {
-      [Option('l', "logtofile", Default = false, HelpText = "Logs into ./logs")]
-      public bool LogToFile { get; set; } = false;
 
-      [Option("comstarttimeout", Default = 5000, HelpText = "Timeout after start, when no communication happens (in ms)")]
-      public long StartCommunicationTimeout { get; set; } = 5000;
+      [Option(nameof(LogToFile), Default = false)]
+      public override bool LogToFile { get => base.LogToFile; set => base.LogToFile = value; }
 
-      [Option("comstarterpid", Required = true, HelpText = "ProcessID of starter process")]
-      public int StarterPID { get; set; }
+      [Option(nameof(StartInactivityShutdownTimeout), Min = 1, Required = true)]
+      public long StartInactivityShutdownTimeoutMs { get => (long)base.StartInactivityShutdownTimeout.TotalMilliseconds; set => base.StartInactivityShutdownTimeout = TimeSpan.FromMilliseconds(value); }
 
-      [Option("comtcpport", Required = true, HelpText = "Port for TCP Communication")]
-      public ushort ComTCPPort { get; set; }
+      [Option(nameof(ComPort), Required = true)]
+      public override ushort ComPort { get => base.ComPort; set => base.ComPort = value; }
+
+      [Option(nameof(ComPort), Min = 1, Required = true)]
+      public override int ParentPID { get => base.ParentPID; set => base.ParentPID = value; }
+
+
+      [Option(nameof(Username), Required = true)]
+      public override string Username { get => base.Username; set => base.Username = value; }
+
+      [Option(nameof(Password), Required = true)]
+      public override string Password { get => base.Password; set => base.Password = value; }
+
+
+      [Option(nameof(ServerCertPublicKey), Required = true)]
+      public override string ServerCertPublicKey { get => base.ServerCertPublicKey; set => base.ServerCertPublicKey = value; }
 
    }
 }

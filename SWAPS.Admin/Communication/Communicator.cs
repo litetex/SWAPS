@@ -1,7 +1,5 @@
-﻿using JKang.IpcServiceFramework;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using SWAPS.Admin.Config;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,35 +8,29 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
-using SWAPS.Shared.Admin;
-using JKang.IpcServiceFramework.Tcp;
 using SWAPS.Admin.Services;
 using System.Threading;
-using SWAPS.Shared.Admin.Services;
 using System.Linq;
 using SWAPS.Shared;
+using SWAPS.Shared.Com.Admin;
+using WebSocketSharp;
+using SWAPS.Shared.Com.IPC;
 
 namespace SWAPS.Admin.Communication
 {
    public class Communicator
    {
-      private ComConfig Config { get; set; }
+      private AdminComConfig Config { get; set; }
 
-      #region Tasks
       private ProcessAliveChecker StarterPIDAliveChecker { get; set; }
 
-      private HandshakeWithinTimeout HandshakeWithinTimeout { get; set; }
-      #endregion Tasks
-
-      public List<ComServiceHost> ServiceHosts { get; set; } = new List<ComServiceHost>();
-
-      private IIpcServiceHost ControllerServiceHost { get; set; }
+      private WebSocket WebSocketShutdownMonitor { get; set; }
 
       private TaskCompletionSource<bool> Stopped { get; set; }
 
       private readonly object lockStop = new object();
 
-      public Communicator(ComConfig configuration)
+      public Communicator(AdminComConfig configuration)
       {
          Contract.Requires(configuration != null);
          Config = configuration;
@@ -46,132 +38,153 @@ namespace SWAPS.Admin.Communication
 
       public void Run()
       {
-         Start();
-         StartAndWaitForStop();
+         Init();
+         CheckAndSetupCom();
+         RunShutdownMonitorService();
+         WaitForStop();
       }
 
-      protected void Start()
+      protected void Init()
       {
          Stopped = new TaskCompletionSource<bool>();
 
-         StarterPIDAliveChecker = new ProcessAliveChecker(Config.StarterPID, TimeSpan.FromSeconds(2), () => Stop());
+         StarterPIDAliveChecker = new ProcessAliveChecker(Config.ParentPID, TimeSpan.FromSeconds(5), () =>
+         {
+            Log.Error($"Unable to locate PID={Config.ParentPID} of parent-process, assuming crash; Stopping...");
+            Stop();
+         });
 
-         Log.Info($"Doing inital check if starter process[PID={Config.StarterPID}] is alive");
-         if (!ProcessAliveChecker.CheckIfStarterPIDAlive(Config.StarterPID))
-            throw new ArgumentException($"StarterPID={Config.StarterPID} not found!");
+         Log.Info($"Doing inital check if starter process[PID={Config.ParentPID}] is alive");
+         if (!ProcessAliveChecker.CheckIfStarterPIDAlive(Config.ParentPID))
+            throw new ArgumentException($"{nameof(Config.ParentPID)}={Config.ParentPID} not found!");
 
-         Log.Info($"Starting {nameof(StarterPIDAliveChecker)}; StarterPID={Config.StarterPID}");
+         Log.Info($"Starting {nameof(StarterPIDAliveChecker)}; StarterPID={Config.ParentPID}");
          StarterPIDAliveChecker.Start();
-
-         Log.Info($"Starting {nameof(HandshakeWithinTimeout)}-Task; Timeout={Config.StarterTimeout}");
-         HandshakeWithinTimeout = new HandshakeWithinTimeout();
-         HandshakeWithinTimeout.StartTimeout(Config.StarterTimeout, () => Stop());
-
-
-         ControllerServiceHost = GetBaseIpcServiceHostBuilder()
-             .AddTcpEndpoint<IAdminControllerService>(
-                  name: "ComEndpoint",
-                  ipEndpoint: IPAddress.Loopback,
-                  port: Config.ComTCPPort)
-             .Build();
       }
 
-      protected IpcServiceHostBuilder GetBaseIpcServiceHostBuilder()
+      protected void CheckAndSetupCom()
       {
-         return new IpcServiceHostBuilder(ConfigureServices(new ServiceCollection()).BuildServiceProvider());
+         var timeout = Config.StartInactivityShutdownTimeout;
+
+         Log.Info("Checking handshake reflector (HR)");
+
+         var tcs = new TaskCompletionSource<string>();
+         var randomStr = RandomStringGen.RandomString(64);
+
+         using (var wsHRCheck = CreateWebSocket(ComServices.S_HANDSHAKE_REFLECTOR))
+         {
+            wsHRCheck.OnOpen += (s, ev) =>
+            {
+               Log.Info("HR: onOpen");
+               wsHRCheck.SendAsync(randomStr, b =>
+               {
+                  Log.Debug("HR: Message was sent successfully");
+               });
+            };
+
+            wsHRCheck.OnMessage += (s, ev) =>
+            {
+               Log.Debug($"HR: onMessage: {ev.Data}");
+               tcs.SetResult(ev.Data);
+            };
+
+            wsHRCheck.OnClose += (s, ev) =>
+            {
+               Log.Debug($"HR: onClose: Code={ev.Code} Reason='{ev.Reason}' WasClean={ev.WasClean}");
+               if (tcs.Task.IsCompleted)
+                  return;
+
+               tcs.SetException(new InvalidOperationException($"HR socket was closed unexpectely; Code={ev.Code} Reason='{ev.Reason}' WasClean={ev.WasClean}"));
+            };
+
+            wsHRCheck.ConnectAsync();
+
+            Task.WaitAny(Task.Delay(timeout), tcs.Task);
+         }
+
+         if (!tcs.Task.IsCompletedSuccessfully)
+            throw new InvalidOperationException("HR did not completed successfully", tcs.Task.Exception);
+         if (!randomStr.Equals(tcs.Task.Result))
+            throw new InvalidOperationException($"HR returned wrong data; expected '{randomStr}' got '{tcs.Task.Result}'");
+
+         Log.Info("Handshake successful/Reflector operational");
       }
 
-      private IServiceCollection ConfigureServices(IServiceCollection services)
+      protected void RunShutdownMonitorService()
       {
-         return services
-             .AddLogging(builder =>
-             {
-                builder.AddConsole();
-                builder.SetMinimumLevel(LogLevel.Debug);
-             })
-             .AddIpc(builder =>
-             {
-                builder
-                  .AddTcp()
-                  .AddService<IAdminControllerService, AdminControllerService>()
-                  .AddService<IServiceControllerService, ServiceControllerService>();
-             });
+         Log.Info("Starting shutdown monitor (SM) service");
+         WebSocketShutdownMonitor = CreateWebSocket(ComServices.S_SHUTDOWN_ADMIN);
+         WebSocketShutdownMonitor.OnMessage += (s, ev) =>
+         {
+            if (ComServices.SHUTDOWN_KEYWORD.Equals(ev.Data))
+            {
+               Log.Info("SM: Received shutdown keyword");
+               ShutdownEvent();
+               return;
+            }
+
+            Log.Warn($"SM: Received unknown message on shutdown: '{ev.Data}'");
+         };
+
+         WebSocketShutdownMonitor.OnClose += (s, ev) =>
+         {
+            Log.Error($"SM: was closed! Code={ev.Code} Reason='{ev.Reason}' WasClean={ev.WasClean}");
+            ShutdownEvent();
+         };
+
+         WebSocketShutdownMonitor.OnError += (s, ev) =>
+         {
+            Log.Error($"SM: error", ev.Exception);
+            ShutdownEvent();
+         };
+
+         var connectTask = Task.Run(() => WebSocketShutdownMonitor.Connect());
+         Task.WhenAny(Task.Delay(TimeSpan.FromSeconds(5)), connectTask);
+
+         if (!connectTask.IsCompletedSuccessfully)
+            throw new TimeoutException("Failed to connect to shutdown in time");
+
+         Log.Info("SM started successfully");
       }
 
-      protected void StartAndWaitForStop()
+      protected void ShutdownEvent()
       {
-         var source = new CancellationTokenSource();
+         if (Stopped.Task.IsCompletedSuccessfully)
+            return;
 
+         Stopped.SetResult(true);
+         WebSocketShutdownMonitor.Close();
+      }
+
+      protected void WaitForStop()
+      {
          Log.Info("Waiting for stop");
-
-         Task.WhenAny(ControllerServiceHost.RunAsync(source.Token), Stopped.Task).Wait();
-         source.Cancel();
-
+         Stopped.Task.Wait();
          Log.Info("Stop occured!");
       }
 
-      public void Handshake()
+      public WebSocket CreateWebSocket(string path)
       {
-         Log.Info("Handshake");
-         HandshakeWithinTimeout?.Handshake();
-      }
-
-      public int CreateNewServiceHostWithService<T>() where T : class
-      {
-         Type t = typeof(T);
-
-         Log.Info($"Start new ServieHost-Request: {t}");
-
-         string name = $"{t.AssemblyQualifiedName}-{DateTime.UtcNow:yyyyMMdd-HHmmssfff}";
-         while(ServiceHosts.Exists(sh => sh.Name.Equals(name)))
+         var wss = new WebSocket($"wss://{IPAddress.Loopback}:{Config.ComPort}" + path);
+         wss.SetCredentials(Config.Username, Config.Password, false);
+         wss.SslConfiguration.ServerCertificateValidationCallback = (sender, cert, chain, sslPolicyErrors) =>
          {
-            name = $"{t.AssemblyQualifiedName}-{DateTime.UtcNow:yyyyMMdd-HHmmssfff}";
-            Thread.Sleep(10);
-         }
+            if (sslPolicyErrors != System.Net.Security.SslPolicyErrors.None)
+            {
+               Log.Error($"SslPolicyError: {sslPolicyErrors}");
+               return false;
+            }
 
-         int port = NetworkUtil.GetFreeTcpPort();
+            if (cert.GetPublicKeyString() != Config.ServerCertPublicKey)
+            {
+               Log.Error($"PublicKeyError: {cert.GetPublicKeyString()}");
+               return false;
+            }
 
-         var host = GetBaseIpcServiceHostBuilder()
-            .AddTcpEndpoint<T>(
-               name: name,
-               ipEndpoint: IPAddress.Loopback,
-               port: port)
-            .Build();
+            return true;
+         };
 
-
-         var cancelTokenSource = new CancellationTokenSource();
-         host.RunAsync(cancelTokenSource.Token);
-         Log.Info($"Started new ServieHost[Port={port},Name='{name}']");
-
-         ServiceHosts.Add(new ComServiceHost()
-         {
-            ComPort = port,
-            Host = host,
-            Name = name,
-            Service = t,
-            CancelTokenSource = cancelTokenSource,
-         });
-
-         return port;
-      }
-
-      public void StopServiceHost(int port)
-      {
-         Log.Info($"Trying to shutdown ServiceHost on Port={port}");
-         var servicehost = ServiceHosts.Find(x => x.ComPort == port);
-         if (servicehost == null)
-            return;
-
-         ShutdownAndRemove(servicehost);
-      }
-
-      protected void ShutdownAndRemove(ComServiceHost serviceHost)
-      {
-         Log.Info($"Invoking Cancel for ServiceHost[Port={serviceHost.ComPort},Name='{serviceHost.Name}']");
-         serviceHost.CancelTokenSource.Cancel();
-
-         var success = ServiceHosts.Remove(serviceHost);
-         Log.Info($"Cancelled and removed{(!success ? " (not in List!)" : "")} ServiceHost[Port={serviceHost.ComPort},Name='{serviceHost.Name}']");
+         return wss;
       }
 
       public void Stop()
@@ -185,8 +198,6 @@ namespace SWAPS.Admin.Communication
                return;
 
             Log.Info("Stopping");
-
-            ServiceHosts.ForEach(sh => ShutdownAndRemove(sh));
 
             StarterPIDAliveChecker.Stop();
 

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Net;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.ServiceProcess;
@@ -24,16 +25,18 @@ namespace SWAPS.AdminCom
 
       public ServiceManager<ServiceStop, bool> StopServiceManager { get; set; }
 
+      private WebSocketServer Server { get; set; }
+
+      private X509Certificate2 ServerCert { get; set; }
+
 
       private AdminComConfig AdminComConfig { get; set; } = new AdminComConfig();
 
       private HandshakeWithinTimeout HandshakeWithinTimeout { get; set; } = new HandshakeWithinTimeout();
 
-      private WebSocketServer Server { get; set; }
-
-      private X509Certificate2 ServerCert { get; set; }
-
       private int? AdminProcessID { get; set; }
+
+      private ProcessAliveChecker AdminProcessAliveChecker { get; set; }
 
       private bool Stopped { get; set; } = false;
       private readonly object lockStop = new object();
@@ -56,9 +59,16 @@ namespace SWAPS.AdminCom
 
          StartAdminProcess();
 
+         AdminProcessAliveChecker = new ProcessAliveChecker(AdminProcessID.Value, TimeSpan.FromSeconds(5), () =>
+         {
+            Log.Error($"Unable to locate PID={AdminProcessID.Value} of admin-process, assuming crash; Stopping...");
+            Stop();
+         });
+         AdminProcessAliveChecker.Start();
+
          HandshakeWithinTimeout.StartTimeout(AdminComConfig.StartInactivityShutdownTimeout, () =>
          {
-            Log.Error("No handshake from Admin-process within timeout, stopping...");
+            Log.Error("No handshake from Admin-process within timeout; Stopping...");
             Stop();
          });
       }
@@ -69,7 +79,7 @@ namespace SWAPS.AdminCom
 
          AdminComConfig.ComPort = (ushort)NetworkUtil.GetFreeTcpPort();
 
-         Server = new WebSocketServer(AdminComConfig.ComPort, true);
+         Server = new WebSocketServer(IPAddress.Loopback, AdminComConfig.ComPort, true);
          // Auth
          Server.AuthenticationSchemes = WebSocketSharp.Net.AuthenticationSchemes.Basic;
          Server.UserCredentialsFinder = id =>
@@ -82,7 +92,7 @@ namespace SWAPS.AdminCom
 
          // Sec
          Server.SslConfiguration.ServerCertificate = ServerCert;
-         AdminComConfig.ServerCertPublicKey = Convert.ToBase64String(ServerCert.Export(X509ContentType.Cert));
+         AdminComConfig.ServerCertPublicKey = ServerCert.GetPublicKeyString();
 
          InitServices();
 
@@ -93,16 +103,15 @@ namespace SWAPS.AdminCom
 
       private void InitServices()
       {
-         Server.AddWebSocketService<WSReflector>(ComServices.REFLECTOR);
-         Server.AddWebSocketService<WsHandshake>(ComServices.HANDSHAKE, () => new WsHandshake(HandshakeWithinTimeout));
+         Server.AddWebSocketService<WSHandshakeReflector>(ComServices.S_HANDSHAKE_REFLECTOR, () => new WSHandshakeReflector(HandshakeWithinTimeout));
 
-         StartServiceManager.Broadcaster = data => Server.WebSocketServices[ComServices.SERVICE_START].Sessions.Broadcast(data);
-         Server.AddWebSocketService<WSServiceStart>(ComServices.SERVICE_START, () => new WSServiceStart(StartServiceManager));
+         StartServiceManager.Broadcaster = data => Server.WebSocketServices[ComServices.S_SERVICE_START].Sessions.Broadcast(data);
+         Server.AddWebSocketService<WSServiceStart>(ComServices.S_SERVICE_START, () => new WSServiceStart(StartServiceManager));
 
-         StopServiceManager.Broadcaster = data => Server.WebSocketServices[ComServices.SERVICE_STOP].Sessions.Broadcast(data);
-         Server.AddWebSocketService<WSServiceStop>(ComServices.SERVICE_STOP, () => new WSServiceStop(StopServiceManager));
+         StopServiceManager.Broadcaster = data => Server.WebSocketServices[ComServices.S_SERVICE_STOP].Sessions.Broadcast(data);
+         Server.AddWebSocketService<WSServiceStop>(ComServices.S_SERVICE_STOP, () => new WSServiceStop(StopServiceManager));
 
-         Server.AddWebSocketService<WSShutdownAdmin>(ComServices.SHUTDOWN_ADMIN);
+         Server.AddWebSocketService<WSShutdownAdmin>(ComServices.S_SHUTDOWN_ADMIN);
       }
 
       private void CreateSelfSignedCert()
@@ -145,7 +154,7 @@ namespace SWAPS.AdminCom
       private void SendTerminateToAdminProcess()
       {
          Log.Info("Ordering admin process to shutdown");
-         Server.WebSocketServices[ComServices.SHUTDOWN_ADMIN].Sessions.Broadcast("EXEC_SHUTDOWN");
+         Server.WebSocketServices[ComServices.S_SHUTDOWN_ADMIN].Sessions.Broadcast(ComServices.SHUTDOWN_KEYWORD);
       }
 
       private void TerminateAdminProcess()
@@ -209,6 +218,8 @@ namespace SWAPS.AdminCom
 
             try
             {
+               AdminProcessAliveChecker.Stop();
+
                TerminateAdminProcess();
 
                ShutdownWebSocketServer();

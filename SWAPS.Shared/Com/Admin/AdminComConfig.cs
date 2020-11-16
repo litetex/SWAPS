@@ -26,7 +26,7 @@ namespace SWAPS.Shared.Com.Admin
 
 
       public string CreateCMDArgs =>
-         (LogToFile ? $"--{nameof(LogToFile).ToLowerInvariant()}" : "") +
+         (LogToFile ? $"--{nameof(LogToFile).ToLowerInvariant()} " : "") +
          $"--{nameof(StartInactivityShutdownTimeout).ToLowerInvariant()} {StartInactivityShutdownTimeout.TotalMilliseconds} " +
          $"--{nameof(ComPort).ToLowerInvariant()} {ComPort} " +
          $"--{nameof(ParentPID).ToLowerInvariant()} {ParentPID} " +

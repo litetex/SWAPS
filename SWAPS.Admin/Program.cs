@@ -101,11 +101,5 @@ namespace SWAPS.Admin
             .MinimumLevel.Information()
             .WriteTo.Console(outputTemplate: "{Timestamp:HH:mm:ss,fff} {Level:u3} {ThreadId,-2} {Message:lj}{NewLine}{Exception}");
       }
-
-      static string DecodeLogFilePathFromBase64(string logfilePathBase64)
-      {
-         return logfilePathBase64 == null ? null :
-            Encoding.UTF8.GetString(Convert.FromBase64String(logfilePathBase64));
-      }
    }
 }

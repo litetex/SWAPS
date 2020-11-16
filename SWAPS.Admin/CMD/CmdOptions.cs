@@ -13,13 +13,13 @@ namespace SWAPS.Admin.CMD
       [Option(nameof(LogToFile), Default = false)]
       public override bool LogToFile { get => base.LogToFile; set => base.LogToFile = value; }
 
-      [Option(nameof(StartInactivityShutdownTimeout), Min = 1, Required = true)]
+      [Option(nameof(StartInactivityShutdownTimeout), Required = true)]
       public long StartInactivityShutdownTimeoutMs { get => (long)base.StartInactivityShutdownTimeout.TotalMilliseconds; set => base.StartInactivityShutdownTimeout = TimeSpan.FromMilliseconds(value); }
 
       [Option(nameof(ComPort), Required = true)]
       public override ushort ComPort { get => base.ComPort; set => base.ComPort = value; }
 
-      [Option(nameof(ComPort), Min = 1, Required = true)]
+      [Option(nameof(ComPort), Required = true)]
       public override int ParentPID { get => base.ParentPID; set => base.ParentPID = value; }
 
 

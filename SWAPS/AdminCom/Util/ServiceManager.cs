@@ -18,6 +18,13 @@ namespace SWAPS.AdminCom.Util
 
       public Action<string> Broadcaster { get; set; }
 
+      protected TaskCompletionSource<bool> CancelOperationTCS { get; private set; }
+
+      public ServiceManager(TaskCompletionSource<bool> cancelOperationTCS)
+      {
+         CancelOperationTCS = cancelOperationTCS;
+      }
+
       public void OnMessage(MessageEventArgs e)
       {
          var parsedData = Encoding.UTF8.GetString(Convert.FromBase64String(e.Data));
@@ -60,7 +67,10 @@ namespace SWAPS.AdminCom.Util
 
             var useTimeout = timeout ?? Timeout;
 
-            await Task.WhenAny(Task.Delay((int)useTimeout.TotalMilliseconds), tcs.Task);
+            await Task.WhenAny(Task.Delay(useTimeout), tcs.Task, CancelOperationTCS.Task);
+
+            if (CancelOperationTCS.Task.IsCompleted)
+               throw new OperationCanceledException("Operation was cancelled");
 
             if (!tcs.Task.IsCompleted)
                throw new TimeoutException("Task timed out");

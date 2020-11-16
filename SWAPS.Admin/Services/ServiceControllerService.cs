@@ -1,5 +1,4 @@
 ﻿using SWAPS.Admin.Service;
-using SWAPS.Shared.Admin.Services;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -12,7 +11,7 @@ namespace SWAPS.Admin.Services
    /// <summary>
    /// Controlls Windows Services
    /// </summary>
-   public class ServiceControllerService : IServiceControllerService
+   public class ServiceControllerService
    {
       private void TryChangeServiceStartUpType(ServiceController svc, ServiceStartMode startMode)
       {

@@ -6,11 +6,11 @@ using WebSocketSharp.Server;
 
 namespace SWAPS.AdminCom.Service
 {
-   public class WsHandshake : WebSocketBehavior
+   public class WSHandshakeReflector : WebSocketBehavior
    {
       private HandshakeWithinTimeout HandshakeWithinTimeout { get; set; }
 
-      public WsHandshake(HandshakeWithinTimeout handshakeWithinTimeout)
+      public WSHandshakeReflector(HandshakeWithinTimeout handshakeWithinTimeout)
       {
          HandshakeWithinTimeout = handshakeWithinTimeout;
       }

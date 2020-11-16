@@ -16,13 +16,15 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using WebSocketSharp.Server;
+using System.Linq;
 
 namespace SWAPS.AdminCom
 {
    public class AdminCommunictator
    {
-      public ServiceManager<ServiceStart,bool> StartServiceManager { get; set; }
+      private TaskCompletionSource<bool> CancelOperationTCS { get; set; } = new TaskCompletionSource<bool>();
 
+      public ServiceManager<ServiceStart, bool> StartServiceManager { get; set; }
       public ServiceManager<ServiceStop, bool> StopServiceManager { get; set; }
 
       private WebSocketServer Server { get; set; }
@@ -44,6 +46,9 @@ namespace SWAPS.AdminCom
       public AdminCommunictator(bool logToFile)
       {
          AdminComConfig.LogToFile = logToFile;
+
+         StartServiceManager = new ServiceManager<ServiceStart, bool>(CancelOperationTCS);
+         StopServiceManager = new ServiceManager<ServiceStop, bool>(CancelOperationTCS);
       }
 
       public void Start()
@@ -164,7 +169,7 @@ namespace SWAPS.AdminCom
             SendTerminateToAdminProcess();
 
             // AdminProcess is not accessible here anymore: there is no process associated with this instance
-            if (AdminProcessID == null || Process.GetProcessById(AdminProcessID.Value) == null)
+            if (AdminProcessID == null || !Process.GetProcesses().Any(p => p.Id == AdminProcessID))
             {
                Log.Info("Admin process is not running");
                return;
@@ -218,7 +223,9 @@ namespace SWAPS.AdminCom
 
             try
             {
-               AdminProcessAliveChecker.Stop();
+               CancelOperationTCS.TrySetResult(true);
+
+               AdminProcessAliveChecker?.Stop();
 
                TerminateAdminProcess();
 

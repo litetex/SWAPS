@@ -9,6 +9,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SWAPS", "SWAPS\SWAPS.csproj", "{B734A5C7-9CE8-42DB-BAFC-050BBF39B524}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B62887CA-2665-4191-A6D5-49EDC7A1730A} = {B62887CA-2665-4191-A6D5-49EDC7A1730A}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SWAPS.Admin", "SWAPS.Admin\SWAPS.Admin.csproj", "{B62887CA-2665-4191-A6D5-49EDC7A1730A}"
 EndProject

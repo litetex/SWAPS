@@ -29,7 +29,7 @@ namespace SWAPS.AdminCom
 
       private WebSocketServer Server { get; set; }
 
-      private X509Certificate2 ServerCert { get; set; }
+      //private X509Certificate2 ServerCert { get; set; }
 
 
       private AdminComConfig AdminComConfig { get; set; } = new AdminComConfig();
@@ -80,11 +80,11 @@ namespace SWAPS.AdminCom
 
       private void LaunchWebSocketServer()
       {
-         CreateSelfSignedCert();
+         //CreateSelfSignedCert();
 
          AdminComConfig.ComPort = (ushort)NetworkUtil.GetFreeTcpPort();
 
-         Server = new WebSocketServer(IPAddress.Loopback, AdminComConfig.ComPort, true);
+         Server = new WebSocketServer(IPAddress.Loopback, AdminComConfig.ComPort/*, true*/);
          // Auth
          Server.AuthenticationSchemes = WebSocketSharp.Net.AuthenticationSchemes.Basic;
          Server.UserCredentialsFinder = id =>
@@ -96,8 +96,8 @@ namespace SWAPS.AdminCom
          };
 
          // Sec
-         Server.SslConfiguration.ServerCertificate = ServerCert;
-         AdminComConfig.ServerCertPublicKey = ServerCert.GetPublicKeyString();
+         //Server.SslConfiguration.ServerCertificate = ServerCert;
+         //AdminComConfig.ServerCertPublicKey = ServerCert.GetPublicKeyString();
 
          InitServices();
 
@@ -119,16 +119,14 @@ namespace SWAPS.AdminCom
          Server.AddWebSocketService<WSShutdownAdmin>(ComServices.S_SHUTDOWN_ADMIN);
       }
 
-      private void CreateSelfSignedCert()
-      {
-         Log.Info("Creating cert");
-         var ecdsa = ECDsa.Create(); // generate asymmetric key pair
-         // TODO
-         var req = new CertificateRequest("cn=foobar", ecdsa, HashAlgorithmName.SHA256);
-         ServerCert = req.CreateSelfSigned(DateTimeOffset.Now, DateTimeOffset.Now.AddYears(5));
+      //private void CreateSelfSignedCert()
+      //{
+      //   Log.Info("Creating cert");
 
-         Log.Info("Created cert");
-      }
+      //   ServerCert = //CertGen.CreateSelfSignedCert();
+
+      //   Log.Info("Created cert");
+      //}
 
       private void StartAdminProcess()
       {
@@ -159,7 +157,7 @@ namespace SWAPS.AdminCom
       private void SendTerminateToAdminProcess()
       {
          Log.Info("Ordering admin process to shutdown");
-         Server.WebSocketServices[ComServices.S_SHUTDOWN_ADMIN].Sessions.Broadcast(ComServices.SHUTDOWN_KEYWORD);
+         Server?.WebSocketServices[ComServices.S_SHUTDOWN_ADMIN]?.Sessions?.Broadcast(ComServices.SHUTDOWN_KEYWORD);
       }
 
       private void TerminateAdminProcess()
@@ -199,7 +197,7 @@ namespace SWAPS.AdminCom
       {
          try
          {
-            Server.Stop();
+            Server?.Stop();
          }
          catch (Exception ex)
          {

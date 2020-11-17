@@ -19,7 +19,7 @@ namespace SWAPS.Admin.CMD
       [Option(nameof(ComPort), Required = true)]
       public override ushort ComPort { get => base.ComPort; set => base.ComPort = value; }
 
-      [Option(nameof(ComPort), Required = true)]
+      [Option(nameof(ParentPID), Required = true)]
       public override int ParentPID { get => base.ParentPID; set => base.ParentPID = value; }
 
 

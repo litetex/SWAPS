@@ -39,8 +39,8 @@ namespace SWAPS.Admin.Communication
       public void Run()
       {
          Init();
-         CheckAndSetupCom();
-         RunShutdownMonitorService();
+         CheckAndSetupCom().Wait();
+         RunShutdownMonitorService().Wait();
          WaitForStop();
       }
 
@@ -62,7 +62,7 @@ namespace SWAPS.Admin.Communication
          StarterPIDAliveChecker.Start();
       }
 
-      protected void CheckAndSetupCom()
+      protected async Task CheckAndSetupCom()
       {
          var timeout = Config.StartInactivityShutdownTimeout;
 
@@ -75,11 +75,8 @@ namespace SWAPS.Admin.Communication
          {
             wsHRCheck.OnOpen += (s, ev) =>
             {
-               Log.Info("HR: onOpen");
-               wsHRCheck.SendAsync(randomStr, b =>
-               {
-                  Log.Debug("HR: Message was sent successfully");
-               });
+               Log.Debug("HR: onOpen");
+               wsHRCheck.Send(randomStr);
             };
 
             wsHRCheck.OnMessage += (s, ev) =>
@@ -97,9 +94,21 @@ namespace SWAPS.Admin.Communication
                tcs.SetException(new InvalidOperationException($"HR socket was closed unexpectely; Code={ev.Code} Reason='{ev.Reason}' WasClean={ev.WasClean}"));
             };
 
-            wsHRCheck.ConnectAsync();
+            using(var timeoutCancellationTokenSource = new CancellationTokenSource())
+            {
+               var connectTask = Task.Run(() => wsHRCheck.Connect());
 
-            Task.WaitAny(Task.Delay(timeout), tcs.Task);
+               var connectedAndReceivedFeedbackTask = Task.WhenAll(tcs.Task, connectTask);
+               var completedTask = await Task.WhenAny(Task.Delay(timeout), connectedAndReceivedFeedbackTask);
+               if (completedTask == connectedAndReceivedFeedbackTask)
+               {
+                  timeoutCancellationTokenSource.Cancel();
+                  await connectedAndReceivedFeedbackTask;
+               }
+               else
+                  throw new TimeoutException("HR Timeout");
+
+            }
          }
 
          if (!tcs.Task.IsCompletedSuccessfully)
@@ -110,10 +119,15 @@ namespace SWAPS.Admin.Communication
          Log.Info("Handshake successful/Reflector operational");
       }
 
-      protected void RunShutdownMonitorService()
+      protected async Task RunShutdownMonitorService()
       {
          Log.Info("Starting shutdown monitor (SM) service");
          WebSocketShutdownMonitor = CreateWebSocket(ComServices.S_SHUTDOWN_ADMIN);
+         WebSocketShutdownMonitor.OnOpen += (s, ev) =>
+         {
+            Log.Debug($"SM: onOpen");
+         };
+
          WebSocketShutdownMonitor.OnMessage += (s, ev) =>
          {
             if (ComServices.SHUTDOWN_KEYWORD.Equals(ev.Data))
@@ -128,21 +142,44 @@ namespace SWAPS.Admin.Communication
 
          WebSocketShutdownMonitor.OnClose += (s, ev) =>
          {
+            if (Stopped.Task.IsCompleted)
+               return;
+
             Log.Error($"SM: was closed! Code={ev.Code} Reason='{ev.Reason}' WasClean={ev.WasClean}");
             ShutdownEvent();
          };
 
          WebSocketShutdownMonitor.OnError += (s, ev) =>
          {
+            if (Stopped.Task.IsCompleted)
+               return;
+
             Log.Error($"SM: error", ev.Exception);
             ShutdownEvent();
          };
 
-         var connectTask = Task.Run(() => WebSocketShutdownMonitor.Connect());
-         Task.WhenAny(Task.Delay(TimeSpan.FromSeconds(5)), connectTask);
+         using (var timeoutCancellationTokenSource = new CancellationTokenSource())
+         {
+            var connectTask = Task.Run(() =>
+            {
+               try
+               {
+                  WebSocketShutdownMonitor.Connect();
+               }
+               catch(Exception ex)
+               {
+                  Log.Error("Connection error", ex);
+               }
+            });
 
-         if (!connectTask.IsCompletedSuccessfully)
-            throw new TimeoutException("Failed to connect to shutdown in time");
+            if (await Task.WhenAny(Task.Delay(TimeSpan.FromSeconds(5), timeoutCancellationTokenSource.Token), connectTask) == connectTask)
+            {
+               timeoutCancellationTokenSource.Cancel();
+               await connectTask;
+            }
+            else
+               throw new TimeoutException("Failed to connect to shutdown in time");
+         }
 
          Log.Info("SM started successfully");
       }
@@ -154,6 +191,7 @@ namespace SWAPS.Admin.Communication
 
          Stopped.SetResult(true);
          WebSocketShutdownMonitor.Close();
+         Log.Info("Closed SM");
       }
 
       protected void WaitForStop()
@@ -165,24 +203,24 @@ namespace SWAPS.Admin.Communication
 
       public WebSocket CreateWebSocket(string path)
       {
-         var wss = new WebSocket($"wss://{IPAddress.Loopback}:{Config.ComPort}" + path);
+         var wss = new WebSocket($"ws://{IPAddress.Loopback}:{Config.ComPort}" + path);
          wss.SetCredentials(Config.Username, Config.Password, false);
-         wss.SslConfiguration.ServerCertificateValidationCallback = (sender, cert, chain, sslPolicyErrors) =>
-         {
-            if (sslPolicyErrors != System.Net.Security.SslPolicyErrors.None)
-            {
-               Log.Error($"SslPolicyError: {sslPolicyErrors}");
-               return false;
-            }
+         //wss.SslConfiguration.ServerCertificateValidationCallback = (sender, cert, chain, sslPolicyErrors) =>
+         //{
+         //   if (sslPolicyErrors != System.Net.Security.SslPolicyErrors.None)
+         //   {
+         //      Log.Error($"SslPolicyError: {sslPolicyErrors}");
+         //      return false;
+         //   }
 
-            if (cert.GetPublicKeyString() != Config.ServerCertPublicKey)
-            {
-               Log.Error($"PublicKeyError: {cert.GetPublicKeyString()}");
-               return false;
-            }
+         //   if (cert.GetPublicKeyString() != Config.ServerCertPublicKey)
+         //   {
+         //      Log.Error($"PublicKeyError: {cert.GetPublicKeyString()}");
+         //      return false;
+         //   }
 
-            return true;
-         };
+         //   return true;
+         //};
 
          return wss;
       }

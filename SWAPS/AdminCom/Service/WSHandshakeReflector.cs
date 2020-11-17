@@ -17,7 +17,9 @@ namespace SWAPS.AdminCom.Service
 
       protected override void OnMessage(MessageEventArgs e)
       {
+         Log.Debug($"onMessage: {e.Data}");
          HandshakeWithinTimeout.Handshake();
+         Send(e.Data);
       }
    }
 }

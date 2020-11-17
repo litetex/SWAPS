@@ -109,7 +109,12 @@ namespace SWAPS
       {
          return new LoggerConfiguration()
             .Enrich.WithThreadId()
-            .MinimumLevel.Information()
+            .MinimumLevel
+#if DEBUG
+               .Debug()
+#else
+               .Information()
+#endif
             .WriteTo.Console(outputTemplate: "{Timestamp:HH:mm:ss,fff} {Level:u3} {ThreadId,-2} {Message:lj}{NewLine}{Exception}");
       }
    }

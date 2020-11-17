@@ -37,7 +37,6 @@ namespace SWAPS.Admin
             return;
          }
 
-#if !DEBUG
          try
          {
             AppDomain.CurrentDomain.UnhandledException += (s, ev) =>
@@ -56,49 +55,52 @@ namespace SWAPS.Admin
                   Console.Error.WriteLine($"Failed to catch unhandled error '{ev?.ExceptionObject ?? ev}': {ex}");
                }
             };
-#endif
-         var parser = new Parser(settings =>
-         {
-            settings.CaseSensitive = false;
-         });
-         parser.ParseArguments<CmdOptions>(args)
-                  .WithParsed((opt) =>
-                  {
-                     if (opt.LogToFile)
+
+            var parser = new Parser(settings =>
+            {
+               settings.CaseSensitive = false;
+            });
+            parser.ParseArguments<CmdOptions>(args)
+                     .WithParsed((opt) =>
                      {
-                        var logConf = GetDefaultLoggerConfiguration();
+                        if (opt.LogToFile)
+                        {
+                           var logConf = GetDefaultLoggerConfiguration();
 
-                        logConf.WriteTo.File(Path.Combine("logs", "adminlog.log"),
-                              outputTemplate: "{Timestamp:HH:mm:ss,fff} {Level:u3} {ThreadId,-2} {Message:lj}{NewLine}{Exception}",
-                              rollingInterval: RollingInterval.Day,
-                              rollOnFileSizeLimit: true);
+                           logConf.WriteTo.File(Path.Combine("logs", "adminlog.log"),
+                                 outputTemplate: "{Timestamp:HH:mm:ss,fff} {Level:u3} {ThreadId,-2} {Message:lj}{NewLine}{Exception}",
+                                 rollingInterval: RollingInterval.Day,
+                                 rollOnFileSizeLimit: true);
 
-                        Serilog.Log.Logger = logConf.CreateLogger();
-                        Log.Info("Logger will also write to file");
-                     }
+                           Serilog.Log.Logger = logConf.CreateLogger();
+                           Log.Info("Logger will also write to file");
+                        }
 
-                     var starter = new StartUp(opt);
-                     starter.Start();
-                  })
-                  .WithNotParsed((ex) =>
-                  {
-                     foreach (var error in ex)
-                        Log.Error($"Failed to parse: {error.Tag}");
-                  });
-#if !DEBUG
+                        var starter = new StartUp(opt);
+                        starter.Start();
+                     })
+                     .WithNotParsed((ex) =>
+                     {
+                        foreach (var error in ex)
+                           Log.Error($"Failed to parse: {error.Tag}");
+                     });
          }
          catch (Exception ex)
          {
             Log.Fatal(ex);
          }
-#endif
       }
 
       private static LoggerConfiguration GetDefaultLoggerConfiguration()
       {
          return new LoggerConfiguration()
             .Enrich.WithThreadId()
-            .MinimumLevel.Information()
+            .MinimumLevel
+#if DEBUG
+               .Debug()
+#else
+               .Information()
+#endif
             .WriteTo.Console(outputTemplate: "{Timestamp:HH:mm:ss,fff} {Level:u3} {ThreadId,-2} {Message:lj}{NewLine}{Exception}");
       }
    }

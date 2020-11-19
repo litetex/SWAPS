@@ -63,10 +63,16 @@ namespace SWAPS.Admin
             parser.ParseArguments<CmdOptions>(args)
                      .WithParsed((opt) =>
                      {
+                        var logConf = GetDefaultLoggerConfiguration();
+                        if (opt.Verbose)
+                        {
+                           logConf.MinimumLevel.Debug();
+
+                           Serilog.Log.Logger = logConf.CreateLogger();
+                           Log.Info("Running in verbose mode");
+                        }
                         if (opt.LogToFile)
                         {
-                           var logConf = GetDefaultLoggerConfiguration();
-
                            logConf.WriteTo.File(Path.Combine("logs", "adminlog.log"),
                                  outputTemplate: "{Timestamp:HH:mm:ss,fff} {Level:u3} {ThreadId,-2} {Message:lj}{NewLine}{Exception}",
                                  rollingInterval: RollingInterval.Day,

@@ -8,7 +8,7 @@ using WebSocketSharp.Server;
 
 namespace SWAPS.AdminCom.Service
 {
-   public class WSServiceStop : WSSyncInvoker<ServiceStop, bool>
+   public class WSServiceStop : WSSyncServerRequester<ServiceStop, bool>
    {
       public WSServiceStop(ServiceManager<ServiceStop, bool> serviceManager) : base(serviceManager)
       {

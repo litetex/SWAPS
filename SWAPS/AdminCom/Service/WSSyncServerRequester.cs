@@ -11,11 +11,11 @@ using WebSocketSharp.Server;
 
 namespace SWAPS.AdminCom.Service
 {
-   public class WSSyncInvoker<S,R> : WebSocketBehavior 
+   public class WSSyncServerRequester<S,R> : WebSocketBehavior 
    {
       protected ServiceManager<S,R> ServiceManager { get; set; }
 
-      public WSSyncInvoker(ServiceManager<S, R> serviceManager)
+      public WSSyncServerRequester(ServiceManager<S, R> serviceManager)
       {
          ServiceManager = serviceManager;
       }

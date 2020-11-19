@@ -43,9 +43,10 @@ namespace SWAPS.AdminCom
       private bool Stopped { get; set; } = false;
       private readonly object lockStop = new object();
 
-      public AdminCommunictator(bool logToFile)
+      public AdminCommunictator(bool logToFile, bool verbose)
       {
          AdminComConfig.LogToFile = logToFile;
+         AdminComConfig.Verbose = verbose;
 
          StartServiceManager = new ServiceManager<ServiceStart, bool>(CancelOperationTCS);
          StopServiceManager = new ServiceManager<ServiceStop, bool>(CancelOperationTCS);
@@ -71,11 +72,18 @@ namespace SWAPS.AdminCom
          });
          AdminProcessAliveChecker.Start();
 
-         HandshakeWithinTimeout.StartTimeout(AdminComConfig.StartInactivityShutdownTimeout, () =>
+         Log.Info("Waiting for handshake...");
+         if (!HandshakeWithinTimeout
+            .StartTimeout(AdminComConfig.StartInactivityShutdownTimeout)
+            .Result)
          {
             Log.Error("No handshake from Admin-process within timeout; Stopping...");
             Stop();
-         });
+         }
+         else
+         {
+            Log.Info("Handshake successful");
+         }
       }
 
       private void LaunchWebSocketServer()
@@ -164,8 +172,6 @@ namespace SWAPS.AdminCom
       {
          try
          {
-            SendTerminateToAdminProcess();
-
             // AdminProcess is not accessible here anymore: there is no process associated with this instance
             if (AdminProcessID == null || !Process.GetProcesses().Any(p => p.Id == AdminProcessID))
             {
@@ -205,6 +211,24 @@ namespace SWAPS.AdminCom
          }
       }
 
+      protected void ShutdownWebSocketServerServices()
+      {
+         if (Server == null)
+         {
+            Log.Info("Server is not running");
+            return;
+         }
+         try
+         {
+            foreach (var wss in new List<WebSocketServiceHost>(Server.WebSocketServices.Hosts))
+               Server.RemoveWebSocketService(wss.Path);
+         }
+         catch (Exception ex)
+         {
+            Log.Error("Failed to shutdown WebSocket-Server-Services", ex);
+         }
+      }
+
       public void Stop()
       {
          if (Stopped)
@@ -223,7 +247,11 @@ namespace SWAPS.AdminCom
             {
                CancelOperationTCS.TrySetResult(true);
 
+               SendTerminateToAdminProcess();
+
                AdminProcessAliveChecker?.Stop();
+
+               ShutdownWebSocketServerServices();
 
                TerminateAdminProcess();
 

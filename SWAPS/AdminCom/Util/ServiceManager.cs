@@ -63,7 +63,9 @@ namespace SWAPS.AdminCom.Util
          WaitingTasks.Add(msgID, tcs);
          try
          {
-            Broadcaster(Convert.ToBase64String(Encoding.UTF8.GetBytes(msg)));
+            var encMsg = Convert.ToBase64String(Encoding.UTF8.GetBytes(msg));
+            Log.Debug($"Broadcasting message: {encMsg}");
+            Broadcaster(encMsg);
 
             var useTimeout = timeout ?? Timeout;
 

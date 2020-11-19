@@ -10,6 +10,9 @@ namespace SWAPS.CMD
       [Option('l', "logfile", Default = false, HelpText = "Logs into ./logs")]
       public bool LogToFile { get; set; } = false;
 
+      [Option('v', "verbose", Default = false, HelpText = "Log more stuff")]
+      public bool Verbose { get; set; } = false;
+
       #region JSON based Config
       [Option('c', "config", HelpText = "path to the configuration file; if not set: using default internal config")]
       public string ConfigPath { get; set; } = null;

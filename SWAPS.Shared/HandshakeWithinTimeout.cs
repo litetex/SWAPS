@@ -10,15 +10,21 @@ namespace SWAPS
    {
       private TaskCompletionSource<bool> TCS { get; set; } = new TaskCompletionSource<bool>();
 
-      public void StartTimeout(TimeSpan timeout, Action onTimeout)
+      public async Task<bool> StartTimeout(TimeSpan timeout, Action onTimeout = null)
       {
-         Task.Run(() =>
+         using var timeoutCancellationTokenSource = new CancellationTokenSource();
+         if (await Task.WhenAny(Task.Delay(timeout, timeoutCancellationTokenSource.Token), TCS.Task) == TCS.Task)
          {
-            Task.WaitAny(Task.Delay((int)timeout.TotalMilliseconds), TCS.Task);
+            timeoutCancellationTokenSource.Cancel();
+            await TCS.Task;
+            return true;
+         }
+         else
+         {
+            onTimeout?.Invoke();
+            return false;
+         }
 
-            if (!TCS.Task.IsCompleted)
-               onTimeout();
-         });
       }
 
       public void Handshake()

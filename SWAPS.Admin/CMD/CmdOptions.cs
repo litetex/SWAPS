@@ -13,6 +13,10 @@ namespace SWAPS.Admin.CMD
       [Option(nameof(LogToFile), Default = false)]
       public override bool LogToFile { get => base.LogToFile; set => base.LogToFile = value; }
 
+      [Option(nameof(Verbose), Default = false)]
+      public override bool Verbose { get => base.Verbose; set => base.Verbose = value; }
+
+
       [Option(nameof(StartInactivityShutdownTimeout), Required = true)]
       public long StartInactivityShutdownTimeoutMs { get => (long)base.StartInactivityShutdownTimeout.TotalMilliseconds; set => base.StartInactivityShutdownTimeout = TimeSpan.FromMilliseconds(value); }
 

@@ -26,7 +26,10 @@ namespace SWAPS.Admin.Communication
 
       private WebSocket WebSocketShutdownMonitor { get; set; }
 
-      private TaskCompletionSource<bool> Stopped { get; set; }
+      private List<WebSocket> RegisteredWS { get; set; } = new List<WebSocket>();
+
+
+      private TaskCompletionSource<bool> Stopped { get; set; } = new TaskCompletionSource<bool>();
 
       private readonly object lockStop = new object();
 
@@ -39,15 +42,16 @@ namespace SWAPS.Admin.Communication
       public void Run()
       {
          Init();
-         CheckAndSetupCom().Wait();
+
          RunShutdownMonitorService().Wait();
+         LinkServices().Wait();
+         Handshake().Wait();
+
          WaitForStop();
       }
 
       protected void Init()
       {
-         Stopped = new TaskCompletionSource<bool>();
-
          StarterPIDAliveChecker = new ProcessAliveChecker(Config.ParentPID, TimeSpan.FromSeconds(5), () =>
          {
             Log.Error($"Unable to locate PID={Config.ParentPID} of parent-process, assuming crash; Stopping...");
@@ -60,63 +64,6 @@ namespace SWAPS.Admin.Communication
 
          Log.Info($"Starting {nameof(StarterPIDAliveChecker)}; StarterPID={Config.ParentPID}");
          StarterPIDAliveChecker.Start();
-      }
-
-      protected async Task CheckAndSetupCom()
-      {
-         var timeout = Config.StartInactivityShutdownTimeout;
-
-         Log.Info("Checking handshake reflector (HR)");
-
-         var tcs = new TaskCompletionSource<string>();
-         var randomStr = RandomStringGen.RandomString(64);
-
-         using (var wsHRCheck = CreateWebSocket(ComServices.S_HANDSHAKE_REFLECTOR))
-         {
-            wsHRCheck.OnOpen += (s, ev) =>
-            {
-               Log.Debug("HR: onOpen");
-               wsHRCheck.Send(randomStr);
-            };
-
-            wsHRCheck.OnMessage += (s, ev) =>
-            {
-               Log.Debug($"HR: onMessage: {ev.Data}");
-               tcs.SetResult(ev.Data);
-            };
-
-            wsHRCheck.OnClose += (s, ev) =>
-            {
-               Log.Debug($"HR: onClose: Code={ev.Code} Reason='{ev.Reason}' WasClean={ev.WasClean}");
-               if (tcs.Task.IsCompleted)
-                  return;
-
-               tcs.SetException(new InvalidOperationException($"HR socket was closed unexpectely; Code={ev.Code} Reason='{ev.Reason}' WasClean={ev.WasClean}"));
-            };
-
-            using(var timeoutCancellationTokenSource = new CancellationTokenSource())
-            {
-               var connectTask = Task.Run(() => wsHRCheck.Connect());
-
-               var connectedAndReceivedFeedbackTask = Task.WhenAll(tcs.Task, connectTask);
-               var completedTask = await Task.WhenAny(Task.Delay(timeout), connectedAndReceivedFeedbackTask);
-               if (completedTask == connectedAndReceivedFeedbackTask)
-               {
-                  timeoutCancellationTokenSource.Cancel();
-                  await connectedAndReceivedFeedbackTask;
-               }
-               else
-                  throw new TimeoutException("HR Timeout");
-
-            }
-         }
-
-         if (!tcs.Task.IsCompletedSuccessfully)
-            throw new InvalidOperationException("HR did not completed successfully", tcs.Task.Exception);
-         if (!randomStr.Equals(tcs.Task.Result))
-            throw new InvalidOperationException($"HR returned wrong data; expected '{randomStr}' got '{tcs.Task.Result}'");
-
-         Log.Info("Handshake successful/Reflector operational");
       }
 
       protected async Task RunShutdownMonitorService()
@@ -184,6 +131,78 @@ namespace SWAPS.Admin.Communication
          Log.Info("SM started successfully");
       }
 
+      protected async Task LinkServices()
+      {
+         using var timeoutCancellationTokenSource = new CancellationTokenSource();
+
+         var linkTask = Task.Run(() => new ServiceLinker(this).LinkServices());
+
+         if (await Task.WhenAny(Task.Delay(TimeSpan.FromSeconds(5), timeoutCancellationTokenSource.Token), linkTask) == linkTask)
+         {
+            timeoutCancellationTokenSource.Cancel();
+            await linkTask;
+         }
+         else
+            throw new TimeoutException("Linking Services timed out");
+      }
+
+      protected async Task Handshake()
+      {
+         var timeout = Config.StartInactivityShutdownTimeout;
+
+         Log.Info("Checking handshake reflector (HR)");
+
+         var tcs = new TaskCompletionSource<string>();
+         var randomStr = RandomStringGen.RandomString(64);
+
+         using (var wsHRCheck = CreateWebSocket(ComServices.S_HANDSHAKE_REFLECTOR))
+         {
+            wsHRCheck.OnOpen += (s, ev) =>
+            {
+               Log.Debug("HR: onOpen");
+               wsHRCheck.Send(randomStr);
+            };
+
+            wsHRCheck.OnMessage += (s, ev) =>
+            {
+               Log.Debug($"HR: onMessage: {ev.Data}");
+               tcs.SetResult(ev.Data);
+            };
+
+            wsHRCheck.OnClose += (s, ev) =>
+            {
+               Log.Debug($"HR: onClose: Code={ev.Code} Reason='{ev.Reason}' WasClean={ev.WasClean}");
+               if (tcs.Task.IsCompleted)
+                  return;
+
+               tcs.SetException(new InvalidOperationException($"HR socket was closed unexpectely; Code={ev.Code} Reason='{ev.Reason}' WasClean={ev.WasClean}"));
+            };
+
+            using (var timeoutCancellationTokenSource = new CancellationTokenSource())
+            {
+               var connectTask = Task.Run(() => wsHRCheck.Connect());
+
+               var connectedAndReceivedFeedbackTask = Task.WhenAll(tcs.Task, connectTask);
+               var completedTask = await Task.WhenAny(Task.Delay(timeout, timeoutCancellationTokenSource.Token), connectedAndReceivedFeedbackTask);
+               if (completedTask == connectedAndReceivedFeedbackTask)
+               {
+                  timeoutCancellationTokenSource.Cancel();
+                  await connectedAndReceivedFeedbackTask;
+               }
+               else
+                  throw new TimeoutException("HR Timeout");
+
+            }
+         }
+
+         if (!tcs.Task.IsCompletedSuccessfully)
+            throw new InvalidOperationException("HR did not completed successfully", tcs.Task.Exception);
+         if (!randomStr.Equals(tcs.Task.Result))
+            throw new InvalidOperationException($"HR returned wrong data; expected '{randomStr}' got '{tcs.Task.Result}'");
+
+         Log.Info("Handshake successful/Reflector operational");
+      }
+
       protected void ShutdownEvent()
       {
          if (Stopped.Task.IsCompletedSuccessfully)
@@ -203,9 +222,9 @@ namespace SWAPS.Admin.Communication
 
       public WebSocket CreateWebSocket(string path)
       {
-         var wss = new WebSocket($"ws://{IPAddress.Loopback}:{Config.ComPort}" + path);
-         wss.SetCredentials(Config.Username, Config.Password, false);
-         //wss.SslConfiguration.ServerCertificateValidationCallback = (sender, cert, chain, sslPolicyErrors) =>
+         var ws = new WebSocket($"ws://{IPAddress.Loopback}:{Config.ComPort}" + path);
+         ws.SetCredentials(Config.Username, Config.Password, false);
+         //ws.SslConfiguration.ServerCertificateValidationCallback = (sender, cert, chain, sslPolicyErrors) =>
          //{
          //   if (sslPolicyErrors != System.Net.Security.SslPolicyErrors.None)
          //   {
@@ -222,7 +241,9 @@ namespace SWAPS.Admin.Communication
          //   return true;
          //};
 
-         return wss;
+         RegisteredWS.Add(ws);
+
+         return ws;
       }
 
       public void Stop()
@@ -239,7 +260,45 @@ namespace SWAPS.Admin.Communication
 
             StarterPIDAliveChecker.Stop();
 
+            Log.Info("Shutting down services");
+            var shutdownTasks = new List<Task>();
+            foreach(var ws in RegisteredWS.Where(ws => new WebSocketState[] { WebSocketState.Closed, WebSocketState.Closing }.Contains(ws.ReadyState)))
+            { 
+               shutdownTasks.Add(Task.Run(() => ShutdownWS(ws)));
+            }
+            Task.WaitAll(shutdownTasks.ToArray());
+
+            Log.Info("Shutdown services successful");
+
             Stopped.TrySetResult(true);
+
+            Log.Info("Stopped");
+         }
+      }
+
+      private async Task ShutdownWS(WebSocket ws)
+      {
+         using (var timeoutCancellationTokenSource = new CancellationTokenSource())
+         {
+            var shutdownTask = Task.Run(() =>
+            {
+               try
+               {
+                  ws.Close();
+               }
+               catch (Exception ex)
+               {
+                  Log.Error($"Failed to shutdown '{ws.Url}'", ex);
+               }
+            });
+
+            if (await Task.WhenAny(Task.Delay(TimeSpan.FromSeconds(5), timeoutCancellationTokenSource.Token), shutdownTask) == shutdownTask)
+            {
+               timeoutCancellationTokenSource.Cancel();
+               await shutdownTask;
+            }
+            else
+               throw new TimeoutException("Failed to connect to shutdown in time");
          }
       }
    }

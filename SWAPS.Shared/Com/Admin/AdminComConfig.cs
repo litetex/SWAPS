@@ -8,6 +8,8 @@ namespace SWAPS.Shared.Com.Admin
    {
       public virtual bool LogToFile { get; set; } = false;
 
+      public virtual bool Verbose { get; set; } = false;
+
 
       public virtual TimeSpan StartInactivityShutdownTimeout { get; set; } = TimeSpan.FromSeconds(30);
 
@@ -27,6 +29,7 @@ namespace SWAPS.Shared.Com.Admin
 
       public string CreateCMDArgs =>
          (LogToFile ? $"--{nameof(LogToFile).ToLowerInvariant()} " : "") +
+         (Verbose ? $"--{nameof(Verbose).ToLowerInvariant()} " : "") +
          $"--{nameof(StartInactivityShutdownTimeout).ToLowerInvariant()} {StartInactivityShutdownTimeout.TotalMilliseconds} " +
          $"--{nameof(ComPort).ToLowerInvariant()} {ComPort} " +
          $"--{nameof(ParentPID).ToLowerInvariant()} {ParentPID} " +

@@ -10,7 +10,7 @@ namespace SWAPS.AdminCom.Service
    {
       protected override void OnMessage(MessageEventArgs e)
       {
-         SWAPS.Log.Info($"ADMIN >> {e.Data}");
+         Serilog.Log.Information($"ADMIN >> {e.Data}");
       }
    }
 }

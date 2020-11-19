@@ -8,6 +8,11 @@ namespace SWAPS.Shared.Com.IPC
    public static class ComServices
    {
       /// <summary>
+      /// Log admin data
+      /// </summary>
+      public const string S_ADMIN_LOG = "/admin/log";
+
+      /// <summary>
       /// Handshake/Refelect data
       /// </summary>
       public const string S_HANDSHAKE_REFLECTOR = "/handshakereflector";

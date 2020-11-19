@@ -1,6 +1,7 @@
 ﻿using CommandLine;
 using Serilog;
 using SWAPS.Admin.CMD;
+using SWAPS.Admin.Logging;
 using SWAPS.Shared;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,9 @@ namespace SWAPS.Admin
    /// </summary>
    public static class Program
    {
+      public static Action<string> Writer { get; set; } = s => { };
+      public static Func<bool> WriterAvailable { get; set; } = () => false;
+
       static void Main(string[] args)
       {
          Run(args);
@@ -107,7 +111,8 @@ namespace SWAPS.Admin
 #else
                .Information()
 #endif
-            .WriteTo.Console(outputTemplate: "{Timestamp:HH:mm:ss,fff} {Level:u3} {ThreadId,-2} {Message:lj}{NewLine}{Exception}");
+            .WriteTo.Console(outputTemplate: "{Timestamp:HH:mm:ss,fff} {Level:u3} {ThreadId,-2} {Message:lj}{NewLine}{Exception}")
+            .WriteTo.Buffered(s => Writer(s), () => WriterAvailable(), outputTemplate: "{Timestamp:HH:mm:ss,fff} {Level:u3} {ThreadId,-2} {Message:lj}{NewLine}{Exception}");
       }
    }
 }

@@ -116,6 +116,7 @@ namespace SWAPS.AdminCom
 
       private void InitServices()
       {
+         Server.AddWebSocketService<WSAdminLog>(ComServices.S_ADMIN_LOG);
          Server.AddWebSocketService<WSHandshakeReflector>(ComServices.S_HANDSHAKE_REFLECTOR, () => new WSHandshakeReflector(HandshakeWithinTimeout));
 
          StartServiceManager.Broadcaster = data => Server.WebSocketServices[ComServices.S_SERVICE_START].Sessions.Broadcast(data);

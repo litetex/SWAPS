@@ -24,9 +24,12 @@ namespace SWAPS.Admin.Communication
 
       private ProcessAliveChecker StarterPIDAliveChecker { get; set; }
 
+      private List<WebSocket> RegisteredWebsockets { get; set; } = new List<WebSocket>();
+
+
       private WebSocket WebSocketShutdownMonitor { get; set; }
 
-      private List<WebSocket> RegisteredWS { get; set; } = new List<WebSocket>();
+      private WebSocket WebSocketLog { get; set; }
 
 
       private TaskCompletionSource<bool> Stopped { get; set; } = new TaskCompletionSource<bool>();
@@ -46,6 +49,7 @@ namespace SWAPS.Admin.Communication
          RunShutdownMonitorService().Wait();
          LinkServices().Wait();
          Handshake().Wait();
+         TransmitLogs().Wait();
 
          WaitForStop();
       }
@@ -203,6 +207,61 @@ namespace SWAPS.Admin.Communication
          Log.Info("Handshake successful/Reflector operational");
       }
 
+      protected async Task TransmitLogs()
+      {
+         Log.Info("Starting logging (LM) service");
+         WebSocketLog = CreateWebSocket(ComServices.S_ADMIN_LOG);
+         WebSocketLog.OnOpen += (s, ev) =>
+         {
+            Log.Debug($"LM: onOpen");
+            Program.Writer = s => WebSocketLog.Send(s.TrimEnd());
+            Program.WriterAvailable = () => WebSocketLog.ReadyState == WebSocketState.Open;
+         };
+
+         WebSocketLog.OnMessage += (s, ev) =>
+         {
+            Log.Debug($"LM: onMessage: '{ev.Data}'");
+         };
+
+         WebSocketLog.OnClose += (s, ev) =>
+         {
+            Log.Debug($"LM: was closed! Code={ev.Code} Reason='{ev.Reason}' WasClean={ev.WasClean}");
+         };
+
+         WebSocketLog.OnError += (s, ev) =>
+         {
+            if (Stopped.Task.IsCompleted)
+               return;
+
+            Log.Error($"LM: error", ev.Exception);
+         };
+
+         using (var timeoutCancellationTokenSource = new CancellationTokenSource())
+         {
+            var connectTask = Task.Run(() =>
+            {
+               try
+               {
+                  WebSocketLog.Connect();
+               }
+               catch (Exception ex)
+               {
+                  Log.Error("Connection error", ex);
+               }
+            });
+
+            if (await Task.WhenAny(Task.Delay(TimeSpan.FromSeconds(5), timeoutCancellationTokenSource.Token), connectTask) == connectTask)
+            {
+               timeoutCancellationTokenSource.Cancel();
+               await connectTask;
+            }
+            else
+               throw new TimeoutException("Failed to connect to shutdown in time");
+         }
+
+         Log.Info("LM started successfully");
+      }
+
       protected void ShutdownEvent()
       {
          if (Stopped.Task.IsCompletedSuccessfully)
@@ -241,7 +300,7 @@ namespace SWAPS.Admin.Communication
          //   return true;
          //};
 
-         RegisteredWS.Add(ws);
+         RegisteredWebsockets.Add(ws);
 
          return ws;
       }
@@ -262,7 +321,7 @@ namespace SWAPS.Admin.Communication
 
             Log.Info("Shutting down services");
             var shutdownTasks = new List<Task>();
-            foreach(var ws in RegisteredWS.Where(ws => new WebSocketState[] { WebSocketState.Closed, WebSocketState.Closing }.Contains(ws.ReadyState)))
+            foreach(var ws in RegisteredWebsockets.Where(ws => new WebSocketState[] { WebSocketState.Closed, WebSocketState.Closing }.Contains(ws.ReadyState)))
             { 
                shutdownTasks.Add(Task.Run(() => ShutdownWS(ws)));
             }

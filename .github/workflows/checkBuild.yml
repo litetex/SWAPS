@@ -44,5 +44,6 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: all-${{ matrix.os }}
-        path: builtmp/
+        path: |
+          builtmp/**
         if-no-files-found: error

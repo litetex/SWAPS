@@ -1,1 +1,46 @@
+name: Check Build
 
+on: 
+  workflow_dispatch:
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
+
+jobs: 
+  build:
+   runs-on: ubuntu-latest
+   strategy:
+      matrix:
+        os: [win-x64]
+        configuration: [Release]
+   steps:
+    - uses: actions/checkout@v2
+         
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '3.1'
+        
+    - name: Build
+      run: dotnet build --configuration ${{ matrix.configuration }}
+    
+    - name: Publish ${{ matrix.os }} ${{ matrix.configuration }} SWAPS - dotnet publish 
+      working-directory: SWAPS
+      run: dotnet publish -c ${{ matrix.configuration }} -r ${{ matrix.os }} -p:PublishSingleFile=true 
+
+    - name: Publish ${{ matrix.os }} ${{ matrix.configuration }} SWAPS.Admin - dotnet publish 
+      working-directory: SWAPS.Admin
+      run: dotnet publish -c ${{ matrix.configuration }} -r ${{ matrix.os }} -p:PublishSingleFile=true
+
+    - name: Publish ${{ matrix.os }} ${{ matrix.configuration }} SWAPS.Admin - dotnet publish 
+      run: |
+        mkdir buildtmp
+        cp SWAPS/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.os }}/publish/SWAPS.exe buildtmp/
+        cp SWAPS.Admin/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.os }}/publish/SWAPS.Admin.exe buildtmp/
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: all-${{ matrix.os }}
+        path: builtmp/*

@@ -33,17 +33,11 @@ jobs:
       working-directory: SWAPS.Admin
       run: dotnet publish -c ${{ matrix.configuration }} -r ${{ matrix.os }} -p:PublishSingleFile=true -p:DebugType=None
 
-    - name: Combine artifacts
-      run: |
-        mkdir buildtmp
-        cp -a SWAPS/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.os }}/publish/. buildtmp/
-        cp -a SWAPS.Admin/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.os }}/publish/. buildtmp/
-        ls -lha buildtmp
-
     - name: Upload artifact
       uses: actions/upload-artifact@v2
       with:
         name: all-${{ matrix.os }}
         path: |
-          builtmp/**
+          SWAPS/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.os }}/publish/
+          SWAPS.Admin/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.os }}/publish/
         if-no-files-found: error

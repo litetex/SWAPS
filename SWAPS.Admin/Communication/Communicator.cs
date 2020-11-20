@@ -123,7 +123,7 @@ namespace SWAPS.Admin.Communication
                }
             });
 
-            if (await Task.WhenAny(Task.Delay(TimeSpan.FromSeconds(5), timeoutCancellationTokenSource.Token), connectTask) == connectTask)
+            if (await Task.WhenAny(Task.Delay(TimeSpan.FromSeconds(10), timeoutCancellationTokenSource.Token), connectTask) == connectTask)
             {
                timeoutCancellationTokenSource.Cancel();
                await connectTask;
@@ -281,24 +281,24 @@ namespace SWAPS.Admin.Communication
 
       public WebSocket CreateWebSocket(string path)
       {
-         var ws = new WebSocket($"ws://{IPAddress.Loopback}:{Config.ComPort}" + path);
+         var ws = new WebSocket($"wss://{IPAddress.Loopback}:{Config.ComPort}" + path);
          ws.SetCredentials(Config.Username, Config.Password, false);
-         //ws.SslConfiguration.ServerCertificateValidationCallback = (sender, cert, chain, sslPolicyErrors) =>
-         //{
-         //   if (sslPolicyErrors != System.Net.Security.SslPolicyErrors.None)
-         //   {
-         //      Log.Error($"SslPolicyError: {sslPolicyErrors}");
-         //      return false;
-         //   }
+         ws.SslConfiguration.ServerCertificateValidationCallback = (sender, cert, chain, sslPolicyErrors) =>
+         {
+            //if (sslPolicyErrors != System.Net.Security.SslPolicyErrors.None)
+            //{
+            //   Log.Error($"SslPolicyError: {sslPolicyErrors}");
+            //   return false;
+            //}
 
-         //   if (cert.GetPublicKeyString() != Config.ServerCertPublicKey)
-         //   {
-         //      Log.Error($"PublicKeyError: {cert.GetPublicKeyString()}");
-         //      return false;
-         //   }
+            if (cert.GetPublicKeyString() != Config.ServerCertPublicKey)
+            {
+               Log.Error($"PublicKeyError: {cert.GetPublicKeyString()}");
+               return false;
+            }
 
-         //   return true;
-         //};
+            return true;
+         };
 
          RegisteredWebsockets.Add(ws);
 

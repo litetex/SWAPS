@@ -67,8 +67,10 @@ namespace SWAPS.Admin
             parser.ParseArguments<CmdOptions>(args)
                      .WithParsed((opt) =>
                      {
+#if !DEBUG
                         if(!opt.ShowServerConsole)
                            ShowWindow(GetConsoleWindow(), SW_HIDE);
+#endif
 
                         var logConf = GetDefaultLoggerConfiguration();
                         if (opt.Verbose)

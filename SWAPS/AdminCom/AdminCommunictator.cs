@@ -29,7 +29,7 @@ namespace SWAPS.AdminCom
 
       private WebSocketServer Server { get; set; }
 
-      //private X509Certificate2 ServerCert { get; set; }
+      private X509Certificate2 ServerCert { get; set; }
 
 
       private AdminComConfig AdminComConfig { get; set; }
@@ -97,11 +97,11 @@ namespace SWAPS.AdminCom
 
       private void LaunchWebSocketServer()
       {
-         //CreateSelfSignedCert();
+         CreateSelfSignedCert();
 
          AdminComConfig.ComPort = (ushort)NetworkUtil.GetFreeTcpPort();
 
-         Server = new WebSocketServer(IPAddress.Loopback, AdminComConfig.ComPort/*, true*/);
+         Server = new WebSocketServer(IPAddress.Loopback, AdminComConfig.ComPort, true);
          // Auth
          Server.AuthenticationSchemes = WebSocketSharp.Net.AuthenticationSchemes.Basic;
          Server.UserCredentialsFinder = id =>
@@ -113,8 +113,8 @@ namespace SWAPS.AdminCom
          };
 
          // Sec
-         //Server.SslConfiguration.ServerCertificate = ServerCert;
-         //AdminComConfig.ServerCertPublicKey = ServerCert.GetPublicKeyString();
+         Server.SslConfiguration.ServerCertificate = ServerCert;
+         AdminComConfig.ServerCertPublicKey = ServerCert.GetPublicKeyString();
 
          InitServices();
 
@@ -137,14 +137,14 @@ namespace SWAPS.AdminCom
          Server.AddWebSocketService<WSShutdownAdmin>(ComServices.S_SHUTDOWN_ADMIN);
       }
 
-      //private void CreateSelfSignedCert()
-      //{
-      //   Log.Info("Creating cert");
+      private void CreateSelfSignedCert()
+      {
+         Log.Info("Creating cert");
 
-      //   ServerCert = //CertGen.CreateSelfSignedCert();
+         ServerCert = CertGen.CreateSelfSignedCert();
 
-      //   Log.Info("Created cert");
-      //}
+         Log.Info("Created cert");
+      }
 
       private void StartAdminProcess()
       {

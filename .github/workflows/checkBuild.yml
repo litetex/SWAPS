@@ -36,11 +36,12 @@ jobs:
     - name: Combine artifacts
       run: |
         mkdir buildtmp
-        cp SWAPS/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.os }}/publish/SWAPS.exe buildtmp/
-        cp SWAPS.Admin/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.os }}/publish/SWAPS.Admin.exe buildtmp/
+        cp SWAPS/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.os }}/publish/SWAPS.exe buildtmp
+        cp SWAPS.Admin/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.os }}/publish/SWAPS.Admin.exe buildtmp
 
     - name: Upload artifact
       uses: actions/upload-artifact@v2
       with:
         name: all-${{ matrix.os }}
         path: builtmp/*
+        if-no-files-found: error

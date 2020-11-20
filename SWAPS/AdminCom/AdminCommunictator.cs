@@ -173,6 +173,7 @@ namespace SWAPS.AdminCom
                   @"..\..\..\..\SWAPS.Admin\bin\Debug\netcoreapp3.1",
 #endif
                   "SWAPS.Admin.exe"),
+               WindowStyle = AdminComConfig.ShowServerConsole ? ProcessWindowStyle.Normal : ProcessWindowStyle.Minimized,
                Arguments = AdminComConfig.CreateCMDArgs,
                Verb = "runas",
                UseShellExecute = true,

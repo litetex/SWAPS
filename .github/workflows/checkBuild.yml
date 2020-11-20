@@ -36,6 +36,7 @@ jobs:
     - name: Combine artifacts
       run: |
         mkdir buildtmp
+        echo "Is this command even running?"
         cp SWAPS/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.os }}/publish/SWAPS.exe buildtmp
         cp SWAPS.Admin/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.os }}/publish/SWAPS.Admin.exe buildtmp
 

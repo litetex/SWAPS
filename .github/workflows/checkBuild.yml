@@ -39,7 +39,7 @@ jobs:
         cp -a SWAPS/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.os }}/publish/. buildtmp/
         cp -a SWAPS.Admin/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.os }}/publish/. buildtmp/
         cd buildtmp
-        zip -r all.zip
+        zip -r all.zip .
 
     - name: Upload artifact
       uses: actions/upload-artifact@v2

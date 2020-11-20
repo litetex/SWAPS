@@ -2,7 +2,7 @@
   "profiles": {
     "SWAPS - Conf": {
       "commandName": "Project",
-      "commandLineArgs": "-l -c config.json"
+      "commandLineArgs": "-l -c config.json --showServerConsole"
     },
     "SWAPS - GenConf": {
       "commandName": "Project",

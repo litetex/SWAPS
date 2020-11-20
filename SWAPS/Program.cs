@@ -1,6 +1,7 @@
 ﻿using CommandLine;
 using Serilog;
 using SWAPS.CMD;
+using SWAPS.Shared;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,6 +16,8 @@ namespace SWAPS
    /// </summary>
    public static class Program
    {
+      public static CmdOptions CmdOption { get; private set; }
+
       static void Main(string[] args)
       {
          Run(args);
@@ -57,41 +60,53 @@ namespace SWAPS
                }
             };
 #endif
-            Parser.Default.ParseArguments<CmdOption>(args)
-                     .WithParsed((opt) =>
-                     {
-                        if (opt.LogToFile)
-                        {
-                           var logConf = GetDefaultLoggerConfiguration();
+            var parser = new Parser(settings =>
+            {
+               settings.CaseSensitive = false;
+            });
+            parser.ParseArguments<CmdOptions>(args)
+               .WithParsed((opt) =>
+               {
+                  CmdOption = opt;
 
-                           logConf.WriteTo.File(Path.Combine("logs", "log.log"),
-                                 outputTemplate: "{Timestamp:HH:mm:ss,fff} {Level:u3} {ThreadId,-2} {Message:lj}{NewLine}{Exception}",
-                                 rollingInterval: RollingInterval.Day,
-                                 rollOnFileSizeLimit: true);
+                  var logConf = GetDefaultLoggerConfiguration();
+                  if (opt.Verbose)
+                  {
+                     logConf.MinimumLevel.Debug();
 
-                           Serilog.Log.Logger = logConf.CreateLogger();
-                           Log.Info("Logger will also write to file");
-                        }
+                     Serilog.Log.Logger = logConf.CreateLogger();
+                     Log.Info("Running in verbose mode");
+                  }
+                  if (opt.LogToFile)
+                  {
+                     logConf.WriteTo.File(Path.Combine("logs", "log.log"),
+                           outputTemplate: "{Timestamp:HH:mm:ss,fff} {Level:u3} {ThreadId,-2} {Message:lj}{NewLine}{Exception}",
+                           rollingInterval: RollingInterval.Day,
+                           rollOnFileSizeLimit: true);
 
-                        var starter = new StartUp(opt);
-                        starter.Start();
-                     })
-                     .WithNotParsed((ex) =>
-                     {
-                        if (ex.All(err =>
-                                new ErrorType[]
-                                {
-                                 ErrorType.HelpRequestedError,
-                                 ErrorType.HelpVerbRequestedError
-                                }.Contains(err.Tag))
-                          )
-                           return;
+                     Serilog.Log.Logger = logConf.CreateLogger();
+                     Log.Info("Logger will also write to file");
+                  }
 
-                        foreach (var error in ex)
-                           Log.Error($"Failed to parse: {error.Tag}");
+                  var starter = new StartUp(opt);
+                  starter.Start();
+               })
+               .WithNotParsed((ex) =>
+               {
+                  if (ex.All(err =>
+                           new ErrorType[]
+                           {
+                           ErrorType.HelpRequestedError,
+                           ErrorType.HelpVerbRequestedError
+                           }.Contains(err.Tag))
+                     )
+                     return;
 
-                        Log.Fatal("Failed to process args");
-                     });
+                  foreach (var error in ex)
+                     Log.Error($"Failed to parse: {error.Tag}");
+
+                  Log.Fatal("Failed to process args");
+               });
 #if !DEBUG
          }
          catch (Exception ex)
@@ -105,7 +120,12 @@ namespace SWAPS
       {
          return new LoggerConfiguration()
             .Enrich.WithThreadId()
-            .MinimumLevel.Information()
+            .MinimumLevel
+#if DEBUG
+               .Debug()
+#else
+               .Information()
+#endif
             .WriteTo.Console(outputTemplate: "{Timestamp:HH:mm:ss,fff} {Level:u3} {ThreadId,-2} {Message:lj}{NewLine}{Exception}");
       }
    }

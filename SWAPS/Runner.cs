@@ -1,5 +1,8 @@
-﻿using SWAPS.Config;
-using SWAPS.Service;
+using SWAPS.AdminCom;
+using SWAPS.AdminCom.Service;
+using SWAPS.CMD;
+using SWAPS.Config;
+using SWAPS.Shared.Com.IPC.Payload;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -11,11 +14,16 @@ namespace SWAPS
 {
    public class Runner
    {
+      protected AdminCommunictator AdminCommunictator { get; set; }
+
       protected Configuration Config { get; set; }
 
-      public Runner(Configuration configuration)
+      protected CmdOptions CmdOptions { get; set; }
+
+      public Runner(Configuration configuration, CmdOptions cmdOptions)
       {
          Config = configuration;
+         CmdOptions = cmdOptions;
       }
 
       public void Run()
@@ -24,93 +32,51 @@ namespace SWAPS
          {
             Console.Title = Config.Name;
 
-            using (ServiceController svc = GetService())
-            {
-               CheckAndChangeServiceStartUpType(svc);
-               StartService(svc);
-               WaitForServiceReachingStatus(svc, ServiceControllerStatus.Running, Config.ServiceStartTimeout);
-            }
+            AdminCommunictator = new AdminCommunictator(
+               CmdOptions.LogToFile, 
+               CmdOptions.Verbose, 
+               CmdOptions.ShowServerConsole,
+               CmdOptions.UseUnencryptedCom);
+
+            AdminCommunictator.Start();
+
+            Log.Info("Starting service");
+            AdminCommunictator.StartServiceManager
+               .Invoke(
+               new ServiceStart()
+               {
+                  Name = Config.ServiceConfig.ServiceName,
+                  Timeout = Config.ServiceStartTimeout
+               },
+               Config.ServiceStartTimeout.Add(TimeSpan.FromSeconds(10)))
+               .Wait();
 
             Log.Info($"Waiting {Config.ServiceProperlyStartedDelay} for the service to become fully operational");
             Thread.Sleep((int)Config.ServiceProperlyStartedDelay.TotalMilliseconds);
 
             StartProgramAndWait();
 
-            using (ServiceController svc = GetService())
-               StopService(svc);
+            Log.Info("Stopping service");
+            AdminCommunictator.StopServiceManager
+               .Invoke(
+               new ServiceStop()
+               {
+                  Name = Config.ServiceConfig.ServiceName,
+                  CrashOnServiceNotFound = Config.CrashOnUpdateServiceNotFound
+               },
+               TimeSpan.FromSeconds(10))
+               .Wait();
 
             Thread.Sleep((int)Config.StayingOpenBeforeEnding.TotalMilliseconds);
          }
          catch (Exception e)
          {
             Log.Error(e);
-            Console.ReadKey();
          }
-
-      }
-
-      private void StopService(ServiceController svc)
-      {
-         Log.Info($"Stopping '{Config.ServiceConfig.ServiceName}'... Waiting 1 Sec");
-         Thread.Sleep((int)Config.ServiceShutdownDelay.TotalMilliseconds);
-
-         try
+         finally
          {
-            svc.Stop();
-            Log.Info("Stopped");
+            AdminCommunictator.Stop();
          }
-         catch (InvalidOperationException invOpex)
-         {
-            Log.Error($"{nameof(InvalidOperationException)} while shuting down service");
-            if (invOpex.InnerException is Win32Exception win32ex)
-            {
-               Log.Error("Win32Error: Code=" + win32ex.NativeErrorCode);
-               if (win32ex.NativeErrorCode != 1060)
-                  throw;
-
-               Log.Warn("Program maybe updating: Service couldn't be found");
-               if (Config.CrashOnUpdateServiceNotFound)
-                  throw;
-            }
-            else
-               throw;
-         }
-         catch (Exception e)
-         {
-            Log.Error("Failed to stop service! ExceptionType: " + e.GetType());
-
-            throw;
-         }
-
-      }
-
-      private void StartService(ServiceController svc)
-      {
-         Log.Info($"Starting '{Config.ServiceConfig.ServiceName}'");
-         svc.Start();
-      }
-
-      private void WaitForServiceReachingStatus(ServiceController svc, ServiceControllerStatus target, TimeSpan timeout)
-      {
-         var sw = Stopwatch.StartNew();
-
-         var task = Task.Run(() =>
-         {
-            while (svc.Status != target)
-            {
-               Thread.Sleep(500);
-               svc.Refresh();
-            }
-         });
-         if (task.Wait(timeout))
-         {
-            sw.Stop();
-            Log.Info($"{svc.DisplayName} reached status='{target}' in {sw.Elapsed}");
-            return;
-         }
-         sw.Stop();
-
-         throw new System.TimeoutException($"{svc.DisplayName} failed to reach status='{target}' in {timeout}!");
       }
 
       private void StartProgramAndWait()
@@ -130,39 +96,11 @@ namespace SWAPS
 
          if (Config.ProcessConfig.Timeout == null)
             process.WaitForExit();
-         else if(!process.WaitForExit((int)Config.ProcessConfig.Timeout.Value.TotalMilliseconds))
+         else if (!process.WaitForExit((int)Config.ProcessConfig.Timeout.Value.TotalMilliseconds))
          {
             Log.Info("Process timed out, killing it");
             process.Kill();
          }
-      }
-
-      private void CheckAndChangeServiceStartUpType(ServiceController svc)
-      {
-         try
-         {
-            if (svc.Status != ServiceControllerStatus.Stopped)
-            {
-               Log.Info($"Stopping Service '{Config.ServiceConfig.ServiceName}'...");
-               svc.Stop();
-            }
-            if (svc.StartType != ServiceStartMode.Manual)
-            {
-               Log.Info($"Changing '{Config.ServiceConfig.ServiceName}' StartUpType to Manual");
-               ServiceHelper.ChangeStartMode(svc, ServiceStartMode.Manual);
-            }
-
-         }
-         catch (Exception e)
-         {
-            Log.Error($"Failed to change '{Config.ServiceConfig.ServiceName}'-{nameof(svc.StartType)} to {nameof(ServiceStartMode.Manual)}", e);
-         }
-      }
-
-
-      private ServiceController GetService()
-      {
-         return new ServiceController(Config.ServiceConfig.ServiceName);
       }
 
    }

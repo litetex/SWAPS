@@ -1,29 +1,15 @@
-name: Master CI
+name: Check Build
 
 on: 
+  workflow_dispatch:
   push:
-    branches: [ master ]
+    branches: [ develop ]
+    paths-ignore: 
+      - '**.md'
+  pull_request:
+    branches: [ develop ]
 
-jobs:
-  create_release:
-    runs-on: ubuntu-latest
-    outputs:
-       upload_url: ${{ steps.create_draft.outputs.upload_url }}
-       version: ${{ steps.create_version.outputs.version }}
-
-    steps:
-      - name: Release - Create Draft for a Release
-        id: create_draft
-        uses: release-drafter/release-drafter@v5
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Generate version - Cut away the first letter (v)
-        id: create_version
-        run: |
-          tag_name=${{ steps.create_draft.outputs.tag_name }}
-          echo "::set-output name=version::$(echo ${tag_name:1})"
-
+jobs: 
   build:
    runs-on: ubuntu-latest
    strategy:
@@ -64,14 +50,3 @@ jobs:
         path: |
           buildtmp/all.zip
         if-no-files-found: error
-      
-    - name: Release ${{ matrix.os }} - Upload Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ needs.create_release.outputs.upload_url }} 
-        asset_path: ./buildtmp/all.zip
-        asset_name: SWAPS-${{ matrix.os }}.zip
-        asset_content_type: application/zip
-  

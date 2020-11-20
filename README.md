@@ -1,10 +1,4 @@
-[![Build](https://img.shields.io/github/workflow/status/litetex/SWAPS/Master%20CI)](https://github.com/litetex/SWAPS/actions)
-[![Latest Version](https://img.shields.io/github/v/release/litetex/SWAPS)](https://github.com/litetex/SWAPS/releases)
-![Platform: Windows](https://img.shields.io/badge/windows-supported-5936b0.svg?logo=windows)
-
-[![Build Develop](https://dev.azure.com/litetex/SWAPS/_apis/build/status/Develop?label=build%20develop)](https://dev.azure.com/litetex/SWAPS/_build/latest?definitionId=1)
-
-# SWAPS
+# SWAPS [![Build](https://img.shields.io/github/workflow/status/litetex/SWAPS/Master%20CI/master)](https://github.com/litetex/SWAPS/actions?query=workflow%3A%22Master+CI%22) [![Latest Version](https://img.shields.io/github/v/release/litetex/SWAPS)](https://github.com/litetex/SWAPS/releases) ![Platform: Windows](https://img.shields.io/badge/windows-supported-5936b0.svg?logo=windows)
 Start a program/process without a auto-starting service
 
 ### Requirements
@@ -18,3 +12,5 @@ Start a program/process without a auto-starting service
 * Create log files with ``-l``
 
 #### [Example config](example_config.json)
+
+### Development [![Build Develop](https://img.shields.io/github/workflow/status/litetex/SWAPS/Check%20Build/develop?label=build%20develop)](https://github.com/litetex/SWAPS/actions?query=workflow%3A%22Check+Build%22+branch%3Adevelop)

@@ -67,6 +67,9 @@ namespace SWAPS.Admin
             parser.ParseArguments<CmdOptions>(args)
                      .WithParsed((opt) =>
                      {
+                        if(!opt.ShowServerConsole)
+                           ShowWindow(GetConsoleWindow(), SW_HIDE);
+
                         var logConf = GetDefaultLoggerConfiguration();
                         if (opt.Verbose)
                         {
@@ -114,5 +117,14 @@ namespace SWAPS.Admin
             .WriteTo.Console(outputTemplate: "{Timestamp:HH:mm:ss,fff} {Level:u3} {ThreadId,-2} {Message:lj}{NewLine}{Exception}")
             .WriteTo.Buffered(s => Writer(s), () => WriterAvailable(), outputTemplate: "{Timestamp:HH:mm:ss,fff} {Level:u3} {ThreadId,-2} {Message:lj}{NewLine}{Exception}");
       }
+
+      [DllImport("kernel32.dll")]
+      static extern IntPtr GetConsoleWindow();
+
+      [DllImport("user32.dll")]
+      static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+      const int SW_HIDE = 0;
+      const int SW_SHOW = 5;
    }
 }

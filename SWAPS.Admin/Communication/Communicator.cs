@@ -157,7 +157,7 @@ namespace SWAPS.Admin.Communication
          Log.Info("Checking handshake reflector (HR)");
 
          var tcs = new TaskCompletionSource<string>();
-         var randomStr = RandomStringGen.RandomString(64);
+         var randomStr = SecureRandomStringGen.RandomString(64);
 
          using (var wsHRCheck = CreateWebSocket(ComServices.S_HANDSHAKE_REFLECTOR))
          {

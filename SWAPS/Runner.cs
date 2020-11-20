@@ -32,7 +32,7 @@ namespace SWAPS
          {
             Console.Title = Config.Name;
 
-            AdminCommunictator = new AdminCommunictator(CmdOptions.LogToFile, CmdOptions.Verbose);
+            AdminCommunictator = new AdminCommunictator(CmdOptions.LogToFile, CmdOptions.Verbose, CmdOptions.Verbose || CmdOptions.ShowServerConsole);
             AdminCommunictator.Start();
 
             Log.Info("Starting service");

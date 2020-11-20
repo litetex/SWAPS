@@ -10,11 +10,14 @@ namespace SWAPS.Admin.CMD
    public class CmdOptions : AdminComConfig
    {
 
-      [Option(nameof(LogToFile), Default = false)]
+      [Option(nameof(LogToFile))]
       public override bool LogToFile { get => base.LogToFile; set => base.LogToFile = value; }
 
-      [Option(nameof(Verbose), Default = false)]
+      [Option(nameof(Verbose))]
       public override bool Verbose { get => base.Verbose; set => base.Verbose = value; }
+
+      [Option(nameof(ShowServerConsole))]
+      public override bool ShowServerConsole { get => base.ShowServerConsole; set => base.ShowServerConsole = value; }
 
 
       [Option(nameof(StartInactivityShutdownTimeout), Required = true)]

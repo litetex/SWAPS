@@ -32,7 +32,7 @@ namespace SWAPS.AdminCom
       //private X509Certificate2 ServerCert { get; set; }
 
 
-      private AdminComConfig AdminComConfig { get; set; } = new AdminComConfig();
+      private AdminComConfig AdminComConfig { get; set; }
 
       private HandshakeWithinTimeout HandshakeWithinTimeout { get; set; } = new HandshakeWithinTimeout();
 
@@ -43,10 +43,19 @@ namespace SWAPS.AdminCom
       private bool Stopped { get; set; } = false;
       private readonly object lockStop = new object();
 
-      public AdminCommunictator(bool logToFile, bool verbose)
+      public AdminCommunictator(
+         bool logToFile, 
+         bool verbose, 
+         bool showServerConsole)
       {
-         AdminComConfig.LogToFile = logToFile;
-         AdminComConfig.Verbose = verbose;
+         AdminComConfig = new AdminComConfig()
+         {
+            LogToFile = logToFile,
+            Verbose = verbose,
+            ShowServerConsole = showServerConsole,
+            Username = SecureRandomStringGen.RandomString(64, true),
+            Password = SecureRandomStringGen.RandomString(128, true)
+         };
 
          StartServiceManager = new ServiceManager<ServiceStart, bool>(CancelOperationTCS);
          StopServiceManager = new ServiceManager<ServiceStop, bool>(CancelOperationTCS);

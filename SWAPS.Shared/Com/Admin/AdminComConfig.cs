@@ -10,6 +10,8 @@ namespace SWAPS.Shared.Com.Admin
 
       public virtual bool Verbose { get; set; } = false;
 
+      public virtual bool ShowServerConsole { get; set; } = false;
+
 
       public virtual TimeSpan StartInactivityShutdownTimeout { get; set; } = TimeSpan.FromSeconds(30);
 
@@ -18,11 +20,9 @@ namespace SWAPS.Shared.Com.Admin
       public virtual int ParentPID { get; set; }
 
 
-      // TODO: Don't hardcode
-      public virtual string Username { get; set; } = "user";
+      public virtual string Username { get; set; }
 
-      // TODO: Don't hardcode
-      public virtual string Password { get; set; } = "pw";
+      public virtual string Password { get; set; }
 
       public virtual string ServerCertPublicKey { get; set; } = "todo";
 
@@ -30,6 +30,7 @@ namespace SWAPS.Shared.Com.Admin
       public string CreateCMDArgs =>
          (LogToFile ? $"--{nameof(LogToFile).ToLowerInvariant()} " : "") +
          (Verbose ? $"--{nameof(Verbose).ToLowerInvariant()} " : "") +
+         (ShowServerConsole ? $"--{nameof(ShowServerConsole).ToLowerInvariant()} " : "") +
          $"--{nameof(StartInactivityShutdownTimeout).ToLowerInvariant()} {StartInactivityShutdownTimeout.TotalMilliseconds} " +
          $"--{nameof(ComPort).ToLowerInvariant()} {ComPort} " +
          $"--{nameof(ParentPID).ToLowerInvariant()} {ParentPID} " +

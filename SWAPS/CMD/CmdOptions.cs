@@ -1,4 +1,5 @@
-﻿using CommandLine;
+﻿using System.Collections.Generic;
+using CommandLine;
 
 namespace SWAPS.CMD
 {
@@ -12,6 +13,9 @@ namespace SWAPS.CMD
 
       [Option('v', "verbose", Default = false, HelpText = "Log more stuff")]
       public bool Verbose { get; set; } = false;
+
+      [Option("showserverconsole", HelpText = "Shows the server console")]
+      public bool ShowServerConsole { get; set; } 
 
       #region JSON based Config
       [Option('c', "config", HelpText = "path to the configuration file; if not set: using default internal config")]

@@ -33,7 +33,7 @@ jobs:
       working-directory: SWAPS.Admin
       run: dotnet publish -c ${{ matrix.configuration }} -r ${{ matrix.os }} -p:PublishSingleFile=true
 
-    - name: Publish ${{ matrix.os }} ${{ matrix.configuration }} SWAPS.Admin - dotnet publish 
+    - name: Combine artifacts
       run: |
         mkdir buildtmp
         cp SWAPS/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.os }}/publish/SWAPS.exe buildtmp/

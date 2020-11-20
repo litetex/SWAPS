@@ -7,7 +7,7 @@ using System.ServiceProcess;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SWAPS.Service
+namespace SWAPS.Admin.Service
 {
 
    public static class ServiceHelper

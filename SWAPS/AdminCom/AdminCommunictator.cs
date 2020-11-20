@@ -22,7 +22,7 @@ namespace SWAPS.AdminCom
 {
    public class AdminCommunictator
    {
-      private TaskCompletionSource<bool> CancelOperationTCS { get; set; } = new TaskCompletionSource<bool>();
+      private CancellationTokenSource CancelOperationTS { get; set; } = new CancellationTokenSource();
 
       public ServiceManager<ServiceStart, bool> StartServiceManager { get; set; }
       public ServiceManager<ServiceStop, bool> StopServiceManager { get; set; }
@@ -46,7 +46,8 @@ namespace SWAPS.AdminCom
       public AdminCommunictator(
          bool logToFile, 
          bool verbose, 
-         bool showServerConsole)
+         bool showServerConsole,
+         bool useUnencryptedCom)
       {
          AdminComConfig = new AdminComConfig()
          {
@@ -54,11 +55,12 @@ namespace SWAPS.AdminCom
             Verbose = verbose,
             ShowServerConsole = showServerConsole,
             Username = SecureRandomStringGen.RandomString(64, true),
-            Password = SecureRandomStringGen.RandomString(128, true)
+            Password = SecureRandomStringGen.RandomString(128, true),
+            UnencryptedServerCom = useUnencryptedCom
          };
 
-         StartServiceManager = new ServiceManager<ServiceStart, bool>(CancelOperationTCS);
-         StopServiceManager = new ServiceManager<ServiceStop, bool>(CancelOperationTCS);
+         StartServiceManager = new ServiceManager<ServiceStart, bool>(() => CancelOperationTS.Token);
+         StopServiceManager = new ServiceManager<ServiceStop, bool>(() => CancelOperationTS.Token);
       }
 
       public void Start()
@@ -78,6 +80,8 @@ namespace SWAPS.AdminCom
          {
             Log.Error($"Unable to locate PID={AdminProcessID.Value} of admin-process, assuming crash; Stopping...");
             Stop();
+
+            throw new OperationCanceledException($"SERVER_SHUTDOWN: Unable to locate PID={AdminProcessID.Value} of admin-process, assuming crash");
          });
          AdminProcessAliveChecker.Start();
 
@@ -86,8 +90,10 @@ namespace SWAPS.AdminCom
             .StartTimeout(AdminComConfig.StartInactivityShutdownTimeout)
             .Result)
          {
-            Log.Error("No handshake from Admin-process within timeout; Stopping...");
+            Log.Error($"No handshake from Admin-process within timeout[='{AdminComConfig.StartInactivityShutdownTimeout}']; Stopping...");
             Stop();
+
+            throw new OperationCanceledException($"SERVER_SHUTDOWN: No handshake from Admin-process within timeout[='{AdminComConfig.StartInactivityShutdownTimeout}']");
          }
          else
          {
@@ -97,11 +103,12 @@ namespace SWAPS.AdminCom
 
       private void LaunchWebSocketServer()
       {
-         CreateSelfSignedCert();
+         if (!AdminComConfig.UnencryptedServerCom)
+            CreateSelfSignedCert();    
 
          AdminComConfig.ComPort = (ushort)NetworkUtil.GetFreeTcpPort();
 
-         Server = new WebSocketServer(IPAddress.Loopback, AdminComConfig.ComPort, true);
+         Server = new WebSocketServer(IPAddress.Loopback, AdminComConfig.ComPort, !AdminComConfig.UnencryptedServerCom);
          // Auth
          Server.AuthenticationSchemes = WebSocketSharp.Net.AuthenticationSchemes.Basic;
          Server.UserCredentialsFinder = id =>
@@ -113,8 +120,14 @@ namespace SWAPS.AdminCom
          };
 
          // Sec
-         Server.SslConfiguration.ServerCertificate = ServerCert;
-         AdminComConfig.ServerCertPublicKey = ServerCert.GetPublicKeyString();
+         if (!AdminComConfig.UnencryptedServerCom)
+         {
+            Log.Info("Using an encrypted connection");
+            Server.SslConfiguration.ServerCertificate = ServerCert;
+            AdminComConfig.ServerCertPublicKey = ServerCert.GetPublicKeyString();
+         }
+         else
+            Log.Warn("Using an UNENCRYPTED connection - this may be insecure");
 
          InitServices();
 
@@ -141,7 +154,7 @@ namespace SWAPS.AdminCom
       {
          Log.Info("Creating cert");
 
-         ServerCert = CertGen.CreateSelfSignedCert();
+         ServerCert = CertMan.CreateSelfSignedCertInMemory(SecureRandomStringGen.RandomString(128, true));
 
          Log.Info("Created cert");
       }
@@ -255,7 +268,9 @@ namespace SWAPS.AdminCom
 
             try
             {
-               CancelOperationTCS.TrySetResult(true);
+               CancelOperationTS.Cancel();
+
+               HandshakeWithinTimeout?.Abort();
 
                SendTerminateToAdminProcess();
 
@@ -266,6 +281,12 @@ namespace SWAPS.AdminCom
                TerminateAdminProcess();
 
                ShutdownWebSocketServer();
+
+               if (!AdminComConfig.UnencryptedServerCom)
+               {
+                  Log.Info("Disposing cert");
+                  ServerCert?.Dispose();
+               }
             }
             catch (Exception ex)
             {
@@ -275,6 +296,8 @@ namespace SWAPS.AdminCom
             {
                Stopped = true;
             }
+
+            Log.Debug("Done");
          }
       }
 

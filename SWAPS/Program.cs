@@ -60,13 +60,17 @@ namespace SWAPS
                }
             };
 #endif
-            Parser.Default.ParseArguments<CmdOptions>(args)
+            var parser = new Parser(settings =>
+            {
+               settings.CaseSensitive = false;
+            });
+            parser.ParseArguments<CmdOptions>(args)
                .WithParsed((opt) =>
                {
                   CmdOption = opt;
 
                   var logConf = GetDefaultLoggerConfiguration();
-                  if(opt.Verbose)
+                  if (opt.Verbose)
                   {
                      logConf.MinimumLevel.Debug();
 

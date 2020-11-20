@@ -18,11 +18,11 @@ namespace SWAPS.AdminCom.Util
 
       public Action<string> Broadcaster { get; set; }
 
-      protected TaskCompletionSource<bool> CancelOperationTCS { get; private set; }
+      protected CancellationToken CancelOperationToken { get; private set; }
 
-      public ServiceManager(TaskCompletionSource<bool> cancelOperationTCS)
+      public ServiceManager(Func<CancellationToken> tokenProvider)
       {
-         CancelOperationTCS = cancelOperationTCS;
+         CancelOperationToken = tokenProvider();
       }
 
       public void OnMessage(MessageEventArgs e)
@@ -69,20 +69,22 @@ namespace SWAPS.AdminCom.Util
 
             var useTimeout = timeout ?? Timeout;
 
-            await Task.WhenAny(Task.Delay(useTimeout), tcs.Task, CancelOperationTCS.Task);
+            using var timeoutCancellationTokenSource = new CancellationTokenSource();
+            using var ctReg = CancelOperationToken.Register(timeoutCancellationTokenSource.Cancel);
 
-            if (CancelOperationTCS.Task.IsCompleted)
-               throw new OperationCanceledException("Operation was cancelled");
-
-            if (!tcs.Task.IsCompleted)
+            if(await Task.WhenAny(Task.Delay(useTimeout, timeoutCancellationTokenSource.Token), tcs.Task) == tcs.Task)
+            {
+               timeoutCancellationTokenSource.Cancel();
+               return tcs.Task.Result;
+            }
+            else
                throw new TimeoutException("Task timed out");
-
-            return tcs.Task.Result;
          }
          finally
          {
             WaitingTasks.Remove(msgID);
          }
       }
+
    }
 }

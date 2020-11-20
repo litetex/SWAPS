@@ -14,8 +14,11 @@ namespace SWAPS.CMD
       [Option('v', "verbose", Default = false, HelpText = "Log more stuff")]
       public bool Verbose { get; set; } = false;
 
-      [Option("showserverconsole", HelpText = "Shows the server console")]
+      [Option("showServerConsole", HelpText = "Shows the server console")]
       public bool ShowServerConsole { get; set; } 
+
+      [Option("useUnencryptedCom", HelpText = "Uses no encryption for the protection")]
+      public bool UseUnencryptedCom { get; set; }
 
       #region JSON based Config
       [Option('c', "config", HelpText = "path to the configuration file; if not set: using default internal config")]

@@ -24,7 +24,10 @@ namespace SWAPS.Shared.Com.Admin
 
       public virtual string Password { get; set; }
 
-      public virtual string ServerCertPublicKey { get; set; } = "todo";
+
+      public virtual bool UnencryptedServerCom { get; set; } = false;
+
+      public virtual string ServerCertPublicKey { get; set; }
 
 
       public string CreateCMDArgs =>
@@ -36,7 +39,7 @@ namespace SWAPS.Shared.Com.Admin
          $"--{nameof(ParentPID).ToLowerInvariant()} {ParentPID} " +
          $"--{nameof(Username).ToLowerInvariant()} {Username} " +
          $"--{nameof(Password).ToLowerInvariant()} {Password} " +
-         $"--{nameof(ServerCertPublicKey).ToLowerInvariant()} {ServerCertPublicKey} " +
+         (UnencryptedServerCom ? $"--{nameof(UnencryptedServerCom).ToLowerInvariant()} " : $"--{nameof(ServerCertPublicKey).ToLowerInvariant()} {ServerCertPublicKey} ") +
          "";
    }
 }

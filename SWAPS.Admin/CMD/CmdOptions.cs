@@ -36,8 +36,10 @@ namespace SWAPS.Admin.CMD
       [Option(nameof(Password), Required = true)]
       public override string Password { get => base.Password; set => base.Password = value; }
 
+      [Option(nameof(UnencryptedServerCom))]
+      public override bool UnencryptedServerCom { get => base.UnencryptedServerCom; set => base.UnencryptedServerCom = value; }
 
-      [Option(nameof(ServerCertPublicKey), Required = true)]
+      [Option(nameof(ServerCertPublicKey))]
       public override string ServerCertPublicKey { get => base.ServerCertPublicKey; set => base.ServerCertPublicKey = value; }
 
    }

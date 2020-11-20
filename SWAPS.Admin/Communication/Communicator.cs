@@ -117,7 +117,7 @@ namespace SWAPS.Admin.Communication
                {
                   WebSocketShutdownMonitor.Connect();
                }
-               catch(Exception ex)
+               catch (Exception ex)
                {
                   Log.Error("Connection error", ex);
                }
@@ -281,24 +281,21 @@ namespace SWAPS.Admin.Communication
 
       public WebSocket CreateWebSocket(string path)
       {
-         var ws = new WebSocket($"wss://{IPAddress.Loopback}:{Config.ComPort}" + path);
+         var ws = new WebSocket($"ws{(Config.UnencryptedServerCom ? "" : "s")}://{IPAddress.Loopback}:{Config.ComPort}" + path);
          ws.SetCredentials(Config.Username, Config.Password, false);
-         ws.SslConfiguration.ServerCertificateValidationCallback = (sender, cert, chain, sslPolicyErrors) =>
+         if (!Config.UnencryptedServerCom)
          {
-            //if (sslPolicyErrors != System.Net.Security.SslPolicyErrors.None)
-            //{
-            //   Log.Error($"SslPolicyError: {sslPolicyErrors}");
-            //   return false;
-            //}
-
-            if (cert.GetPublicKeyString() != Config.ServerCertPublicKey)
+            ws.SslConfiguration.ServerCertificateValidationCallback = (sender, cert, chain, sslPolicyErrors) =>
             {
-               Log.Error($"PublicKeyError: {cert.GetPublicKeyString()}");
-               return false;
-            }
+               if (cert.GetPublicKeyString() != Config.ServerCertPublicKey)
+               {
+                  Log.Error($"PublicKeyError: {cert.GetPublicKeyString()}");
+                  return false;
+               }
 
-            return true;
-         };
+               return true;
+            };
+         }
 
          RegisteredWebsockets.Add(ws);
 
@@ -321,8 +318,8 @@ namespace SWAPS.Admin.Communication
 
             Log.Info("Shutting down services");
             var shutdownTasks = new List<Task>();
-            foreach(var ws in RegisteredWebsockets.Where(ws => new WebSocketState[] { WebSocketState.Closed, WebSocketState.Closing }.Contains(ws.ReadyState)))
-            { 
+            foreach (var ws in RegisteredWebsockets.Where(ws => new WebSocketState[] { WebSocketState.Closed, WebSocketState.Closing }.Contains(ws.ReadyState)))
+            {
                shutdownTasks.Add(Task.Run(() => ShutdownWS(ws)));
             }
             Task.WaitAll(shutdownTasks.ToArray());
@@ -337,28 +334,26 @@ namespace SWAPS.Admin.Communication
 
       private async Task ShutdownWS(WebSocket ws)
       {
-         using (var timeoutCancellationTokenSource = new CancellationTokenSource())
+         using var timeoutCancellationTokenSource = new CancellationTokenSource();
+         var shutdownTask = Task.Run(() =>
          {
-            var shutdownTask = Task.Run(() =>
+            try
             {
-               try
-               {
-                  ws.Close();
-               }
-               catch (Exception ex)
-               {
-                  Log.Error($"Failed to shutdown '{ws.Url}'", ex);
-               }
-            });
-
-            if (await Task.WhenAny(Task.Delay(TimeSpan.FromSeconds(5), timeoutCancellationTokenSource.Token), shutdownTask) == shutdownTask)
-            {
-               timeoutCancellationTokenSource.Cancel();
-               await shutdownTask;
+               ws.Close();
             }
-            else
-               throw new TimeoutException("Failed to connect to shutdown in time");
+            catch (Exception ex)
+            {
+               Log.Error($"Failed to shutdown '{ws.Url}'", ex);
+            }
+         });
+
+         if (await Task.WhenAny(Task.Delay(TimeSpan.FromSeconds(5), timeoutCancellationTokenSource.Token), shutdownTask) == shutdownTask)
+         {
+            timeoutCancellationTokenSource.Cancel();
+            await shutdownTask;
          }
+         else
+            throw new TimeoutException("Failed to connect to shutdown in time");
       }
    }
 }

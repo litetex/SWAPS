@@ -11,7 +11,7 @@ on:
 
 jobs: 
   build:
-   runs-on: ubuntu-latest
+   runs-on: windows-latest
    strategy:
       matrix:
         os: [win-x64]
@@ -41,7 +41,7 @@ jobs:
         cp -a SWAPS/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.os }}/publish/. buildtmp/
         cp -a SWAPS.Admin/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.os }}/publish/. buildtmp/
         cd buildtmp
-        zip -r all.zip .
+        Compress-Archive -Path * -DestinationPath all.zip
 
     - name: Upload artifact
       uses: actions/upload-artifact@v2

@@ -25,7 +25,7 @@ jobs:
           echo "::set-output name=version::$(echo ${tag_name:1})"
 
   build:
-   runs-on: ubuntu-latest
+   runs-on: windows-latest
    needs: [create_release]
    strategy:
       matrix:
@@ -53,10 +53,11 @@ jobs:
     - name: Combine artifacts
       run: |
         mkdir buildtmp
-        cp -a SWAPS/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.os }}/publish/. buildtmp/
-        cp -a SWAPS.Admin/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.os }}/publish/. buildtmp/
+        Copy-Item -Recurse -Path "SWAPS/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.os }}/publish/*" -Destination "buildtmp/"
+        Copy-Item -Recurse -Path "SWAPS.Admin/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.os }}/publish/*" -Destination "buildtmp/"
         cd buildtmp
-        zip -r all.zip .
+        dir
+        Compress-Archive -Path * -DestinationPath all.zip
 
     - name: Upload artifact
       uses: actions/upload-artifact@v2

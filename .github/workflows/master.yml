@@ -53,9 +53,10 @@ jobs:
     - name: Combine artifacts
       run: |
         mkdir buildtmp
-        cp -a SWAPS/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.os }}/publish/. buildtmp/
-        cp -a SWAPS.Admin/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.os }}/publish/. buildtmp/
+        Copy-Item -Recurse -Path "SWAPS/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.os }}/publish/*" -Destination "buildtmp/"
+        Copy-Item -Recurse -Path "SWAPS.Admin/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.os }}/publish/*" -Destination "buildtmp/"
         cd buildtmp
+        dir
         Compress-Archive -Path * -DestinationPath all.zip
 
     - name: Upload artifact

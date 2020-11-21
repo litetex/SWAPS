@@ -38,8 +38,8 @@ jobs:
     - name: Combine artifacts
       run: |
         mkdir buildtmp
-        xcopy "SWAPS/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.os }}/publish/" "buildtmp/" /e /i
-        xcopy "SWAPS.Admin/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.os }}/publish/" "buildtmp/" /e /i
+        Copy-Item -Recurse -Path "SWAPS/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.os }}/publish/" -Destination "buildtmp/" 
+        Copy-Item -Recurse -Path "SWAPS.Admin/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.os }}/publish/" -Destination "buildtmp/"
         cd buildtmp
         dir
         Compress-Archive -Path * -DestinationPath all.zip

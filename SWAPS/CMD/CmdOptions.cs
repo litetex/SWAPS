@@ -8,27 +8,28 @@ namespace SWAPS.CMD
    /// </summary>
    public class CmdOptions
    {
-      [Option('l', "logfile", Default = false, HelpText = "Logs into ./logs")]
+      #region JSON based Config
+      [Option("genconf", HelpText = "Generates default config file in mentioned path")]
+      public string ConfigGenerationPath { get; set; } = null;
+
+      [Option('c', "config", HelpText = "Path to the config file; if value not set: using defaults")]
+      public string ConfigPath { get; set; } = null;
+      #endregion JSON based Config
+
+      [Option('l', "logfile", Default = false, HelpText = "Writes logs as file(s) into ./logs")]
       public bool LogToFile { get; set; } = false;
-
-      [Option('v', "verbose", Default = false, HelpText = "Log more stuff")]
-      public bool Verbose { get; set; } = false;
-
-      [Option("showServerConsole", HelpText = "Shows the server console")]
-      public bool ShowServerConsole { get; set; } 
-
-      [Option("useUnencryptedCom", HelpText = "Uses no encryption for the protection")]
-      public bool UseUnencryptedCom { get; set; }
 
       [Option("startNotMin", HelpText = "Starts not minimized")]
       public bool StartNotMinimized { get; set; }
 
-      #region JSON based Config
-      [Option('c', "config", HelpText = "path to the configuration file; if not set: using default internal config")]
-      public string ConfigPath { get; set; } = null;
 
-      [Option("genconf", HelpText = "generates default config in mentioned path; if not set: using default internal config")]
-      public string ConfigGenerationPath { get; set; } = null;
-      #endregion JSON based Config
+      [Option('v', "verbose", Default = false, HelpText = "More logs (for debugging)")]
+      public bool Verbose { get; set; } = false;
+
+      [Option("showServerConsole", HelpText = "Shows the server console (for debugging)")]
+      public bool ShowServerConsole { get; set; } 
+
+      [Option("useUnencryptedCom", HelpText = "Uses no encryption for the communication between processes (for debugging; not recommended)")]
+      public bool UseUnencryptedCom { get; set; }
    }
 }

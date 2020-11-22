@@ -20,6 +20,9 @@ namespace SWAPS.CMD
       [Option("useUnencryptedCom", HelpText = "Uses no encryption for the protection")]
       public bool UseUnencryptedCom { get; set; }
 
+      [Option("startNotMin", HelpText = "Starts not minimized")]
+      public bool StartNotMinimized { get; set; }
+
       #region JSON based Config
       [Option('c', "config", HelpText = "path to the configuration file; if not set: using default internal config")]
       public string ConfigPath { get; set; } = null;

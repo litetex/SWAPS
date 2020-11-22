@@ -170,7 +170,7 @@ namespace SWAPS.AdminCom
 #if DEBUG
                    @"..\..\..\..\SWAPS.Admin\bin\Debug\netcoreapp3.1",
 #else
-                  Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName),
+                  Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName),
 #endif
                   "SWAPS.Admin.exe"),
                WindowStyle = AdminComConfig.ShowServerConsole ? ProcessWindowStyle.Normal : ProcessWindowStyle.Minimized,

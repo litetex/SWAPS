@@ -16,8 +16,8 @@ namespace SWAPS.Updater
 
       public Updater()
       {
-         string os = "win";
-         string arch = Environment.Is64BitOperatingSystem ? "64" : "32";
+         var os = "win";
+         var arch = Environment.Is64BitOperatingSystem ? "64" : "32";
 
          UpdateManager =
             new UpdateManager(

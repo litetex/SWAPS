@@ -15,6 +15,9 @@ namespace SWAPS.CMD
       [Option("updatemode", Default = Updater.DEFAULT_MODE, HelpText = "Describes when updates are searched and installed")]
       public UpdateMode UpdateMode { get; set; } = Updater.DEFAULT_MODE;
 
+      [Option("byPassUpdateLoopProtection", HelpText = "Bypasses the updateloop protection")]
+      public bool ByPassUpdateLoopProtection { get; set; }
+
       #region JSON based Config
       [Option("genconf", HelpText = "Generates default config file in mentioned path")]
       public string ConfigGenerationPath { get; set; } = null;

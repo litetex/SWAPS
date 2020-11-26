@@ -41,7 +41,7 @@ namespace SWAPS
          Log.Info("MODE: Normal start");
          ReadJsonConfig();
 
-         using var updater = new Updater(CmdOption.UpdateMode);
+         using var updater = new Updater(CmdOption.UpdateMode, CmdOption.ByPassUpdateLoopProtection);
          updater.OnStart();
 
          DoStart();

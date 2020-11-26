@@ -10,7 +10,7 @@
     },
     "SWAPS - Update": {
       "commandName": "Project",
-      "commandLineArgs": "-l --update"
+      "commandLineArgs": "-l --update --byPassUpdateLoopProtection"
     }
   }
 }

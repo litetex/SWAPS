@@ -81,6 +81,12 @@ namespace SWAPS.Update
          if (UpdateVersionTarget != null)
             return;
 
+         if(CurrentVersion.Major == 0 && CurrentVersion.Minor == 0 && CurrentVersion.Build == 0)
+         {
+            Log.Warn($"Version '{CurrentVersion}' is invalid! Looks like no version was set while building this executable");
+            return;
+         }
+
          try
          {
             Log.Info($"Searching for updates; Current version is '{CurrentVersion}'");

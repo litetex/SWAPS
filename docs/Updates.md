@@ -3,6 +3,6 @@
 | Option | Auto-Search<br>for updates | Install updates |
 | -- | -- | -- |
 | ``none`` | :x: | :x: |
-| ``notice`` | :heavy_check_mark: | TODO |
-| ``ask`` | :heavy_check_mark: | TODO |
-| ``always`` | :heavy_check_mark: | :heavy_check_mark: automatic |
+| ``notice`` | :heavy_check_mark: | :x:<ul><li>Writes a note into the console</li></ul> |
+| ``notiy`` | :heavy_check_mark: | :x:<ul><li>Writes a note into the console</li><li>Shows the console window to the user</li></ul> |
+| ``always`` | :heavy_check_mark: | :heavy_check_mark: automatically |

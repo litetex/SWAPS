@@ -44,11 +44,13 @@ jobs:
     
     - name: Publish ${{ matrix.os }} ${{ matrix.configuration }} SWAPS
       working-directory: SWAPS
-      run: dotnet publish -c ${{ matrix.configuration }} -r ${{ matrix.os }} -p:PublishSingleFile=true -p:DebugType=None -p:PublishTrimmed=true
+      run: |
+        dotnet publish -c ${{ matrix.configuration }} -r ${{ matrix.os }} -p:PublishSingleFile=true -p:DebugType=None -p:PublishTrimmed=true -p:Version=${{ needs.create_release.outputs.version }} 
 
     - name: Publish ${{ matrix.os }} ${{ matrix.configuration }} SWAPS.Admin
       working-directory: SWAPS.Admin
-      run: dotnet publish -c ${{ matrix.configuration }} -r ${{ matrix.os }} -p:PublishSingleFile=true -p:DebugType=None -p:PublishTrimmed=true
+      run: |
+        dotnet publish -c ${{ matrix.configuration }} -r ${{ matrix.os }} -p:PublishSingleFile=true -p:DebugType=None -p:PublishTrimmed=true -p:Version=${{ needs.create_release.outputs.version }} 
 
     - name: Combine artifacts
       run: |

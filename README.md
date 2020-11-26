@@ -27,6 +27,7 @@ Start a program/process without a auto-starting service
 | | |
 | ``--update`` | Install the latest available update |
 | ``--updatemode`` | Describes when updates are searched and installed; More info [here](docs/Updates.md) |
+| ``--byPassUpdateLoopProtection`` | Bypasses the updateloop protection |
 
 #### Config file
 [Example config](example_config.json)

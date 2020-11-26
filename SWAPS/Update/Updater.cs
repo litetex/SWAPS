@@ -21,11 +21,13 @@ namespace SWAPS.Update
 
       protected readonly object _lockSearchAndPrepareUpdate = new object();
 
+      private UpdateMode UpdateMode { get; set; }
+
+      private bool ByPassUpdateLoopProtection { get; set; }
 
       private IUpdateManager UpdateManager { get; set; }
 
 
-      private UpdateMode UpdateMode { get; set; }
 
       private bool ForceUpdate { get; set; }
 
@@ -34,9 +36,10 @@ namespace SWAPS.Update
 
       private bool PreparedUpdate { get; set; }
 
-      public Updater(UpdateMode updateMode = UpdateMode.Always)
+      public Updater(UpdateMode updateMode = UpdateMode.Always, bool byPassUpdateLoopProtection = false)
       {
          UpdateMode = updateMode;
+         ByPassUpdateLoopProtection = byPassUpdateLoopProtection;
 
          var os = "win";
          var arch = Environment.Is64BitOperatingSystem ? "64" : "86";
@@ -84,7 +87,11 @@ namespace SWAPS.Update
          if(CurrentVersion.Major == 0 && CurrentVersion.Minor == 0 && CurrentVersion.Build == 0)
          {
             Log.Warn($"Version '{CurrentVersion}' is invalid! Looks like no version was set while building this executable");
-            return;
+
+            if(!ByPassUpdateLoopProtection)
+               return;
+
+            Log.Warn("Bypassing update loop protection. Be careful!");
          }
 
          try

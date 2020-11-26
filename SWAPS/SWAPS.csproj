@@ -5,6 +5,8 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
 
     <ApplicationIcon>SWAPS.ico</ApplicationIcon>
+
+    <Version>0.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>

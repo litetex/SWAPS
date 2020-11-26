@@ -1,6 +1,7 @@
 ﻿using CoreFramework.Config;
 using SWAPS.CMD;
 using SWAPS.Config;
+using SWAPS.Update;
 using System;
 using System.Diagnostics.Contracts;
 using System.IO;
@@ -24,6 +25,11 @@ namespace SWAPS
          Contract.Requires(CmdOption != null);
          Log.Info($"Current directory is '{Directory.GetCurrentDirectory()}'");
 
+         if(CmdOption.Update)
+         {
+            UpdateNow();
+            return;
+         }
          if (CmdOption.ConfigGenerationPath != null)
          {
             Log.Info("MODE: Write JSON Config");
@@ -35,10 +41,23 @@ namespace SWAPS
          Log.Info("MODE: Normal start");
          ReadJsonConfig();
 
+         using var updater = new Updater(CmdOption.UpdateMode);
+         updater.OnStart();
+
          DoStart();
+
+         updater.OnEnd();
       }
 
-      public void WriteJsonConfig()
+      protected void UpdateNow()
+      {
+         Log.Info("Trying to update now");
+
+         var updater = new Updater();
+         updater.ForceUpdateNow();
+      }
+
+      protected void WriteJsonConfig()
       {
          Log.Info("Writing json config");
 

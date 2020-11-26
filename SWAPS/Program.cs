@@ -68,6 +68,7 @@ namespace SWAPS
          var parser = new Parser(settings =>
             {
                settings.CaseSensitive = false;
+               settings.CaseInsensitiveEnumValues = true;
             });
             parser.ParseArguments<CmdOptions>(args)
                .WithParsed((opt) =>

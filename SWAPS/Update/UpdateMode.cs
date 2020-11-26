@@ -2,25 +2,25 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace SWAPS.Updater
+namespace SWAPS.Update
 {
    public enum UpdateMode
    {
       /// <summary>
       /// Do not install updates
       /// </summary>
-      None = 1,
+      None,
       /// <summary>
       ///  Show a message on the console if a update is found
       /// </summary>
-      Notice = 2,
+      Notice,
       /// <summary>
-      /// Show a message if a update is found
+      ///  Show a message on the console if a update is found and bring up the window if it is minimied
       /// </summary>
-      Ask = 3,
+      Notify,
       /// <summary>
       /// if a update is found download & install it (at next start)
       /// </summary>
-      Always = 4
+      Always
    }
 }

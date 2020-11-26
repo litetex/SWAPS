@@ -24,6 +24,9 @@ Start a program/process without a auto-starting service
 | ``-v`` ``--verbose`` | More logs (for debugging) |
 | ``--showServerConsole`` | Shows the server console (for debugging) |
 | ``--useUnencryptedCom`` | Uses no encryption for the communication between processes (for debugging; not recommended) |
+| | |
+| ``--update`` | Install the latest available update |
+| ``--updatemode`` | Describes when updates are searched and installed; More info [here](docs/Updates.md) |
 
 #### Config file
 [Example config](example_config.json)

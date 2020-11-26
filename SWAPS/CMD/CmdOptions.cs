@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using CommandLine;
+using SWAPS.Update;
 
 namespace SWAPS.CMD
 {
@@ -8,6 +9,12 @@ namespace SWAPS.CMD
    /// </summary>
    public class CmdOptions
    {
+      [Option("update", HelpText = "Install the latest available update")]
+      public bool Update { get; set; }
+
+      [Option("updatemode", Default = Updater.DEFAULT_MODE, HelpText = "Describes when updates are searched and installed")]
+      public UpdateMode UpdateMode { get; set; } = Updater.DEFAULT_MODE;
+
       #region JSON based Config
       [Option("genconf", HelpText = "Generates default config file in mentioned path")]
       public string ConfigGenerationPath { get; set; } = null;

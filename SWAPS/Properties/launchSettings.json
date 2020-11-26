@@ -2,11 +2,15 @@
   "profiles": {
     "SWAPS - Conf": {
       "commandName": "Project",
-      "commandLineArgs": "-l -c config.json --showServerConsole"
+      "commandLineArgs": "-l -c config.json --showServerConsole --updatemode always"
     },
     "SWAPS - GenConf": {
       "commandName": "Project",
       "commandLineArgs": "-l --genconf config.json"
+    },
+    "SWAPS - Update": {
+      "commandName": "Project",
+      "commandLineArgs": "-l --update"
     }
   }
 }

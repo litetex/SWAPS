@@ -2,6 +2,7 @@
 using Serilog;
 using SWAPS.CMD;
 using SWAPS.Shared;
+using SWAPS.Util;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -47,12 +48,16 @@ namespace SWAPS
             {
                try
                {
+                  ConsoleController.TryShowConsole();
+
                   if (ev?.ExceptionObject is Exception ex)
                   {
                      Log.Fatal("An unhandled error occured", ex);
                      return;
                   }
+
                   Log.Fatal($"An unhandled error occured {ev}");
+                  
                }
                catch (Exception ex)
                {
@@ -60,14 +65,18 @@ namespace SWAPS
                }
             };
 #endif
-            var parser = new Parser(settings =>
+         var parser = new Parser(settings =>
             {
                settings.CaseSensitive = false;
+               settings.CaseInsensitiveEnumValues = true;
             });
             parser.ParseArguments<CmdOptions>(args)
                .WithParsed((opt) =>
                {
                   CmdOption = opt;
+
+                  if (!opt.StartNotMinimized)
+                     ConsoleController.TryHideConsole();
 
                   var logConf = GetDefaultLoggerConfiguration();
                   if (opt.Verbose)
@@ -111,6 +120,7 @@ namespace SWAPS
          }
          catch (Exception ex)
          {
+            ConsoleController.TryShowConsole();
             Log.Fatal(ex);
          }
 #endif

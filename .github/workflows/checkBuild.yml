@@ -8,10 +8,12 @@ on:
       - '**.md'
   pull_request:
     branches: [ develop ]
+    paths-ignore: 
+      - '**.md'
 
 jobs: 
   build:
-   runs-on: ubuntu-latest
+   runs-on: windows-latest
    strategy:
       matrix:
         os: [win-x64]
@@ -29,19 +31,20 @@ jobs:
     
     - name: Publish ${{ matrix.os }} ${{ matrix.configuration }} SWAPS
       working-directory: SWAPS
-      run: dotnet publish -c ${{ matrix.configuration }} -r ${{ matrix.os }} -p:PublishSingleFile=true -p:DebugType=None
+      run: dotnet publish -c ${{ matrix.configuration }} -r ${{ matrix.os }} -p:PublishSingleFile=true -p:DebugType=None -p:PublishTrimmed=true
 
     - name: Publish ${{ matrix.os }} ${{ matrix.configuration }} SWAPS.Admin
       working-directory: SWAPS.Admin
-      run: dotnet publish -c ${{ matrix.configuration }} -r ${{ matrix.os }} -p:PublishSingleFile=true -p:DebugType=None
+      run: dotnet publish -c ${{ matrix.configuration }} -r ${{ matrix.os }} -p:PublishSingleFile=true -p:DebugType=None -p:PublishTrimmed=true
 
     - name: Combine artifacts
       run: |
         mkdir buildtmp
-        cp -a SWAPS/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.os }}/publish/. buildtmp/
-        cp -a SWAPS.Admin/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.os }}/publish/. buildtmp/
+        Copy-Item -Recurse -Path "SWAPS/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.os }}/publish/*" -Destination "buildtmp/" 
+        Copy-Item -Recurse -Path "SWAPS.Admin/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.os }}/publish/*" -Destination "buildtmp/"
         cd buildtmp
-        zip -r all.zip .
+        dir
+        Compress-Archive -Path * -DestinationPath all.zip
 
     - name: Upload artifact
       uses: actions/upload-artifact@v2

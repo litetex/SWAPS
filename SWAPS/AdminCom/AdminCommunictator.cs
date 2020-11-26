@@ -167,12 +167,13 @@ namespace SWAPS.AdminCom
             StartInfo = new ProcessStartInfo()
             {
                FileName = Path.Combine(
-#if !DEBUG
-                  Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName),
+#if DEBUG
+                   @"..\..\..\..\SWAPS.Admin\bin\Debug\netcoreapp3.1",
 #else
-                  @"..\..\..\..\SWAPS.Admin\bin\Debug\netcoreapp3.1",
+                  Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName),
 #endif
                   "SWAPS.Admin.exe"),
+               WindowStyle = AdminComConfig.ShowServerConsole ? ProcessWindowStyle.Normal : ProcessWindowStyle.Minimized,
                Arguments = AdminComConfig.CreateCMDArgs,
                Verb = "runas",
                UseShellExecute = true,

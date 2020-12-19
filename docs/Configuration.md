@@ -14,7 +14,7 @@
 | ``--useUnencryptedCom`` | Uses no encryption for the communication between processes (for debugging; not recommended) |
 | | |
 | ``--update`` | Install the latest available update |
-| ``--updatemode`` | Describes when updates are searched and installed; More info [here](docs/Updates.md) |
+| ``--updatemode`` | Describes when updates are searched and installed; More info [here](Updates.md) |
 | ``--byPassUpdateLoopProtection`` | Bypasses the updateloop protection |
 
 ### Config file

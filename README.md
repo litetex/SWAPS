@@ -20,6 +20,7 @@ Start a program/process without a auto-starting service
 | | |
 | ``-c <path:optional>`` ``--config <path:optional>`` | Path to the config file; if value not set: using defaults |
 | ``-l`` ``--logfile`` | Writes logs as file(s) into ./logs |
+| ``--logFileRetainCount {number}`` | The maximum number of log files that will be retained, including the current log file. For unlimited retention, pass -1. The default is 31. |
 | ``--startNotMin`` | Starts the process not minimized |
 | ``-v`` ``--verbose`` | More logs (for debugging) |
 | ``--showServerConsole`` | Shows the server console (for debugging) |

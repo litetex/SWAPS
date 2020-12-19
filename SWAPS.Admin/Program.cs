@@ -83,7 +83,8 @@ namespace SWAPS.Admin
                            logConf.WriteTo.File(Path.Combine("logs", "adminlog.log"),
                                  outputTemplate: "{Timestamp:HH:mm:ss,fff} {Level:u3} {ThreadId,-2} {Message:lj}{NewLine}{Exception}",
                                  rollingInterval: RollingInterval.Day,
-                                 rollOnFileSizeLimit: true);
+                                 rollOnFileSizeLimit: true,
+                                 retainedFileCountLimit: opt.LogFileRetainCount >= 0 ? opt.LogFileRetainCount : (int?)null);
 
                            Serilog.Log.Logger = logConf.CreateLogger();
                            Log.Info("Logger will also write to file");

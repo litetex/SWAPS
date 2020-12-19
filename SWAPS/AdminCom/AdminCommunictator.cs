@@ -45,6 +45,7 @@ namespace SWAPS.AdminCom
 
       public AdminCommunictator(
          bool logToFile, 
+         int logFileRetainCount,
          bool verbose, 
          bool showServerConsole,
          bool useUnencryptedCom)
@@ -52,6 +53,7 @@ namespace SWAPS.AdminCom
          AdminComConfig = new AdminComConfig()
          {
             LogToFile = logToFile,
+            LogFileRetainCount = logFileRetainCount,
             Verbose = verbose,
             ShowServerConsole = showServerConsole,
             Username = SecureRandomStringGen.RandomString(64, true),

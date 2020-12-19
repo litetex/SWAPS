@@ -8,6 +8,8 @@ namespace SWAPS.Shared.Com.Admin
    {
       public virtual bool LogToFile { get; set; } = false;
 
+      public virtual int LogFileRetainCount { get; set; } = 31;
+
       public virtual bool Verbose { get; set; } = false;
 
       public virtual bool ShowServerConsole { get; set; } = false;
@@ -32,6 +34,7 @@ namespace SWAPS.Shared.Com.Admin
 
       public string CreateCMDArgs =>
          (LogToFile ? $"--{nameof(LogToFile).ToLowerInvariant()} " : "") +
+         $"--{nameof(LogFileRetainCount).ToLowerInvariant()} {LogFileRetainCount}" +
          (Verbose ? $"--{nameof(Verbose).ToLowerInvariant()} " : "") +
          (ShowServerConsole ? $"--{nameof(ShowServerConsole).ToLowerInvariant()} " : "") +
          $"--{nameof(StartInactivityShutdownTimeout).ToLowerInvariant()} {StartInactivityShutdownTimeout.TotalMilliseconds} " +

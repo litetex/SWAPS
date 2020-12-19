@@ -13,6 +13,9 @@ namespace SWAPS.Admin.CMD
       [Option(nameof(LogToFile))]
       public override bool LogToFile { get => base.LogToFile; set => base.LogToFile = value; }
 
+      [Option(nameof(LogFileRetainCount))]
+      public override int LogFileRetainCount { get => base.LogFileRetainCount; set => base.LogFileRetainCount = value; }
+
       [Option(nameof(Verbose))]
       public override bool Verbose { get => base.Verbose; set => base.Verbose = value; }
 

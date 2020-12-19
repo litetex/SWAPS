@@ -34,6 +34,7 @@ namespace SWAPS
 
             AdminCommunictator = new AdminCommunictator(
                CmdOptions.LogToFile, 
+               CmdOptions.LogFileRetainCount,
                CmdOptions.Verbose, 
                CmdOptions.ShowServerConsole,
                CmdOptions.UseUnencryptedCom);

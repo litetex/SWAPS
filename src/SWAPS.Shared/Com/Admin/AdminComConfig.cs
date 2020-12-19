@@ -34,7 +34,7 @@ namespace SWAPS.Shared.Com.Admin
 
       public string CreateCMDArgs =>
          (LogToFile ? $"--{nameof(LogToFile).ToLowerInvariant()} " : "") +
-         $"--{nameof(LogFileRetainCount).ToLowerInvariant()} {LogFileRetainCount}" +
+         $"--{nameof(LogFileRetainCount).ToLowerInvariant()} {LogFileRetainCount} " +
          (Verbose ? $"--{nameof(Verbose).ToLowerInvariant()} " : "") +
          (ShowServerConsole ? $"--{nameof(ShowServerConsole).ToLowerInvariant()} " : "") +
          $"--{nameof(StartInactivityShutdownTimeout).ToLowerInvariant()} {StartInactivityShutdownTimeout.TotalMilliseconds} " +

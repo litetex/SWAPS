@@ -41,6 +41,7 @@ jobs:
         
     - name: Build
       run: dotnet build --configuration ${{ matrix.configuration }}
+      working-directory: src
     
     - name: Publish ${{ matrix.os }} ${{ matrix.configuration }} SWAPS
       working-directory: src/SWAPS

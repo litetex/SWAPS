@@ -11,26 +11,6 @@ Start a program/process without a auto-starting service
 * Stops the service after the subprocess/program has finished
 * Create log files with ``-l``
 
-### :wrench: Configuration 
-#### :computer: CLI Args
-
-| Arg | Description |
-| --- | ----------- | 
-| ``--genconf <path:optional>`` | Generates default config file in mentioned path  |
-| | |
-| ``-c <path:optional>`` ``--config <path:optional>`` | Path to the config file; if value not set: using defaults |
-| ``-l`` ``--logfile`` | Writes logs as file(s) into ./logs |
-| ``--logFileRetainCount {number}`` | The maximum number of log files that will be retained, including the current log file. For unlimited retention, pass -1. The default is 31. |
-| ``--startNotMin`` | Starts the process not minimized |
-| ``-v`` ``--verbose`` | More logs (for debugging) |
-| ``--showServerConsole`` | Shows the server console (for debugging) |
-| ``--useUnencryptedCom`` | Uses no encryption for the communication between processes (for debugging; not recommended) |
-| | |
-| ``--update`` | Install the latest available update |
-| ``--updatemode`` | Describes when updates are searched and installed; More info [here](docs/Updates.md) |
-| ``--byPassUpdateLoopProtection`` | Bypasses the updateloop protection |
-
-#### Config file
-[Example config](example_config.json)
+### [:wrench: Configuration](docs/Configuration.md)
 
 ### Development [![Build Develop](https://img.shields.io/github/workflow/status/litetex/SWAPS/Check%20Build/develop?label=build%20develop)](https://github.com/litetex/SWAPS/actions?query=workflow%3A%22Check+Build%22+branch%3Adevelop)

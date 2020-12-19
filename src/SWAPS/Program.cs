@@ -67,6 +67,7 @@ namespace SWAPS
 #endif
          var parser = new Parser(settings =>
             {
+               settings.IgnoreUnknownArguments = true;
                settings.CaseSensitive = false;
                settings.CaseInsensitiveEnumValues = true;
             });
@@ -107,7 +108,8 @@ namespace SWAPS
                            new ErrorType[]
                            {
                            ErrorType.HelpRequestedError,
-                           ErrorType.HelpVerbRequestedError
+                           ErrorType.HelpVerbRequestedError,
+                           ErrorType.UnknownOptionError
                            }.Contains(err.Tag))
                      )
                      return;

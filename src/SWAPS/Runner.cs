@@ -53,7 +53,7 @@ namespace SWAPS
                .Wait();
 
             Log.Info($"Waiting {Config.ServiceProperlyStartedDelay} for the service to become fully operational");
-            Thread.Sleep((int)Config.ServiceProperlyStartedDelay.TotalMilliseconds);
+            Thread.Sleep(Config.ServiceProperlyStartedDelay);
 
             StartProgramAndWait();
 
@@ -68,7 +68,7 @@ namespace SWAPS
                TimeSpan.FromSeconds(10))
                .Wait();
 
-            Thread.Sleep((int)Config.StayingOpenBeforeEnding.TotalMilliseconds);
+            Thread.Sleep(Config.StayingOpenBeforeEnding);
          }
          catch (Exception e)
          {

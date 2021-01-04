@@ -49,12 +49,12 @@ namespace SWAPS
                Log.Info($"Starting service '{serviceConfig.ServiceName}'");
                AdminCommunictator.StartServiceManager
                  .Invoke(
-                 new ServiceStart()
-                 {
-                    Name = serviceConfig.ServiceName,
-                    Timeout = Config.ServiceStartTimeout
-                 },
-                 Config.ServiceStartTimeout.Add(TimeSpan.FromSeconds(10)))
+                    new ServiceStart()
+                    {
+                       Name = serviceConfig.ServiceName,
+                       Timeout = Config.ServiceStartTimeout
+                    },
+                    Config.ServiceStartTimeout.Add(TimeSpan.FromSeconds(10)))
                  .Wait();
             }
 
@@ -69,12 +69,12 @@ namespace SWAPS
                Log.Info($"Stopping service '{serviceConfig.ServiceName}'");
                AdminCommunictator.StopServiceManager
                   .Invoke(
-                  new ServiceStop()
-                  {
-                     Name = serviceConfig.ServiceName,
-                     CrashOnServiceNotFound = Config.CrashOnUpdateServiceNotFound
-                  },
-                  TimeSpan.FromSeconds(10))
+                     new ServiceStop()
+                     {
+                        Name = serviceConfig.ServiceName,
+                        CrashOnServiceNotFound = Config.CrashOnUpdateServiceNotFound
+                     },
+                     TimeSpan.FromSeconds(10))
                   .Wait();
             }
 

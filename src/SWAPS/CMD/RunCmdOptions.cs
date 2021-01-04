@@ -9,17 +9,11 @@ namespace SWAPS.CMD
    [Verb("run", isDefault: true)]
    public class RunCmdOptions : AbstractCmdOptions
    {
+      #region Configfile
       [Option('c', "config", HelpText = "Path to the config file; if value not set: using defaults")]
       public string ConfigPath { get; set; } = null;
 
-      #region Updater
-      [Option("updatemode", Default = Updater.DEFAULT_MODE, HelpText = "Describes when updates are searched and installed")]
-      public UpdateMode UpdateMode { get; set; } = Updater.DEFAULT_MODE;
-
-      [Option("byPassUpdateLoopProtection", HelpText = "Bypasses the updateloop protection")]
-      public bool ByPassUpdateLoopProtection { get; set; }
-
-      #endregion Updater
+      #endregion Configfile
 
       [Option("showServerConsole", HelpText = "Shows the server console (for debugging)")]
       public bool ShowServerConsole { get; set; }
@@ -29,5 +23,14 @@ namespace SWAPS.CMD
 
       [Option("startNotMin", HelpText = "Starts not minimized")]
       public bool StartNotMinimized { get; set; }
+
+      #region Updater
+      [Option("updatemode", Default = Updater.DEFAULT_MODE, HelpText = "Describes when updates are searched and installed")]
+      public UpdateMode UpdateMode { get; set; } = Updater.DEFAULT_MODE;
+
+      [Option("byPassUpdateLoopProtection", HelpText = "Bypasses the updateloop protection")]
+      public bool ByPassUpdateLoopProtection { get; set; }
+
+      #endregion Updater
    }
 }

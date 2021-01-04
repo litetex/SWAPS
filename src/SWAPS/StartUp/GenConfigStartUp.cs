@@ -36,7 +36,6 @@ namespace SWAPS.StartUp
 
          Config.ProcessConfigs.Add(new ProcessConfig()
          {
-            Key = "abc",
             FilePath = @"dir\executable.exe",
             Args = "-ip 127.0.0.1",
             WorkDir = "dir",

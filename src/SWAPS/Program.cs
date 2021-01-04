@@ -2,6 +2,7 @@
 using Serilog;
 using SWAPS.CMD;
 using SWAPS.Shared;
+using SWAPS.StartUp;
 using SWAPS.Util;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,6 @@ namespace SWAPS
    /// </summary>
    public static class Program
    {
-      public static CmdOptions CmdOption { get; private set; }
 
       static void Main(string[] args)
       {
@@ -65,60 +65,12 @@ namespace SWAPS
                }
             };
 #endif
-         var parser = new Parser(settings =>
-            {
-               settings.IgnoreUnknownArguments = true;
-               settings.CaseSensitive = false;
-               settings.CaseInsensitiveEnumValues = true;
-            });
-            parser.ParseArguments<CmdOptions>(args)
-               .WithParsed((opt) =>
-               {
-                  CmdOption = opt;
-
-                  if (!opt.StartNotMinimized)
-                     ConsoleController.TryHideConsole();
-
-                  var logConf = GetDefaultLoggerConfiguration();
-                  if (opt.Verbose)
-                  {
-                     logConf.MinimumLevel.Debug();
-
-                     Serilog.Log.Logger = logConf.CreateLogger();
-                     Log.Info("Running in verbose mode");
-                  }
-                  if (opt.LogToFile)
-                  {
-                     logConf.WriteTo.File(Path.Combine("logs", "log.log"),
-                           outputTemplate: "{Timestamp:HH:mm:ss,fff} {Level:u3} {ThreadId,-2} {Message:lj}{NewLine}{Exception}",
-                           rollingInterval: RollingInterval.Day,
-                           rollOnFileSizeLimit: true,
-                           retainedFileCountLimit: opt.LogFileRetainCount >= 0 ? opt.LogFileRetainCount : (int?)null);
-
-                     Serilog.Log.Logger = logConf.CreateLogger();
-                     Log.Info("Logger will also write to file");
-                  }
-
-                  var starter = new StartUp(opt);
-                  starter.Start();
-               })
-               .WithNotParsed((ex) =>
-               {
-                  if (ex.All(err =>
-                           new ErrorType[]
-                           {
-                           ErrorType.HelpRequestedError,
-                           ErrorType.HelpVerbRequestedError,
-                           ErrorType.UnknownOptionError
-                           }.Contains(err.Tag))
-                     )
-                     return;
-
-                  foreach (var error in ex)
-                     Log.Error($"Failed to parse: {error.Tag}");
-
-                  Log.Fatal("Failed to process args");
-               });
+            GetDefaultParser()
+               .ParseArguments<RunCmdOptions, GenConfigOptions, UpdateCmdOptions>(args)
+               .WithParsed<UpdateCmdOptions>(opt => Exec(opt, o => new UpdateStartUp(o)))
+               .WithParsed<GenConfigOptions>(opt => Exec(opt, o => new GenConfigStartUp(o)))
+               .WithParsed<RunCmdOptions>(opt => Exec(opt, o => new RunStartUp(o)))
+               .WithNotParsed(ParserFail);
 #if !DEBUG
          }
          catch (Exception ex)
@@ -127,6 +79,65 @@ namespace SWAPS
             Log.Fatal(ex);
          }
 #endif
+      }
+      private static Parser GetDefaultParser()
+      {
+         return new Parser(settings =>
+         {
+            settings.IgnoreUnknownArguments = true;
+            settings.CaseSensitive = false;
+            settings.CaseInsensitiveEnumValues = true;
+         });
+      }
+
+      private static void Exec<O,S>(O opts, Func<O, S> startUpSupplierFunc) 
+         where O : AbstractCmdOptions
+         where S : AbstractStartUp<O>
+      {
+         ExecuteDefault(opts);
+
+         startUpSupplierFunc.Invoke(opts).Run();
+      }
+
+      private static void ExecuteDefault(AbstractCmdOptions standardOpt)
+      {
+         var logConf = GetDefaultLoggerConfiguration();
+         if (standardOpt.Verbose)
+         {
+            logConf.MinimumLevel.Debug();
+
+            Serilog.Log.Logger = logConf.CreateLogger();
+            Log.Info("Running in verbose mode");
+         }
+         if (standardOpt.LogToFile)
+         {
+            logConf.WriteTo.File(Path.Combine("logs", "log.log"),
+                  outputTemplate: "{Timestamp:HH:mm:ss,fff} {Level:u3} {ThreadId,-2} {Message:lj}{NewLine}{Exception}",
+                  rollingInterval: RollingInterval.Day,
+                  rollOnFileSizeLimit: true,
+                  retainedFileCountLimit: standardOpt.LogFileRetainCount >= 0 ? standardOpt.LogFileRetainCount : (int?)null);
+
+            Serilog.Log.Logger = logConf.CreateLogger();
+            Log.Info("Logger will also write to file");
+         }
+      }
+
+      private static void ParserFail(IEnumerable<Error> errors)
+      {
+         if (errors.All(err =>
+                           new ErrorType[]
+                           {
+                           ErrorType.HelpRequestedError,
+                           ErrorType.HelpVerbRequestedError,
+                           ErrorType.UnknownOptionError
+                           }.Contains(err.Tag))
+                     )
+            return;
+
+         foreach (var error in errors)
+            Log.Error($"Failed to parse: {error.Tag}");
+
+         Log.Fatal("Failed to process args");
       }
 
       private static LoggerConfiguration GetDefaultLoggerConfiguration()

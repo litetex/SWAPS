@@ -6,11 +6,11 @@
     },
     "SWAPS - GenConf": {
       "commandName": "Project",
-      "commandLineArgs": "-l --genconf config.json"
+      "commandLineArgs": "genconfig -l --path config.json"
     },
     "SWAPS - Update": {
       "commandName": "Project",
-      "commandLineArgs": "-l --update --byPassUpdateLoopProtection"
+      "commandLineArgs": "update -l --byPassUpdateLoopProtection"
     }
   }
 }

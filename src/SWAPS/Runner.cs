@@ -20,9 +20,9 @@ namespace SWAPS
 
       protected Configuration Config { get; set; }
 
-      protected CmdOptions CmdOptions { get; set; }
+      protected RunCmdOptions CmdOptions { get; set; }
 
-      public Runner(Configuration configuration, CmdOptions cmdOptions)
+      public Runner(Configuration configuration, RunCmdOptions cmdOptions)
       {
          Config = configuration;
          CmdOptions = cmdOptions;

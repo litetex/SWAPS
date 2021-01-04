@@ -18,7 +18,7 @@ namespace SWAPS.CMD
       [Option("byPassUpdateLoopProtection", HelpText = "Bypasses the updateloop protection")]
       public bool ByPassUpdateLoopProtection { get; set; }
 
-      #region JSON based Config
+      #region Configfile
       [Option("genconf", HelpText = "Generates default config file in mentioned path")]
       public string ConfigGenerationPath { get; set; } = null;
 

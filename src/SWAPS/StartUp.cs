@@ -32,9 +32,9 @@ namespace SWAPS
          }
          if (CmdOption.ConfigGenerationPath != null)
          {
-            Log.Info("MODE: Write JSON Config");
+            Log.Info("MODE: Write Configfile");
 
-            WriteJsonConfig();
+            WriteConfigFile();
             return;
          }
 
@@ -57,12 +57,25 @@ namespace SWAPS
          updater.ForceUpdateNow();
       }
 
-      protected void WriteJsonConfig()
+      protected void WriteConfigFile()
       {
-         Log.Info("Writing json config");
+         Log.Info("Writing config file");
 
          if (!string.IsNullOrWhiteSpace(CmdOption.ConfigGenerationPath))
             Config.Config.SavePath = CmdOption.ConfigGenerationPath;
+
+         Config.ServiceConfigs.Add(new ServiceConfig()
+         {
+            ServiceName = "ServiceName"
+         });
+
+         Config.ProcessConfigs.Add(new ProcessConfig()
+         {
+            Key = "abc",
+            FilePath = @"dir\executable.exe",
+            Args = "-ip 127.0.0.1",
+            WorkDir = "dir",
+         });
 
          Log.Info($"Saving '{Config.Config.SavePath}'");
          Config.Save();

@@ -1,8 +1,8 @@
-## :wrench: Configuration 
-### :computer: CLI Args
+# :wrench: Configuration 
+## :computer: CLI Args
 
-There are 3 opertation modes:
-SWAPS.exe <operationmode> <args>
+There are 3 operation modes:<br>
+``SWAPS.exe <operationmode:optional> <args>``
 
 Standard Args that can always be used:
 | Arg | Description |
@@ -11,14 +11,13 @@ Standard Args that can always be used:
 | ``--logFileRetainCount {number}`` | The maximum number of log files that will be retained, including the current log file. For unlimited retention, pass -1. The default is 31. |
 | ``-v`` ``--verbose`` | More logs (for debugging) |
 
-
-#### ``run`` 
-Default mode if nothing is specified
-Starts a normal workflow run
+### Operation modes
+#### ``run`` / default
+Default mode if nothing is specified.<br>
+Starts a normal workflow run.
 
 | Arg | Description |
 | --- | ----------- | 
-| | |
 | ``-c <path:optional>`` ``--config <path:optional>`` | Path to the config file; if value not set: using defaults |
 | | |
 | ``--startNotMin`` | Starts the process not minimized |
@@ -42,7 +41,7 @@ Forces an update
 | --- | ----------- | 
 | ``--byPassUpdateLoopProtection`` | Bypasses the updateloop protection |
 
-### Config file
+## Config file
 Example configs:
 
 ``liveupdate.json``

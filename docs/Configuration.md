@@ -28,14 +28,14 @@ Starts a normal workflow run.
 | ``--byPassUpdateLoopProtection`` | Bypasses the updateloop protection |
 
 #### ``genconfig``
-Generates configuration
+Generates the configuration file
 
 | Arg | Description |
 | --- | ----------- | 
 | ``--path <path:optional>`` | Generates default config file in mentioned path  |
 
 #### ``update``
-Forces an update
+Updates the program (if possible)
 
 | Arg | Description |
 | --- | ----------- | 

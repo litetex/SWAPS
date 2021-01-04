@@ -80,7 +80,7 @@ Example configs:
     {
       "ServiceName": "agent_ovpnconnect"
     },
-	{
+    {
       "ServiceName": "ovpnhelper_service"
     }
   ],

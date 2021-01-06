@@ -39,7 +39,7 @@ Updates the program (if possible)
 
 | Arg | Description |
 | --- | ----------- | 
-| ``--byPassUpdateLoopProtection`` | Bypasses the updateloop protection |
+| ``--byPassUpdateLoopProtection`` | Bypasses the updateloop protection; Forces an update |
 
 ## Config file
 Example configs:

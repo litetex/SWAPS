@@ -7,6 +7,11 @@ namespace SWAPS.Config
 {
    public class Configuration : JsonConfig
    {
+      // Increment this on major changes
+      public const int CURRENT_VERSION = 2;
+
+      public int Version { get; set; }
+
       public string Name { get; set; }
 
       public List<ServiceConfig> ServiceConfigs { get; set; } = new List<ServiceConfig>();

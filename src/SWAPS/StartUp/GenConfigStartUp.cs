@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using SWAPS.CMD;
 using SWAPS.Config;
@@ -29,6 +30,8 @@ namespace SWAPS.StartUp
          if (!string.IsNullOrWhiteSpace(CmdOptions.ConfigGenerationPath))
             Config.Config.SavePath = CmdOptions.ConfigGenerationPath;
 
+         
+         Config.Version = Configuration.CURRENT_VERSION; 
          Config.ServiceConfigs.Add(new ServiceConfig()
          {
             ServiceName = "ServiceName"

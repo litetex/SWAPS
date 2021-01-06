@@ -7,14 +7,19 @@ namespace SWAPS.Config
 {
    public class Configuration : JsonConfig
    {
+      // Increment this on major changes
+      public const int CURRENT_VERSION = 2;
+
+      public int Version { get; set; }
+
       public string Name { get; set; }
 
-      public ServiceConfig ServiceConfig { get; set; } = new ServiceConfig();
+      public List<ServiceConfig> ServiceConfigs { get; set; } = new List<ServiceConfig>();
 
       /// <summary>
       /// Config for subprocess/program
       /// </summary>
-      public ProcessConfig ProcessConfig { get; set; } = new ProcessConfig();
+      public List<ProcessConfig> ProcessConfigs { get; set; } = new List<ProcessConfig>();
 
       /// <summary>
       /// If the subprocess/program updates itself, it sometimes will try to uninstall the service --> ServiceNotFound (1060)

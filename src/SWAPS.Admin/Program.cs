@@ -12,7 +12,7 @@ using System.Text;
 namespace SWAPS.Admin
 {
    /// <summary>
-   /// Main entry point of SWAPS - start programm without auto-starting service
+   /// Main entry point of SWAPS.Admin - start programm without auto-starting service (admin process)
    /// </summary>
    public static class Program
    {

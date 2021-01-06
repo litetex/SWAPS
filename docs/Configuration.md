@@ -19,6 +19,7 @@ Starts a normal workflow run.
 | Arg | Description |
 | --- | ----------- | 
 | ``-c <path:optional>``<br>``--config <path:optional>`` | Path to the config file; if value not set: using defaults |
+| ``--abortOnConfigVersionMismatch`` | Abort on configuration file version mismatch |
 | | |
 | ``--startNotMin`` | Starts the process not minimized |
 | ``--showServerConsole`` | Shows the server console (for debugging) |
@@ -42,11 +43,14 @@ Updates the program (if possible)
 | ``--byPassUpdateLoopProtection`` | Bypasses the updateloop protection; Forces an update |
 
 ## Config file
+→ see also: [Migration notes](ConfigurationMigration.md)
+
 Example configs:
 
 ``liveupdate.json``
 ```JSON
 {
+  "Version": 2,
   "Name": "LiveUpdate_Launcher",
   "ServiceConfigs": [
     {
@@ -75,6 +79,7 @@ Example configs:
 ``openvpn.json``
 ```JSON
 {
+  "Version": 2,
   "Name": "OpenVPN_Launcher",
   "ServiceConfigs": [
     {

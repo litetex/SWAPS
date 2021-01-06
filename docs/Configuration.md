@@ -59,7 +59,7 @@ Example configs:
   ],
   "ProcessConfigs": [
     {
-      "Key": "abc",
+      "Key": null,
       "WorkDir": "C:\\Program Files (x86)\\MSI\\Live Update",
       "FilePath": "C:\\Program Files (x86)\\MSI\\Live Update\\Live Update.exe",
       "Args": "/START",

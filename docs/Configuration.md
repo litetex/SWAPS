@@ -43,7 +43,7 @@ Updates the program (if possible)
 | ``--byPassUpdateLoopProtection`` | Bypasses the updateloop protection; Forces an update |
 
 ## Config file
-→ see alse: [Migration notes](ConfigurationMigration.md)
+→ see also: [Migration notes](ConfigurationMigration.md)
 
 Example configs:
 

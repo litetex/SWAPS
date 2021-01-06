@@ -95,7 +95,7 @@ Example configs:
       "DependsOn": []
     }
   ],
-  "CrashOnUpdateServiceNotFound": false,
+  "CrashOnUpdateServiceNotFound": true,
   "ServiceStartTimeout": "00:00:10",
   "ServiceProperlyStartedDelay": "00:00:00",
   "ServiceShutdownDelay": "00:00:01",

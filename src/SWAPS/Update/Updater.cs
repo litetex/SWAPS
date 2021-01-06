@@ -107,9 +107,9 @@ namespace SWAPS.Update
             if (UpdateMode == UpdateMode.Notice || UpdateMode == UpdateMode.Notify)
             {
                Log.Info($"↑↑↑ Found update '{verRes.LastVersion}' ↑↑↑\r\n" +
-                  $"+++++++++++++++++++++++++++++++++++\r\n" +
-                  $"+ Run with --update to install it +\r\n" +
-                  $"+++++++++++++++++++++++++++++++++++");
+                  $"+++++++++++++++++++++++++++++++++++++++++++++\r\n" +
+                  $"+ Run with 'SWAPS.exe update' to install it +\r\n" +
+                  $"+++++++++++++++++++++++++++++++++++++++++++++");
 
                if (UpdateMode == UpdateMode.Notify)
                {

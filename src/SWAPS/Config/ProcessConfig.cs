@@ -12,6 +12,9 @@ namespace SWAPS.Config
       /// <summary>
       /// Optional
       /// </summary>
+      /// <remarks>
+      /// EXPERIMENTAL
+      /// </remarks>
       public string Key { get; set; }
 
       public string WorkDir { get; set; }
@@ -23,13 +26,19 @@ namespace SWAPS.Config
       public TimeSpan? Timeout { get; set; } = null;
 
       /// <summary>
-      /// If set, timeout is ignored
+      /// If set, timeout is ignored and process is started async and no longer monitored
       /// </summary>
+      /// <remarks>
+      /// EXPERIMENTAL
+      /// </remarks>
       public bool Async { get; set; } = false;
 
       /// <summary>
       /// Optional
       /// </summary>
+      /// <remarks>
+      /// EXPERIMENTAL
+      /// </remarks>
       public List<string> DependsOn { get; set; } = new List<string>();
    }
 }

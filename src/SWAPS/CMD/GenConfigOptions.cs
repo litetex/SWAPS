@@ -8,7 +8,7 @@ namespace SWAPS.CMD
    [Verb("genconfig")]
    public class GenConfigOptions : AbstractCmdOptions
    {
-      [Option("path", HelpText = "Generates the config file in mentioned path; e.g. dir\\abc.config")]
+      [Option('p',"path", HelpText = "Generates the config file in mentioned path; e.g. dir\\abc.config")]
       public string ConfigGenerationPath { get; set; } = null;
    }
 }

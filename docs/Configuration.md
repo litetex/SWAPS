@@ -7,9 +7,9 @@ There are 3 operation modes:<br>
 Standard Args that can always be used:
 | Arg | Description |
 | --- | ----------- | 
-| ``-l`` ``--logfile`` | Writes logs as file(s) into ./logs |
+| ``-l``<br>``--logfile`` | Writes logs as file(s) into ./logs |
 | ``--logFileRetainCount {number}`` | The maximum number of log files that will be retained, including the current log file. For unlimited retention, pass -1. The default is 31. |
-| ``-v`` ``--verbose`` | More logs (for debugging) |
+| ``-v``<br>``--verbose`` | More logs (for debugging) |
 
 ### Operation modes
 #### ``run`` / default
@@ -18,7 +18,7 @@ Starts a normal workflow run.
 
 | Arg | Description |
 | --- | ----------- | 
-| ``-c <path:optional>`` ``--config <path:optional>`` | Path to the config file; if value not set: using defaults |
+| ``-c <path:optional>``<br>``--config <path:optional>`` | Path to the config file; if value not set: using defaults |
 | | |
 | ``--startNotMin`` | Starts the process not minimized |
 | ``--showServerConsole`` | Shows the server console (for debugging) |
@@ -32,14 +32,14 @@ Generates the configuration file
 
 | Arg | Description |
 | --- | ----------- | 
-| ``--path <path:optional>`` | Generates default config file in mentioned path  |
+| ``-p <path:optional>``<br>``--path <path:optional>`` | Generates default config file in mentioned path  |
 
 #### ``update``
 Updates the program (if possible)
 
 | Arg | Description |
 | --- | ----------- | 
-| ``--byPassUpdateLoopProtection`` | Bypasses the updateloop protection |
+| ``--byPassUpdateLoopProtection`` | Bypasses the updateloop protection; Forces an update |
 
 ## Config file
 Example configs:

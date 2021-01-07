@@ -111,6 +111,8 @@ namespace SWAPS.AdminCom
          AdminComConfig.ComPort = (ushort)NetworkUtil.GetFreeTcpPort();
 
          Server = new WebSocketServer(IPAddress.Loopback, AdminComConfig.ComPort, !AdminComConfig.UnencryptedServerCom);
+         // regression of https://github.com/sta/websocket-sharp/issues/43 in a new version
+         Server.KeepClean = false;
          // Auth
          Server.AuthenticationSchemes = WebSocketSharp.Net.AuthenticationSchemes.Basic;
          Server.UserCredentialsFinder = id =>
@@ -182,8 +184,9 @@ namespace SWAPS.AdminCom
             }
          };
 
+         Log.Info($"Starting '{p.StartInfo.FileName} {p.StartInfo.Arguments}'");
          p.Start();
-         Log.Info($"Started '{p.StartInfo.FileName} {p.StartInfo.Arguments}' with PID {p.Id}");
+         Log.Info($"Started successfully with PID {p.Id}");
 
          AdminProcessID = p.Id;
       }

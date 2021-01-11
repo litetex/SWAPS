@@ -6,10 +6,9 @@ Start a program/process without a auto-starting service
 * User must be an administrator
 
 ### What it does
-* Set service startup-type to demand
-* Starts the service before launching the subprocess/program
-* Stops the service after the subprocess/program has finished
-* Create log files with ``-l``
+* Set service(s) startup-type to manually
+* Starts the service(s) before launching the subprocess(es)/program(s)
+* Stops the service(s) after the subprocess(es)/program(s) has finished
 
 ### [:wrench: Configuration](docs/Configuration.md)
 

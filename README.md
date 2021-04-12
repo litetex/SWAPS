@@ -12,4 +12,4 @@ Start a program/process without a auto-starting service
 
 ### [:wrench: Configuration](docs/Configuration.md)
 
-### Development [![Build Develop](https://img.shields.io/github/workflow/status/litetex/SWAPS/Check%20Build/develop?label=build%20develop)](https://github.com/litetex/SWAPS/actions?query=workflow%3A%22Check+Build%22+branch%3Adevelop)
+### Development [![Build Develop](https://img.shields.io/github/workflow/status/litetex/SWAPS/Check%20Build/develop?label=build%20develop)](https://github.com/litetex/SWAPS/actions?query=workflow%3A%22Check+Build%22+branch%3Adevelop) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=litetex_SWAPS&metric=alert_status)](https://sonarcloud.io/dashboard?id=litetex_SWAPS)

@@ -37,9 +37,9 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: '3.1'
+        dotnet-version: 3.1.x
 
-    # Debug https://github.com/actions/setup-dotnet/issues/155
+    # Fixes https://github.com/actions/setup-dotnet/issues/155
     - run: dotnet nuget list source
         
     - name: Build

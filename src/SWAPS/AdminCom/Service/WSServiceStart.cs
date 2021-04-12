@@ -10,9 +10,6 @@ namespace SWAPS.AdminCom.Service
 {
    public class WSServiceStart : WSSyncServerRequester<ServiceStart,bool>
    {
-      public WSServiceStart(ServiceManager<ServiceStart, bool> serviceManager) : base(serviceManager)
-      {
-
-      }
+      // Just generics
    }
 }

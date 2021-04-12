@@ -13,20 +13,32 @@ namespace SWAPS.AdminCom.Service
 {
    public class WSSyncServerRequester<S,R> : WebSocketBehavior 
    {
-      protected ServiceManager<S,R> ServiceManager { get; set; }
+      public ServiceManager<S,R> ServiceManager { get; set; }
 
-      public WSSyncServerRequester(ServiceManager<S, R> serviceManager)
+      public WSSyncServerRequester()
       {
-         ServiceManager = serviceManager;
+         
       }
 
       protected override void OnMessage(MessageEventArgs e)
       {
+         if(ServiceManager == null)
+         {
+            SWAPS.Log.Warn("Not initalized; Skipping onMessage");
+            return;
+         }
+
          ServiceManager.OnMessage(e);
       }
 
       protected override void OnError(ErrorEventArgs e)
       {
+         if (ServiceManager == null)
+         {
+            SWAPS.Log.Warn("Not initalized; Skipping onError");
+            return;
+         }
+
          ServiceManager.OnError(e);
       }
    }

@@ -143,13 +143,13 @@ namespace SWAPS.AdminCom
       private void InitServices()
       {
          Server.AddWebSocketService<WSAdminLog>(ComServices.S_ADMIN_LOG);
-         Server.AddWebSocketService<WSHandshakeReflector>(ComServices.S_HANDSHAKE_REFLECTOR, () => new WSHandshakeReflector(HandshakeWithinTimeout));
+         Server.AddWebSocketService<WSHandshakeReflector>(ComServices.S_HANDSHAKE_REFLECTOR, wsSvc => wsSvc.HandshakeWithinTimeout = HandshakeWithinTimeout);
 
          StartServiceManager.Broadcaster = data => Server.WebSocketServices[ComServices.S_SERVICE_START].Sessions.Broadcast(data);
-         Server.AddWebSocketService<WSServiceStart>(ComServices.S_SERVICE_START, () => new WSServiceStart(StartServiceManager));
+         Server.AddWebSocketService<WSServiceStart>(ComServices.S_SERVICE_START, wsSvc => wsSvc.ServiceManager = StartServiceManager);
 
          StopServiceManager.Broadcaster = data => Server.WebSocketServices[ComServices.S_SERVICE_STOP].Sessions.Broadcast(data);
-         Server.AddWebSocketService<WSServiceStop>(ComServices.S_SERVICE_STOP, () => new WSServiceStop(StopServiceManager));
+         Server.AddWebSocketService<WSServiceStop>(ComServices.S_SERVICE_STOP, wsSvc => wsSvc.ServiceManager = StopServiceManager);
 
          Server.AddWebSocketService<WSShutdownAdmin>(ComServices.S_SHUTDOWN_ADMIN);
       }

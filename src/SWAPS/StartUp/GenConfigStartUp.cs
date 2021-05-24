@@ -32,12 +32,12 @@ namespace SWAPS.StartUp
 
          
          Config.Version = Configuration.CURRENT_VERSION; 
-         Config.ServiceConfigs.Add(new ServiceConfig()
+         Config.Services.Configs.Add(new ServiceConfig()
          {
             ServiceName = "ServiceName"
          });
 
-         Config.ProcessConfigs.Add(new ProcessConfig()
+         Config.Processes.Configs.Add(new ProcessConfig()
          {
             FilePath = @"dir\executable.exe",
             Args = "-ip 127.0.0.1",

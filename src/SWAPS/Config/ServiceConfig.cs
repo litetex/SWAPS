@@ -17,6 +17,11 @@ namespace SWAPS.Config
       /// <summary>
       /// If the subprocess/program updates itself, it sometimes will try to uninstall the service --> ServiceNotFound (1060)
       /// </summary>
-      public bool CrashOnUpdateServiceNotFound { get; set; } = false;
+      public bool? CrashOnUpdateServiceNotFound { get; set; } = null;
+
+      /// <summary>
+      /// Timeout until the service is started
+      /// </summary>
+      public TimeSpan? StartTimeout { get; set; } = null;
    }
 }

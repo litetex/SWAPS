@@ -51,17 +51,31 @@ Example configs:
 ``liveupdate.json``
 ```JSON
 {
-  "Version": 2,
+  "Version": 3,
   "Name": "LiveUpdate_Launcher",
-  "ServiceConfigs": [
+  "LockFile": {
+    "Enabled": false,
+    "LockFileExtension": ".lock",
+    "ReNewLockFileAfter": "1.00:00:00",
+    "LockFileInvalidAfter": "3.00:00:00"
+  },
+  "Services": {
+    "CrashOnUpdateServiceNotFound": true,
+    "StartTimeout": "00:00:10",
+    "ProperlyStartedDelay": "00:00:01",
+    "ShutdownDelay": "00:00:01",
+    "Configs": [
+      {
+        "ServiceName": "MSI_LiveUpdate_Service",
+        "CrashOnUpdateServiceNotFound": null,
+        "StartTimeout": null
+      }
+    ]
+  },
+  "Processes": {
+    "Configs": [
     {
-      "ServiceName": "MSI_LiveUpdate_Service",
-      "CrashOnUpdateServiceNotFound": true
-    }
-  ],
-  "ProcessConfigs": [
-    {
-      "Key": null,
+      "Key": "live update",
       "WorkDir": "C:\\Program Files (x86)\\MSI\\Live Update",
       "FilePath": "C:\\Program Files (x86)\\MSI\\Live Update\\Live Update.exe",
       "Args": "/START",
@@ -69,43 +83,36 @@ Example configs:
       "Async": false,
       "DependsOn": []
     }
-  ],
-  "CrashOnUpdateServiceNotFound": null,
-  "ServiceStartTimeout": "00:00:10",
-  "ServiceProperlyStartedDelay": "00:00:01",
-  "ServiceShutdownDelay": "00:00:01",
+  ]
+  },
   "StayingOpenBeforeEnding": "00:00:00.5000000"
 }
 ```
 
-``openvpn.json``
+``openvpn.json`` - Only with required and overridden  fields
 ```JSON
 {
-  "Version": 2,
+  "Version": 3,
   "Name": "OpenVPN_Launcher",
-  "ServiceConfigs": [
-    {
-      "ServiceName": "agent_ovpnconnect"
-    },
-    {
-      "ServiceName": "ovpnhelper_service"
-    }
-  ],
-  "ProcessConfigs": [
-    {
-      "Key": null,
-      "WorkDir": "C:\\Program Files\\OpenVPN Connect\\",
-      "FilePath": "C:\\Program Files\\OpenVPN Connect\\OpenVPNConnect.exe",
-      "Args": null,
-      "Timeout": null,
-      "Async": false,
-      "DependsOn": []
-    }
-  ],
-  "CrashOnUpdateServiceNotFound": true,
-  "ServiceStartTimeout": "00:00:10",
-  "ServiceProperlyStartedDelay": "00:00:00",
-  "ServiceShutdownDelay": "00:00:01",
-  "StayingOpenBeforeEnding": "00:00:00.5000000"
+  "Services": {
+    "CrashOnUpdateServiceNotFound": true,
+    "Configs": [
+      {
+        "ServiceName": "agent_ovpnconnect"
+      },
+      {
+        "ServiceName": "ovpnhelper_service"
+      }
+    ]
+  },
+  "Processes": {
+    "Configs": [
+      {
+        "WorkDir": "C:\\Program Files\\OpenVPN Connect\\",
+        "FilePath": "C:\\Program Files\\OpenVPN Connect\\OpenVPNConnect.exe",
+        "DependsOn": []
+      }
+    ]
+  }
 }
 ```

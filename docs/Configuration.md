@@ -89,7 +89,7 @@ Example configs:
 }
 ```
 
-``openvpn.json`` - Not required fields are removed
+``openvpn.json`` - Only with required and overridden  fields
 ```JSON
 {
   "Version": 3,

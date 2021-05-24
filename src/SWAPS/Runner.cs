@@ -37,7 +37,7 @@ namespace SWAPS
          if (!string.IsNullOrWhiteSpace(Config.Name))
             Console.Title = Config.Name;
 
-         using (LockFileManager = new LockFileManager(Config.Config.SavePath)
+         using (LockFileManager = new LockFileManager(Config.LockFileConfig, Config.Config.SavePath)
          {
             LockFileFoundMode = CmdOptions.LockFileFoundMode
          })
@@ -94,7 +94,7 @@ namespace SWAPS
                         new ServiceStop()
                         {
                            Name = serviceConfig.ServiceName,
-                           CrashOnServiceNotFound = Config.CrashOnUpdateServiceNotFound
+                           CrashOnServiceNotFound = Config.CrashOnUpdateServiceNotFound ?? serviceConfig.CrashOnUpdateServiceNotFound,
                         },
                         TimeSpan.FromSeconds(10))
                      .Wait();

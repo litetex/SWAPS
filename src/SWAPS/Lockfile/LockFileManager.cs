@@ -6,14 +6,15 @@ using System.Linq;
 using System.Diagnostics;
 using System.Reflection;
 using System.Timers;
+using SWAPS.Config;
 
 namespace SWAPS.Lockfile
 {
    public class LockFileManager : IDisposable
    {
-      protected const string LOCKFILE_EXTENSION = ".lock";
-
       public LockFile LockFile { get; private set; } = new LockFile();
+
+      protected LockFileConfig LockFileConfig { get; set; }
 
       public LockFileFoundMode LockFileFoundMode { get; set; } = LockFileFoundMode.Terminate;
 
@@ -23,9 +24,10 @@ namespace SWAPS.Lockfile
 
       private bool disposedValue;
 
-      public LockFileManager(string configurationFilePath)
+      public LockFileManager(LockFileConfig config, string configurationFilePath)
       {
-         LockFile.Config.SavePath = Path.Combine(configurationFilePath + LOCKFILE_EXTENSION);
+         LockFileConfig = config;
+         LockFile.Config.SavePath = Path.Combine(configurationFilePath + LockFileConfig.LockFileExtension ?? ".lock");
       }
 
       /// <summary>
@@ -34,6 +36,9 @@ namespace SWAPS.Lockfile
       /// <exception cref="LockFileAbortException">When aborting should be done, becuase of a valid lockfile</exception>
       public void Init()
       {
+         if (!LockFileConfig.Enabled)
+            return;
+
          ValidLockFileAlreadyExists = CheckLockFile();
          if (ValidLockFileAlreadyExists)
          {
@@ -74,7 +79,7 @@ namespace SWAPS.Lockfile
 
          if (LockFile.FileVersion != LockFile.CURRENT_VERSION)
          {
-            Log.Warn("Found an not matching lockfile");
+            Log.Warn("Found an not matching lockfile version");
          }
 
          Log.Info("Running lockfile-validation");
@@ -108,7 +113,7 @@ namespace SWAPS.Lockfile
             return false;
          }
 
-         if ((DateTime.Now - LockFile.UpdateDate).TotalDays >= 3)
+         if ((DateTime.Now - LockFile.UpdateDate) >= LockFileConfig.LockFileInvalidAfter)
          {
             Log.Warn($"Lockfile was updated by a process at {LockFile.UpdateDate} which is outside the range of +/-3d of the current time");
             return false;
@@ -220,9 +225,8 @@ namespace SWAPS.Lockfile
          if (ValidLockFileAlreadyExists || LockFileUpdateTimer != null)
             return;
 
-
          Log.Info($"Starting {nameof(LockFileUpdateTimer)}");
-         LockFileUpdateTimer = new Timer(TimeSpan.FromDays(1).TotalMilliseconds)
+         LockFileUpdateTimer = new Timer(LockFileConfig.ReNewLockFileAfter.TotalMilliseconds)
          {
             AutoReset = true,
             Enabled = true,
@@ -244,7 +248,7 @@ namespace SWAPS.Lockfile
 
       protected void CleanUp()
       {
-         if (ValidLockFileAlreadyExists)
+         if (!LockFileConfig.Enabled || ValidLockFileAlreadyExists)
             return;
 
          try

@@ -16,6 +16,8 @@ namespace SWAPS.Config
 
       public LockFileConfig LockFileConfig { get; set; } = new LockFileConfig();
 
+      public ServicesConfig ServicesConfig { get; set; } = new ServicesConfig();
+
       public List<ServiceConfig> ServiceConfigs { get; set; } = new List<ServiceConfig>();
 
       /// <summary>

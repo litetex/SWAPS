@@ -61,7 +61,7 @@ namespace SWAPS.Admin.Communication
          });
 
          Log.Info($"Doing inital check if starter process[PID={Config.ParentPID}] is alive");
-         if (!ProcessAliveChecker.CheckIfStarterPIDAlive(Config.ParentPID))
+         if (!ProcessAliveChecker.CheckIfPIDAlive(Config.ParentPID))
             throw new ArgumentException($"{nameof(Config.ParentPID)}={Config.ParentPID} not found!");
 
          Log.Info($"Starting {nameof(StarterPIDAliveChecker)}; StarterPID={Config.ParentPID}");

@@ -43,22 +43,7 @@ namespace SWAPS.Admin
 
          try
          {
-            AppDomain.CurrentDomain.UnhandledException += (s, ev) =>
-            {
-               try
-               {
-                  if (ev?.ExceptionObject is Exception ex)
-                  {
-                     Log.Fatal("An unhandled error occured", ex);
-                     return;
-                  }
-                  Log.Fatal($"An unhandled error occured {ev}");
-               }
-               catch (Exception ex)
-               {
-                  Console.Error.WriteLine($"Failed to catch unhandled error '{ev?.ExceptionObject ?? ev}': {ex}");
-               }
-            };
+            InstallUnhandledExceptionHandler();
 
             var parser = new Parser(settings =>
             {
@@ -117,6 +102,26 @@ namespace SWAPS.Admin
 #endif
             .WriteTo.Console(outputTemplate: "{Timestamp:HH:mm:ss,fff} {Level:u3} {ThreadId,-2} {Message:lj}{NewLine}{Exception}")
             .WriteTo.Buffered(s => Writer(s), () => WriterAvailable(), outputTemplate: "{Timestamp:HH:mm:ss,fff} {Level:u3} {ThreadId,-2} {Message:lj}{NewLine}{Exception}");
+      }
+
+      private static void InstallUnhandledExceptionHandler()
+      {
+         AppDomain.CurrentDomain.UnhandledException += (s, ev) =>
+         {
+            try
+            {
+               if (ev?.ExceptionObject is Exception ex)
+               {
+                  Log.Fatal("An unhandled error occured", ex);
+                  return;
+               }
+               Log.Fatal($"An unhandled error occured {ev}");
+            }
+            catch (Exception ex)
+            {
+               Console.Error.WriteLine($"Failed to catch unhandled error '{ev?.ExceptionObject ?? ev}': {ex}");
+            }
+         };
       }
 
       [DllImport("kernel32.dll")]

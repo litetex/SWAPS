@@ -13,5 +13,10 @@ namespace SWAPS.Config
       /// Name of the Service that is used (use "sc query")
       /// </summary>
       public string ServiceName { get; set; }
+
+      /// <summary>
+      /// If the subprocess/program updates itself, it sometimes will try to uninstall the service --> ServiceNotFound (1060)
+      /// </summary>
+      public bool CrashOnUpdateServiceNotFound { get; set; } = false;
    }
 }

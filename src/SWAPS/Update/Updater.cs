@@ -124,7 +124,6 @@ namespace SWAPS.Update
             using (var progessBar = ForceUpdate ? new ConsoleProgressBar() : null)
                UpdateManager.PrepareUpdateAsync(UpdateVersionTarget, progessBar, DisposeCTS.Token).Wait();
 
-
             PreparedUpdate = true;
             Log.Info($"Update '{UpdateVersionTarget}' is prepared");
          }

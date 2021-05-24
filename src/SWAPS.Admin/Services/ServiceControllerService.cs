@@ -56,7 +56,7 @@ namespace SWAPS.Admin.Services
       {
          try
          {
-            svc.Stop();
+            StopService(svc);
             Log.Info("Stopped");
          }
          catch (InvalidOperationException invOpex)

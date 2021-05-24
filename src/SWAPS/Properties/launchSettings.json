@@ -2,7 +2,7 @@
   "profiles": {
     "SWAPS - Conf": {
       "commandName": "Project",
-      "commandLineArgs": "-l --logFileRetainCount -1 -c config.json --abortOnConfigVersionMismatch --showServerConsole --updatemode always"
+      "commandLineArgs": "-l --logFileRetainCount -1 -c config.json --abortOnConfigVersionMismatch --showServerConsole --updatemode always --lockFileFoundMode askUser"
     },
     "SWAPS - GenConf": {
       "commandName": "Project",

@@ -45,10 +45,10 @@ namespace SWAPS
 
       private bool CheckIfStarterPIDAlive()
       {
-         return CheckIfStarterPIDAlive(PID);
+         return CheckIfPIDAlive(PID);
       }
 
-      public static bool CheckIfStarterPIDAlive(int pid)
+      public static bool CheckIfPIDAlive(int pid)
       {
          try
          {

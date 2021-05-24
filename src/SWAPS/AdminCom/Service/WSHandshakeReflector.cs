@@ -8,16 +8,17 @@ namespace SWAPS.AdminCom.Service
 {
    public class WSHandshakeReflector : WebSocketBehavior
    {
-      private HandshakeWithinTimeout HandshakeWithinTimeout { get; set; }
-
-      public WSHandshakeReflector(HandshakeWithinTimeout handshakeWithinTimeout)
-      {
-         HandshakeWithinTimeout = handshakeWithinTimeout;
-      }
+      public HandshakeWithinTimeout HandshakeWithinTimeout { get; set; }
 
       protected override void OnMessage(MessageEventArgs e)
       {
-         Log.Debug($"onMessage: {e.Data}");
+         if(HandshakeWithinTimeout == null)
+         {
+            SWAPS.Log.Warn("Not initalized; Skipping onMessage");
+            return;
+         }
+
+         SWAPS.Log.Debug($"onMessage: {e.Data}");
          HandshakeWithinTimeout.Handshake();
          Send(e.Data);
       }

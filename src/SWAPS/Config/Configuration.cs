@@ -27,7 +27,7 @@ namespace SWAPS.Config
       /// If the subprocess/program updates itself, it sometimes will try to uninstall the service --> ServiceNotFound (1060)
       /// </summary>
       [Obsolete("Use ServiceConfig instead")]
-      public bool? CrashOnUpdateServiceNotFound { get; set; } = false;
+      public bool? CrashOnUpdateServiceNotFound { get; set; } = null;
 
 
       /// <summary>

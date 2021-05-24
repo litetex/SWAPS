@@ -14,6 +14,8 @@ namespace SWAPS.Config
 
       public string Name { get; set; }
 
+      public LockFileConfig LockFileConfig { get; set; } = new LockFileConfig();
+
       public List<ServiceConfig> ServiceConfigs { get; set; } = new List<ServiceConfig>();
 
       /// <summary>
@@ -24,7 +26,8 @@ namespace SWAPS.Config
       /// <summary>
       /// If the subprocess/program updates itself, it sometimes will try to uninstall the service --> ServiceNotFound (1060)
       /// </summary>
-      public bool CrashOnUpdateServiceNotFound { get; set; } = false;
+      [Obsolete("Use ServiceConfig instead")]
+      public bool? CrashOnUpdateServiceNotFound { get; set; } = null;
 
 
       /// <summary>

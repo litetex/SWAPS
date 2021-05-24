@@ -2,11 +2,13 @@ using SWAPS.AdminCom;
 using SWAPS.AdminCom.Service;
 using SWAPS.CMD;
 using SWAPS.Config;
+using SWAPS.Lockfile;
 using SWAPS.Shared.Com.IPC.Payload;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.ServiceProcess;
 using System.Threading;
@@ -16,6 +18,8 @@ namespace SWAPS
 {
    public class Runner
    {
+      protected LockFileManager LockFileManager { get; set; }
+
       protected AdminCommunictator AdminCommunictator { get; set; }
 
       protected Configuration Config { get; set; }
@@ -30,63 +34,83 @@ namespace SWAPS
 
       public void Run()
       {
-         try
-         {
+         if (!string.IsNullOrWhiteSpace(Config.Name))
             Console.Title = Config.Name;
 
-            AdminCommunictator = new AdminCommunictator(
-               CmdOptions.LogToFile, 
-               CmdOptions.LogFileRetainCount,
-               CmdOptions.Verbose, 
-               CmdOptions.ShowServerConsole,
-               CmdOptions.UseUnencryptedCom);
-
-            AdminCommunictator.Start();
-
-            Log.Info("Starting services");
-            foreach(var serviceConfig in Config.ServiceConfigs)
-            {
-               Log.Info($"Starting service '{serviceConfig.ServiceName}'");
-               AdminCommunictator.StartServiceManager
-                 .Invoke(
-                    new ServiceStart()
-                    {
-                       Name = serviceConfig.ServiceName,
-                       Timeout = Config.ServiceStartTimeout
-                    },
-                    Config.ServiceStartTimeout.Add(TimeSpan.FromSeconds(10)))
-                 .Wait();
-            }
-
-            Log.Info($"Waiting {Config.ServiceProperlyStartedDelay} for the service to become fully operational");
-            Thread.Sleep(Config.ServiceProperlyStartedDelay);
-
-            StartProcesses();
-
-            Log.Info("Stopping services");
-            foreach (var serviceConfig in Config.ServiceConfigs)
-            {
-               Log.Info($"Stopping service '{serviceConfig.ServiceName}'");
-               AdminCommunictator.StopServiceManager
-                  .Invoke(
-                     new ServiceStop()
-                     {
-                        Name = serviceConfig.ServiceName,
-                        CrashOnServiceNotFound = Config.CrashOnUpdateServiceNotFound
-                     },
-                     TimeSpan.FromSeconds(10))
-                  .Wait();
-            }
-
-            Thread.Sleep(Config.StayingOpenBeforeEnding);
-         }
-         catch (Exception e)
+         using (LockFileManager = new LockFileManager(Config.LockFileConfig, Config.Config.SavePath)
          {
-            Log.Error(e);
-         }
-         finally
+            LockFileFoundMode = CmdOptions.LockFileFoundMode
+         })
          {
-            AdminCommunictator.Stop();
+            try
+            {
+               try
+               {
+                  LockFileManager.Init();
+               }
+               catch(LockFileAbortException lfaex)
+               {
+                  Log.Error("Aborting due to lockfile", lfaex);
+                  Environment.ExitCode = -1;
+                  return;
+               }
+               
+
+               AdminCommunictator = new AdminCommunictator(
+                  CmdOptions.LogToFile,
+                  CmdOptions.LogFileRetainCount,
+                  CmdOptions.Verbose,
+                  CmdOptions.ShowServerConsole,
+                  CmdOptions.UseUnencryptedCom);
+
+               AdminCommunictator.Start();
+
+               Log.Info("Starting services");
+               foreach (var serviceConfig in Config.ServiceConfigs)
+               {
+                  Log.Info($"Starting service '{serviceConfig.ServiceName}'");
+                  AdminCommunictator.StartServiceManager
+                    .Invoke(
+                       new ServiceStart()
+                       {
+                          Name = serviceConfig.ServiceName,
+                          Timeout = Config.ServiceStartTimeout
+                       },
+                       Config.ServiceStartTimeout.Add(TimeSpan.FromSeconds(10)))
+                    .Wait();
+               }
+
+               Log.Info($"Waiting {Config.ServiceProperlyStartedDelay} for the service to become fully operational");
+               Thread.Sleep(Config.ServiceProperlyStartedDelay);
+
+               StartProcesses();
+
+               Log.Info("Stopping services");
+               foreach (var serviceConfig in Config.ServiceConfigs)
+               {
+                  Log.Info($"Stopping service '{serviceConfig.ServiceName}'");
+                  AdminCommunictator.StopServiceManager
+                     .Invoke(
+                        new ServiceStop()
+                        {
+                           Name = serviceConfig.ServiceName,
+                           CrashOnServiceNotFound = Config.CrashOnUpdateServiceNotFound ?? serviceConfig.CrashOnUpdateServiceNotFound,
+                        },
+                        TimeSpan.FromSeconds(10))
+                     .Wait();
+               }
+
+               Thread.Sleep(Config.StayingOpenBeforeEnding);
+
+            }
+            catch (Exception e)
+            {
+               Log.Error(e);
+            }
+            finally
+            {
+               AdminCommunictator?.Stop();
+            }
          }
       }
 
@@ -97,7 +121,8 @@ namespace SWAPS
          var lockKeyTasks = new object();
          var keyTasks = new Dictionary<string, Task>();
 
-         var tasks = Config.ProcessConfigs.Select(processConfig => {
+         var tasks = Config.ProcessConfigs.Select(processConfig =>
+         {
 
             var task = Task.Run(() =>
             {
@@ -112,7 +137,7 @@ namespace SWAPS
             });
 
             if (!string.IsNullOrWhiteSpace(processConfig.Key))
-               lock(lockKeyTasks)
+               lock (lockKeyTasks)
                   keyTasks.Add(processConfig.Key, task);
 
             return task;

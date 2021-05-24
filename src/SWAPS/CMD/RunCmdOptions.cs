@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using CommandLine;
+using SWAPS.Lockfile;
 using SWAPS.Update;
 
 namespace SWAPS.CMD
@@ -15,6 +16,9 @@ namespace SWAPS.CMD
 
       [Option("abortOnConfigVersionMismatch", HelpText = "Abort on configuration file version mismatch")]
       public bool AbortOnConfigVersionMismatch { get; set; }
+
+      [Option("lockFileFoundMode", HelpText = "Descirbes what is done, when a lockfile is found for the configuration")]
+      public LockFileFoundMode LockFileFoundMode { get; set;} = LockFileFoundMode.Terminate;
 
       #endregion Configfile
 

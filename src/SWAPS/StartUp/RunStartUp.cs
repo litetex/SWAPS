@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using CoreFramework.Config;
 using SWAPS.CMD;
@@ -45,7 +46,7 @@ namespace SWAPS.StartUp
             Config.Config.SavePath = CmdOptions.ConfigPath;
 
          Log.Info($"Loading '{Config.Config.SavePath}'");
-         Config.Load(LoadFileNotFoundAction.THROW_EX);
+         Config.Load();
 
          Log.Info($"Loading: success");
       }

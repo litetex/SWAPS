@@ -5,7 +5,7 @@ using System.Text;
 namespace SWAPS.Lockfile
 {
    /// <summary>
-   /// Describes what is done, when a valid lockfile was found
+   /// Describes what is done, when a lockfile is found for the configuration
    /// </summary>
    public enum LockFileFoundMode
    {
@@ -19,7 +19,7 @@ namespace SWAPS.Lockfile
       /// </summary>
       Ignore,
       /// <summary>
-      /// Ask the user (via the console) what should be done
+      /// Asks the user (via the console) what should be done
       /// </summary>
       AskUser
    }

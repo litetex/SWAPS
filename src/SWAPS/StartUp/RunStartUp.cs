@@ -29,7 +29,7 @@ namespace SWAPS.StartUp
          using var updater = new Updater(CmdOptions.UpdateMode, CmdOptions.ByPassUpdateLoopProtection);
          updater.OnStart();
 
-         bool canStart = CheckConfigVersion();
+         var canStart = CheckConfigVersion();
          if (canStart)
             DoStart();
          else

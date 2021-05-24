@@ -36,6 +36,7 @@ namespace SWAPS.Lockfile
       /// <exception cref="LockFileAbortException">When aborting should be done, becuase of a valid lockfile</exception>
       public void Init()
       {
+         Log.Info($"LockFile-subsystem is {(LockFileConfig.Enabled ? "en" : "dis")}abled");
          if (!LockFileConfig.Enabled)
             return;
 

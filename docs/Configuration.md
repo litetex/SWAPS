@@ -20,6 +20,7 @@ Starts a normal workflow run.
 | --- | ----------- | 
 | ``-c <path:optional>``<br>``--config <path:optional>`` | Path to the config file; if value not set: using defaults |
 | ``--abortOnConfigVersionMismatch`` | Abort on configuration file version mismatch |
+| ``--lockFileFoundMode`` | Describes what is done, when a lockfile is found for the configuration; More info [here](Lockfile.md) |
 | | |
 | ``--startNotMin`` | Starts the process not minimized |
 | ``--showServerConsole`` | Shows the server console (for debugging) |
@@ -54,7 +55,8 @@ Example configs:
   "Name": "LiveUpdate_Launcher",
   "ServiceConfigs": [
     {
-      "ServiceName": "MSI_LiveUpdate_Service"
+      "ServiceName": "MSI_LiveUpdate_Service",
+      "CrashOnUpdateServiceNotFound": true
     }
   ],
   "ProcessConfigs": [
@@ -68,7 +70,7 @@ Example configs:
       "DependsOn": []
     }
   ],
-  "CrashOnUpdateServiceNotFound": false,
+  "CrashOnUpdateServiceNotFound": null,
   "ServiceStartTimeout": "00:00:10",
   "ServiceProperlyStartedDelay": "00:00:01",
   "ServiceShutdownDelay": "00:00:01",

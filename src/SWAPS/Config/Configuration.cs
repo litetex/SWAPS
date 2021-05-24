@@ -14,6 +14,8 @@ namespace SWAPS.Config
 
       public string Name { get; set; }
 
+      public bool UseLockFile { get; set; } = false;
+
       public List<ServiceConfig> ServiceConfigs { get; set; } = new List<ServiceConfig>();
 
       /// <summary>

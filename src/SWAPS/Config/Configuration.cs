@@ -8,44 +8,17 @@ namespace SWAPS.Config
    public class Configuration : JsonConfig
    {
       // Increment this on major changes
-      public const int CURRENT_VERSION = 2;
+      public const int CURRENT_VERSION = 3;
 
       public int Version { get; set; }
 
       public string Name { get; set; }
 
-      public LockFileConfig LockFileConfig { get; set; } = new LockFileConfig();
+      public LockFileConfig LockFile { get; set; } = new LockFileConfig();
 
-      public ServicesConfig ServicesConfig { get; set; } = new ServicesConfig();
+      public ServicesConfig Services { get; set; } = new ServicesConfig();
 
-      public List<ServiceConfig> ServiceConfigs { get; set; } = new List<ServiceConfig>();
-
-      /// <summary>
-      /// Config for subprocess/program
-      /// </summary>
-      public List<ProcessConfig> ProcessConfigs { get; set; } = new List<ProcessConfig>();
-
-      /// <summary>
-      /// If the subprocess/program updates itself, it sometimes will try to uninstall the service --> ServiceNotFound (1060)
-      /// </summary>
-      [Obsolete("Use ServiceConfig instead")]
-      public bool? CrashOnUpdateServiceNotFound { get; set; } = null;
-
-
-      /// <summary>
-      /// Timeout until the service is started
-      /// </summary>
-      public TimeSpan ServiceStartTimeout { get; set; } = TimeSpan.FromSeconds(10);
-
-      /// <summary>
-      /// Delay after the service got started, used for waiting, until the service is fully operational
-      /// </summary>
-      public TimeSpan ServiceProperlyStartedDelay { get; set; } = TimeSpan.FromSeconds(0);
-
-      /// <summary>
-      /// Time to wait to shutdown the service after the launched process was stopped
-      /// </summary>
-      public TimeSpan ServiceShutdownDelay { get; set; } = TimeSpan.FromSeconds(1);
+      public ProcessesConfig Processes { get; set; } = new ProcessesConfig();
 
       /// <summary>
       /// Time in Seconds after beeing finished until the window closes

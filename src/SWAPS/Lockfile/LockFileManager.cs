@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Timers;
 using SWAPS.Config;
+using SWAPS.Util;
 
 namespace SWAPS.Lockfile
 {
@@ -131,6 +132,7 @@ namespace SWAPS.Lockfile
       {
          if (LockFileFoundMode == LockFileFoundMode.AskUser)
          {
+            ConsoleController.TryShowConsole();
             Console.WriteLine("************** DETECTED VALID LOCKFILE **************");
             Console.WriteLine($"Another instance of the program is running and using the current configuration (which has the lockfile-check enabled)");
             Console.WriteLine();
@@ -163,17 +165,25 @@ namespace SWAPS.Lockfile
                Console.WriteLine($"\t - {kv.Key.PadRight(paddKeyCount)}: {kv.Value ?? "?"}");
 
             Console.WriteLine();
-
-            ConsoleKey response;
-            do
+            while (true)
             {
-               Console.Write("Ignore and start anyway (not recommended)? [y/n] ");
-               response = Console.ReadKey(false).Key;
-               if (response != ConsoleKey.Enter)
-                  Console.WriteLine();
-            } while (response != ConsoleKey.Y && response != ConsoleKey.N);
+               Console.WriteLine("Ignore and start anyway (not recommended)? [y/n]");
+               var ans = Console.ReadLine();
+               if (ans == null)
+                  continue;
 
-            LockFileFoundMode = response == ConsoleKey.Y ? LockFileFoundMode.Ignore : LockFileFoundMode.Terminate;
+               var input = ans.ToLower().Trim();
+               if ("y".Equals(input))
+               {
+                  LockFileFoundMode = LockFileFoundMode.Ignore;
+                  break;
+               }
+               else if ("n".Equals(input))
+               {
+                  LockFileFoundMode = LockFileFoundMode.Terminate;
+                  break;
+               }
+            }
          }
 
          if (LockFileFoundMode == LockFileFoundMode.Ignore)

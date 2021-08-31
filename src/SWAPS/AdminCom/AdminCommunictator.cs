@@ -208,7 +208,17 @@ namespace SWAPS.AdminCom
                return;
             }
 
-            var adminProcess = Process.GetProcessById(AdminProcessID.Value);
+            Process adminProcess;
+            try
+            {
+               adminProcess = Process.GetProcessById(AdminProcessID.Value);
+            } 
+            catch(ArgumentException ex)
+            {
+               Log.Info("Admin process seems to have terminated", ex);
+               return;
+            }
+
             Log.Info("Waiting for admin process termination");
             if (adminProcess.WaitForExit(2000))
             {

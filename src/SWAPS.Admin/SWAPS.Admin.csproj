@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Windows.Compatibility" Version="3.1.1" />
+    <PackageReference Include="Microsoft.Windows.Compatibility" Version="3.1.2" />
     <PackageReference Include="SIPSorcery.WebSocketSharp" Version="0.0.1" />
     <PackageReference Include="CommandLineParser" Version="2.7.82" />
     <PackageReference Include="Serilog.Enrichers.Thread" Version="3.1.0" />

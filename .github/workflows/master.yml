@@ -66,7 +66,7 @@ jobs:
         Compress-Archive -Path * -DestinationPath all.zip
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: all-${{ matrix.os }}
         path: |

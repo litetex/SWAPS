@@ -37,10 +37,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 3.1.x
-
-    # Fixes https://github.com/actions/setup-dotnet/issues/155
-    - run: dotnet nuget list source
+        dotnet-version: 6.x
         
     - name: Build
       run: dotnet build --configuration ${{ matrix.configuration }}

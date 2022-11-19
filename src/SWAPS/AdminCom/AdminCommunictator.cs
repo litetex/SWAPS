@@ -172,7 +172,7 @@ namespace SWAPS.AdminCom
             {
                FileName = Path.Combine(
 #if DEBUG
-                   @"..\..\..\..\SWAPS.Admin\bin\Debug\netcoreapp3.1",
+                   @"..\..\..\..\SWAPS.Admin\bin\Debug\net6.0-windows",
 #else
                   Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName),
 #endif
@@ -208,7 +208,17 @@ namespace SWAPS.AdminCom
                return;
             }
 
-            var adminProcess = Process.GetProcessById(AdminProcessID.Value);
+            Process adminProcess;
+            try
+            {
+               adminProcess = Process.GetProcessById(AdminProcessID.Value);
+            } 
+            catch(ArgumentException ex)
+            {
+               Log.Info("Admin process seems to have terminated", ex);
+               return;
+            }
+
             Log.Info("Waiting for admin process termination");
             if (adminProcess.WaitForExit(2000))
             {

@@ -8,8 +8,6 @@ namespace SWAPS.Shared
 {
    public static class SecureRandomStringGen
    {
-      private static readonly RNGCryptoServiceProvider csp = new RNGCryptoServiceProvider();
-
       private const string NUMBERS = "0123456789";
       private const string UPPER_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
       private const string LOWER_CHARS = "abcdefghijklmnopqrstuvwxyz";
@@ -49,9 +47,7 @@ namespace SWAPS.Shared
 
       private static byte[] GenerateRandomBytes(int bytesNumber)
       {
-         byte[] buffer = new byte[bytesNumber];
-         csp.GetBytes(buffer);
-         return buffer;
+         return RandomNumberGenerator.GetBytes(bytesNumber);
       }
    }
 }

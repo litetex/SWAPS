@@ -33,6 +33,7 @@ namespace SWAPS.Admin.Communication
       private TaskCompletionSource<bool> Stopped { get; set; } = new TaskCompletionSource<bool>();
 
       private readonly object lockStop = new object();
+      private readonly object lockShutdownEvent = new object();
 
       public Communicator(AdminComConfig configuration)
       {
@@ -262,12 +263,17 @@ namespace SWAPS.Admin.Communication
 
       protected void ShutdownEvent()
       {
-         if (Stopped.Task.IsCompletedSuccessfully)
-            return;
+         lock (lockShutdownEvent)
+         {
+            if (Stopped.Task.IsCompletedSuccessfully)
+               return;
 
-         Stopped.SetResult(true);
-         WebSocketShutdownMonitor.Close();
-         Log.Info("Closed SM");
+            Log.Info("Triggering shutdown");
+
+            Stopped.SetResult(true);
+            WebSocketShutdownMonitor.Close();
+            Log.Info("Closed SM");
+         }
       }
 
       protected void WaitForStop()

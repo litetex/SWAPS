@@ -11,7 +11,7 @@
 
   <ItemGroup>
     <PackageReference Include="Litetex.CoreFramework.Config.Json" Version="2020.12.31.1258" />
-    <PackageReference Include="Onova" Version="2.6.2" />
+    <PackageReference Include="Onova" Version="2.6.3" />
     <PackageReference Include="SIPSorcery.WebSocketSharp" Version="0.0.1" />
     <PackageReference Include="Serilog.Enrichers.Thread" Version="3.1.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />

@@ -32,7 +32,7 @@ jobs:
         os: [win-x64]
         configuration: [Release]
    steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
          
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
@@ -84,7 +84,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build]
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: pull-request
       uses: repo-sync/pull-request@v2

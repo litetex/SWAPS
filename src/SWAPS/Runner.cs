@@ -37,7 +37,7 @@ namespace SWAPS
          if (!string.IsNullOrWhiteSpace(Config.Name))
             Console.Title = Config.Name;
 
-         using (LockFileManager = new LockFileManager(Config.LockFileConfig, Config.Config.SavePath)
+         using (LockFileManager = new LockFileManager(Config.LockFile, Config.Config.SavePath)
          {
             LockFileFoundMode = CmdOptions.LockFileFoundMode
          })
@@ -66,27 +66,33 @@ namespace SWAPS
                AdminCommunictator.Start();
 
                Log.Info("Starting services");
-               foreach (var serviceConfig in Config.ServiceConfigs)
+               foreach (var serviceConfig in Config.Services.Configs)
                {
                   Log.Info($"Starting service '{serviceConfig.ServiceName}'");
+
+                  var serviceStartTimeout = serviceConfig.StartTimeout ?? Config.Services.StartTimeout;
+
                   AdminCommunictator.StartServiceManager
                     .Invoke(
                        new ServiceStart()
                        {
                           Name = serviceConfig.ServiceName,
-                          Timeout = Config.ServiceStartTimeout
+                          Timeout = serviceStartTimeout
                        },
-                       Config.ServiceStartTimeout.Add(TimeSpan.FromSeconds(10)))
+                       serviceStartTimeout.Add(TimeSpan.FromSeconds(10)))
                     .Wait();
                }
 
-               Log.Info($"Waiting {Config.ServiceProperlyStartedDelay} for the service to become fully operational");
-               Thread.Sleep(Config.ServiceProperlyStartedDelay);
+               Log.Info($"Waiting {Config.Services.ProperlyStartedDelay} for the service to become fully operational");
+               Thread.Sleep(Config.Services.ProperlyStartedDelay);
 
                StartProcesses();
 
+               Log.Info($"Waiting for a moment['{Config.Services.ShutdownDelay}'] so that the services are stopped safely");
+               Thread.Sleep(Config.Services.ShutdownDelay);
+
                Log.Info("Stopping services");
-               foreach (var serviceConfig in Config.ServiceConfigs)
+               foreach (var serviceConfig in Config.Services.Configs)
                {
                   Log.Info($"Stopping service '{serviceConfig.ServiceName}'");
                   AdminCommunictator.StopServiceManager
@@ -94,7 +100,7 @@ namespace SWAPS
                         new ServiceStop()
                         {
                            Name = serviceConfig.ServiceName,
-                           CrashOnServiceNotFound = Config.CrashOnUpdateServiceNotFound ?? serviceConfig.CrashOnUpdateServiceNotFound,
+                           CrashOnServiceNotFound = serviceConfig.CrashOnUpdateServiceNotFound ?? Config.Services.CrashOnUpdateServiceNotFound,
                         },
                         TimeSpan.FromSeconds(10))
                      .Wait();
@@ -121,7 +127,7 @@ namespace SWAPS
          var lockKeyTasks = new object();
          var keyTasks = new Dictionary<string, Task>();
 
-         var tasks = Config.ProcessConfigs.Select(processConfig =>
+         var tasks = Config.Processes.Configs.Select(processConfig =>
          {
 
             var task = Task.Run(() =>

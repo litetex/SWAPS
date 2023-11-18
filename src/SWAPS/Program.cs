@@ -111,7 +111,6 @@ namespace SWAPS
          {
             logConf.MinimumLevel.Debug();
 
-            Serilog.Log.Logger = logConf.CreateLogger();
             Log.Info("Running in verbose mode");
          }
          if (standardOpt.LogToFile)
@@ -122,9 +121,9 @@ namespace SWAPS
                   rollOnFileSizeLimit: true,
                   retainedFileCountLimit: standardOpt.LogFileRetainCount >= 0 ? standardOpt.LogFileRetainCount : (int?)null);
 
-            Serilog.Log.Logger = logConf.CreateLogger();
             Log.Info("Logger will also write to file");
          }
+         Serilog.Log.Logger = logConf.CreateLogger();
       }
 
       private static void ParserFail(IEnumerable<Error> errors)

@@ -42,10 +42,10 @@ namespace SWAPS.StartUp
       {
          Log.Info("Reading json config");
 
-         var configPath = !string.IsNullOrWhiteSpace(CmdOptions.ConfigPath) ? CmdOptions.ConfigPath : SWAPSConfigPersister.DEFAULT_SAVEPATH;
+         var configPath = !string.IsNullOrWhiteSpace(CmdOptions.ConfigPath) ? CmdOptions.ConfigPath : ConfigPersister.DEFAULT_SAVEPATH;
 
          Log.Info($"Loading '{configPath}'");
-         SWAPSConfigPersister.Instance.Load(Config, configPath);
+         ConfigPersister.Instance.Load(Config, configPath);
 
          Log.Info($"Loading: success");
          return configPath;

@@ -30,6 +30,10 @@ namespace SWAPS.Lockfile
 
       private bool disposedValue;
 
+      [System.Diagnostics.CodeAnalysis.SuppressMessage(
+         "Style", 
+         "S2583", 
+         Justification = "This file is loaded by a serializer which means the value is not always the same")]
       public LockFileManager(LockFileConfig config, string configurationFilePath)
       {
          LockFileConfig = config;

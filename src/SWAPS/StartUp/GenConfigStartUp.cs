@@ -28,7 +28,7 @@ namespace SWAPS.StartUp
       {
          Log.Info("Writing config file");
 
-         var configPath = !string.IsNullOrWhiteSpace(CmdOptions.ConfigGenerationPath) ? CmdOptions.ConfigGenerationPath : SWAPSConfigPersister.DEFAULT_SAVEPATH;
+         var configPath = !string.IsNullOrWhiteSpace(CmdOptions.ConfigGenerationPath) ? CmdOptions.ConfigGenerationPath : ConfigPersister.DEFAULT_SAVEPATH;
          
          Config.Version = Configuration.CURRENT_VERSION; 
          Config.ServiceConfigs.Add(new ServiceConfig()
@@ -44,7 +44,7 @@ namespace SWAPS.StartUp
          });
 
          Log.Info($"Saving '{configPath}'");
-         SWAPSConfigPersister.Instance.Save(Config, configPath);
+         ConfigPersister.Instance.Save(Config, configPath);
 
          Log.Info($"Saving: success");
       }

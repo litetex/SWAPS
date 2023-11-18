@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 using System.Threading.Tasks;
 
@@ -13,24 +14,21 @@ namespace SWAPS.Persistence
    {
       public const string DEFAULT_SAVEPATH = "config.json";
 
-      public JsonSerializerOptions Settings { get; set; } = new JsonSerializerOptions()
-      {
-         WriteIndented = true
-      };
+      public JsonSerializerContext Context { get; set; }
 
-      public PersistenceManager(IJsonTypeInfoResolver typeInfoResolver)
+      public PersistenceManager(JsonSerializerContext context)
       {
-         Settings.TypeInfoResolver = typeInfoResolver;
+         Context = context;
       }
 
       public string SerializeToFileContent(C config)
       {
-         return JsonSerializer.Serialize<C>(config, Settings);
+         return JsonSerializer.Serialize(config, typeof(C), Context);
       }
 
       public C DeserializeFromFileContent(string filecontent)
       {
-         return JsonSerializer.Deserialize<C>(filecontent, Settings);
+         return (C)JsonSerializer.Deserialize(filecontent, typeof(C), Context);
       }
 
       public void Save(C config, string savePath = DEFAULT_SAVEPATH)

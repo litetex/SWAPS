@@ -309,6 +309,7 @@ namespace SWAPS.Lockfile
       }
    }
 
+   [JsonSourceGenerationOptions(WriteIndented = true)]
    [JsonSerializable(typeof(LockFile))]
    partial class LockFileJsonSerializerContext : JsonSerializerContext
    {

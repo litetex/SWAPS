@@ -14,11 +14,12 @@ namespace SWAPS.Config
    {
       public static ConfigPersister Instance { get; } = new ConfigPersister(ConfigJsonSerializerContext.Default);
 
-      public ConfigPersister(IJsonTypeInfoResolver typeInfoResolver) : base(typeInfoResolver)
+      public ConfigPersister(JsonSerializerContext context) : base(context)
       {
       }
    }
 
+   [JsonSourceGenerationOptions(WriteIndented = true)]
    [JsonSerializable(typeof(Configuration))]
    partial class ConfigJsonSerializerContext : JsonSerializerContext
    {

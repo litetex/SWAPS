@@ -9,6 +9,7 @@ using System.Timers;
 using SWAPS.Config;
 using SWAPS.Util;
 using SWAPS.Persistence;
+using System.Text.Json.Serialization;
 
 namespace SWAPS.Lockfile
 {
@@ -20,7 +21,7 @@ namespace SWAPS.Lockfile
 
       protected string LockFileSavePath { get; set; }
 
-      protected PersistenceManager<LockFile> LockFilePersister = new PersistenceManager<LockFile>();
+      protected PersistenceManager<LockFile> LockFilePersister = new PersistenceManager<LockFile>(LockFileJsonSerializerContext.Default);
 
       public LockFileFoundMode LockFileFoundMode { get; set; } = LockFileFoundMode.Terminate;
 
@@ -306,5 +307,10 @@ namespace SWAPS.Lockfile
          Dispose(disposing: true);
          GC.SuppressFinalize(this);
       }
+   }
+
+   [JsonSerializable(typeof(LockFile))]
+   partial class LockFileJsonSerializerContext : JsonSerializerContext
+   {
    }
 }

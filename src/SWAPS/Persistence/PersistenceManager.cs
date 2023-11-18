@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 using System.Threading.Tasks;
 
 namespace SWAPS.Persistence
@@ -16,6 +17,11 @@ namespace SWAPS.Persistence
       {
          WriteIndented = true
       };
+
+      public PersistenceManager(IJsonTypeInfoResolver typeInfoResolver)
+      {
+         Settings.TypeInfoResolver = typeInfoResolver;
+      }
 
       public string SerializeToFileContent(C config)
       {

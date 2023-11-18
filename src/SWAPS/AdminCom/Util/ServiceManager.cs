@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using SWAPS.Shared.Com.IPC.Payload;
 using WebSocketSharp;
 using WebSocketSharp.Server;
@@ -31,7 +31,7 @@ namespace SWAPS.AdminCom.Util
 
          Log.Debug("onMessage", parsedData);
 
-         var answer = JsonConvert.DeserializeObject<ComAnswerWrapper<R>>(parsedData);
+         var answer = JsonSerializer.Deserialize<ComAnswerWrapper<R>>(parsedData);
 
          WaitingTasks[answer.OriginalID].TrySetResult(answer.PayLoad);
       }
@@ -53,7 +53,7 @@ namespace SWAPS.AdminCom.Util
       {
          var msgID = Guid.NewGuid();
 
-         var msg = JsonConvert.SerializeObject(new ComMessageWrapper<S>()
+         var msg = JsonSerializer.Serialize(new ComMessageWrapper<S>()
          {
             PayLoad = msgToSend,
             ID = msgID

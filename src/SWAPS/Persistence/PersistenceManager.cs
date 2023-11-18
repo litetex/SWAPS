@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace SWAPS.Persistence
 {
@@ -12,22 +12,22 @@ namespace SWAPS.Persistence
    {
       public const string DEFAULT_SAVEPATH = "config.json";
 
-      public JsonSerializerSettings Settings { get; set; } = new JsonSerializerSettings()
+      public JsonSerializerOptions Settings { get; set; } = new JsonSerializerOptions()
       {
-         ObjectCreationHandling = ObjectCreationHandling.Replace
+         WriteIndented = true
       };
 
       public string SerializeToFileContent(C config)
       {
-         return JsonConvert.SerializeObject(config, Formatting.Indented, Settings);
+         return JsonSerializer.Serialize<C>(config, Settings);
       }
 
-      public void PopulateFrom(string filecontent, C config)
+      public C DeserializeFromFileContent(string filecontent)
       {
-         JsonConvert.PopulateObject(filecontent, config, Settings);
+         return JsonSerializer.Deserialize<C>(filecontent, Settings);
       }
 
-      public void Save(C config, String savePath = DEFAULT_SAVEPATH)
+      public void Save(C config, string savePath = DEFAULT_SAVEPATH)
       {
          var dir = Path.GetDirectoryName(savePath);
          if (!string.IsNullOrWhiteSpace(dir))
@@ -36,13 +36,12 @@ namespace SWAPS.Persistence
          File.WriteAllText(savePath, SerializeToFileContent(config));
       }
 
-      public C Load(C into, String savePath = DEFAULT_SAVEPATH)
+      public C Load(string savePath = DEFAULT_SAVEPATH)
       {
          if (!File.Exists(savePath))
             throw new FileNotFoundException($"Could not find file '{savePath}'");
 
-         PopulateFrom(File.ReadAllText(savePath), into);
-         return into;
+         return DeserializeFromFileContent(File.ReadAllText(savePath));
       }
    }
 }

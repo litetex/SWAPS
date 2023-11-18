@@ -80,7 +80,7 @@ namespace SWAPS.Lockfile
          Log.Info($"Found lockfile; Loading from '{LockFileSavePath}'");
          try
          {
-            LockFile = LockFilePersister.Load(LockFileSavePath);
+            LockFilePersister.Load(LockFile, LockFileSavePath);
             Log.Info("Loaded lockfile");
 
             if (Serilog.Log.IsEnabled(Serilog.Events.LogEventLevel.Debug))

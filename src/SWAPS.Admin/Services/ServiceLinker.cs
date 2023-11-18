@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Text.Json;
+using Newtonsoft.Json;
 using SWAPS.Admin.Communication;
 using SWAPS.Shared.Com.IPC;
 using SWAPS.Shared.Com.IPC.Payload;
@@ -59,11 +59,11 @@ namespace SWAPS.Admin.Services
 
       private string ProcessMessageAndAnswer<M,A>(string msgBase64, Func<M,A> processor)
       {
-         var decodedMessage = JsonSerializer.Deserialize<ComMessageWrapper<M>>(Encoding.UTF8.GetString(Convert.FromBase64String(msgBase64)));
+         var decodedMessage = JsonConvert.DeserializeObject<ComMessageWrapper<M>>(Encoding.UTF8.GetString(Convert.FromBase64String(msgBase64)));
 
          var processoResult = processor.Invoke(decodedMessage.PayLoad);
 
-         var answer = JsonSerializer.Serialize(new ComAnswerWrapper<A>()
+         var answer = JsonConvert.SerializeObject(new ComAnswerWrapper<A>()
          {
             ID = Guid.NewGuid(),
             OriginalID = decodedMessage.ID,

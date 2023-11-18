@@ -202,7 +202,7 @@ namespace SWAPS.AdminCom
          try
          {
             // AdminProcess is not accessible here anymore: there is no process associated with this instance
-            if (AdminProcessID == null || !Process.GetProcesses().Any(p => p.Id == AdminProcessID))
+            if (AdminProcessID == null || !Array.Exists(Process.GetProcesses(), p => p.Id == AdminProcessID))
             {
                Log.Info("Admin process is not running");
                return;

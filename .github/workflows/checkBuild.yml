@@ -43,7 +43,8 @@ jobs:
         -p:PublishSingleFile=true \
         -p:DebugType=None \
         -p:IncludeNativeLibrariesForSelfExtract=true \
-        -p:PublishTrimmed=true
+        -p:PublishTrimmed=true \
+        -p:JsonSerializerIsReflectionEnabledByDefault=true
 
     - name: Publish ${{ matrix.os }} ${{ matrix.configuration }} SWAPS.Admin
       working-directory: src/SWAPS.Admin
@@ -54,7 +55,8 @@ jobs:
         -p:PublishSingleFile=true \
         -p:DebugType=None \
         -p:IncludeNativeLibrariesForSelfExtract=true \
-        -p:PublishTrimmed=true
+        -p:PublishTrimmed=true \
+        -p:JsonSerializerIsReflectionEnabledByDefault=true
 
     - name: Combine artifacts
       run: |

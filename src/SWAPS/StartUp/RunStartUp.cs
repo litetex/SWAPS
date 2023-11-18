@@ -48,6 +48,9 @@ namespace SWAPS.StartUp
          ConfigPersister.Instance.Load(Config, configPath);
 
          Log.Info($"Loading: success");
+         if(Serilog.Log.IsEnabled(Serilog.Events.LogEventLevel.Debug))
+            Log.Debug(ConfigPersister.Instance.SerializeToFileContent(Config));
+
          return configPath;
       }
 

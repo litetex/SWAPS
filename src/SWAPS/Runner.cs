@@ -125,7 +125,6 @@ namespace SWAPS
 
          var tasks = Config.ProcessConfigs.Select(processConfig =>
          {
-
             var task = Task.Run(() =>
             {
                try

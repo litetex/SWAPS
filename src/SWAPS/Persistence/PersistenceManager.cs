@@ -17,12 +17,12 @@ namespace SWAPS.Persistence
          ObjectCreationHandling = ObjectCreationHandling.Replace
       };
 
-      protected string SerializeToFileContent(C config)
+      public string SerializeToFileContent(C config)
       {
          return JsonConvert.SerializeObject(config, Formatting.Indented, Settings);
       }
 
-      protected void PopulateFrom(string filecontent, C config)
+      public void PopulateFrom(string filecontent, C config)
       {
          JsonConvert.PopulateObject(filecontent, config, Settings);
       }

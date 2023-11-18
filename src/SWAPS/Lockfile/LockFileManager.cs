@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Timers;
 using SWAPS.Config;
 using SWAPS.Util;
+using SWAPS.Persistence;
 
 namespace SWAPS.Lockfile
 {
@@ -16,6 +17,10 @@ namespace SWAPS.Lockfile
       public LockFile LockFile { get; private set; } = new LockFile();
 
       protected LockFileConfig LockFileConfig { get; set; }
+
+      protected string LockFileSavePath { get; set; }
+
+      protected PersistenceManager<LockFile> LockFilePersister = new PersistenceManager<LockFile>();
 
       public LockFileFoundMode LockFileFoundMode { get; set; } = LockFileFoundMode.Terminate;
 
@@ -28,7 +33,7 @@ namespace SWAPS.Lockfile
       public LockFileManager(LockFileConfig config, string configurationFilePath)
       {
          LockFileConfig = config;
-         LockFile.Config.SavePath = Path.Combine(configurationFilePath + LockFileConfig.LockFileExtension ?? ".lock");
+         LockFileSavePath = Path.Combine(configurationFilePath + LockFileConfig.LockFileExtension ?? ".lock");
       }
 
       /// <summary>
@@ -44,7 +49,7 @@ namespace SWAPS.Lockfile
          ValidLockFileAlreadyExists = CheckLockFile();
          if (ValidLockFileAlreadyExists)
          {
-            Log.Warn($"Found a valid lockfile '{LockFile.Config.SavePath}'");
+            Log.Warn($"Found a valid lockfile '{LockFileSavePath}'");
             LockFileFound();
          }
 
@@ -59,18 +64,18 @@ namespace SWAPS.Lockfile
       /// <returns><code>true</code>when a valid lockfile was found</returns>
       protected bool CheckLockFile()
       {
-         Log.Info($"Checking for lockfile at '{LockFile.Config.SavePath}'");
+         Log.Info($"Checking for lockfile at '{LockFileSavePath}'");
 
-         if (!File.Exists(LockFile.Config.SavePath))
+         if (!File.Exists(LockFileSavePath))
          {
             Log.Info("Found no lockfile");
             return false;
          }
 
-         Log.Info($"Found lockfile; Loading from '{LockFile.Config.SavePath}'");
+         Log.Info($"Found lockfile; Loading from '{LockFileSavePath}'");
          try
          {
-            LockFile.Load();
+            LockFilePersister.Load(LockFile, LockFileSavePath);
             Log.Info("Loaded lockfile");
          }
          catch (Exception ex)
@@ -192,15 +197,15 @@ namespace SWAPS.Lockfile
             return;
          }
 
-         throw new LockFileAbortException($"Found valid lockfile '{LockFile.Config.SavePath}'");
+         throw new LockFileAbortException($"Found valid lockfile '{LockFileSavePath}'");
       }
 
       public void DeleteLockFile()
       {
-         if (File.Exists(LockFile.Config.SavePath))
+         if (File.Exists(LockFileSavePath))
          {
-            Log.Info($"Deleting lockfile '{LockFile.Config.SavePath}'");
-            File.Delete(LockFile.Config.SavePath);
+            Log.Info($"Deleting lockfile '{LockFileSavePath}'");
+            File.Delete(LockFileSavePath);
             Log.Info("Deleting lockfile");
          }
       }
@@ -210,7 +215,7 @@ namespace SWAPS.Lockfile
          if (ValidLockFileAlreadyExists)
             return;
 
-         Log.Info($"Updating lockfile '{LockFile.Config.SavePath}'");
+         Log.Info($"Updating lockfile '{LockFileSavePath}'");
 
          try
          {
@@ -223,7 +228,7 @@ namespace SWAPS.Lockfile
             LockFile.PID = Process.GetCurrentProcess().Id;
             LockFile.AppVersion = Assembly.GetEntryAssembly()?.GetName()?.Version?.ToString() ?? "-";
 
-            LockFile.Save();
+            LockFilePersister.Save(LockFile, LockFileSavePath);
          }
          catch (Exception ex)
          {

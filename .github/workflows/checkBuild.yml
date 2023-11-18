@@ -32,11 +32,11 @@ jobs:
     
     - name: Publish ${{ matrix.os }} ${{ matrix.configuration }} SWAPS
       working-directory: src/SWAPS
-      run: dotnet publish -c ${{ matrix.configuration }} -r ${{ matrix.os }} --self-contained -p:PublishSingleFile=true -p:DebugType=None -p:IncludeNativeLibrariesForSelfExtract=true -p:PublishTrimmed=true
+      run: dotnet publish -c ${{ matrix.configuration }} -r ${{ matrix.os }} --self-contained -p:PublishAot=true -p:DebugType=None -p:IncludeNativeLibrariesForSelfExtract=true -p:PublishTrimmed=true -p:StripSymbols=false
 
     - name: Publish ${{ matrix.os }} ${{ matrix.configuration }} SWAPS.Admin
       working-directory: src/SWAPS.Admin
-      run: dotnet publish -c ${{ matrix.configuration }} -r ${{ matrix.os }} --self-contained -p:PublishSingleFile=true -p:DebugType=None -p:IncludeNativeLibrariesForSelfExtract=true -p:PublishTrimmed=true
+      run: dotnet publish -c ${{ matrix.configuration }} -r ${{ matrix.os }} --self-contained -p:PublishAot=true -p:DebugType=None -p:IncludeNativeLibrariesForSelfExtract=true -p:PublishTrimmed=true -p:StripSymbols=false
 
     - name: Combine artifacts
       run: |

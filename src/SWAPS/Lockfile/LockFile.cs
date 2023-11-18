@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using CoreFramework.Config;
 
 namespace SWAPS.Lockfile
 {
-   public class LockFile : JsonConfig
+   public class LockFile
    {
       // Increment this on major changes
       public const int CURRENT_VERSION = 1;

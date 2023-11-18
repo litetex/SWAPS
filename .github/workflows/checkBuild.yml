@@ -41,11 +41,11 @@ jobs:
     - name: Combine artifacts
       run: |
         mkdir buildtmp
-        Copy-Item -Recurse -Path "src/SWAPS/bin/${{ matrix.configuration }}/net8.0/${{ matrix.os }}/publish/*" -Destination "buildtmp/" 
-        Copy-Item -Recurse -Path "src/SWAPS.Admin/bin/${{ matrix.configuration }}/net8.0-windows/${{ matrix.os }}/publish/*" -Destination "buildtmp/"
+        cp -a src/SWAPS/bin/${{ matrix.configuration }}/net8.0/${{ matrix.os }}/publish/. buildtmp/
+        cp -a src/SWAPS.Admin/bin/${{ matrix.configuration }}/net8.0-windows/${{ matrix.os }}/publish/. buildtmp/
         cd buildtmp
         dir
-        Compress-Archive -Path * -DestinationPath all.zip
+        zip -r all.zip .
 
     - name: Upload artifact
       uses: actions/upload-artifact@v3

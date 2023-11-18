@@ -23,4 +23,9 @@
     <ProjectReference Include="..\SWAPS.Shared\SWAPS.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Otherwise serialization fails -->
+    <TrimmerRootAssembly Include="Newtonsoft.Json" />
+  </ItemGroup>
+
 </Project>

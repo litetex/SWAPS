@@ -104,6 +104,6 @@ jobs:
       uses: repo-sync/pull-request@v2
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        destination_branch: "develop"
+        destination_branch: "dev"
         pr_title: "Sync back"
         pr_body: "An automated PR to sync changes back"

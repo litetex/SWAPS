@@ -6,6 +6,7 @@ using SWAPS.StartUp;
 using SWAPS.Util;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -18,7 +19,11 @@ namespace SWAPS
    /// </summary>
    public static class Program
    {
-
+      // Fix for https://github.com/commandlineparser/commandline/issues/848
+      [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(AbstractCmdOptions))]
+      [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(GenConfigOptions))]
+      [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(RunCmdOptions))]
+      [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(UpdateCmdOptions))]
       static void Main(string[] args)
       {
          Run(args);

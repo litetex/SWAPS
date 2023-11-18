@@ -5,6 +5,7 @@ using SWAPS.Admin.Logging;
 using SWAPS.Shared;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -19,6 +20,8 @@ namespace SWAPS.Admin
       public static Action<string> Writer { get; set; } = s => { };
       public static Func<bool> WriterAvailable { get; set; } = () => false;
 
+      // Fix for https://github.com/commandlineparser/commandline/issues/848
+      [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(CmdOptions))]
       static void Main(string[] args)
       {
          Run(args);

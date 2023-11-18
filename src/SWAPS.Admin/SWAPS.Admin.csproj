@@ -23,4 +23,8 @@
     <ProjectReference Include="..\SWAPS.Shared\SWAPS.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <TrimmableAssembly Include="Microsoft.Windows.Compatibility" />
+  </ItemGroup>
+
 </Project>

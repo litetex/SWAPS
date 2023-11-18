@@ -52,6 +52,7 @@ jobs:
         -p:PublishSingleFile=true \
         -p:DebugType=None \
         -p:IncludeNativeLibrariesForSelfExtract=true \
+        -p:TrimMode=partial \
         -p:PublishTrimmed=true \
         -p:Version=${{ needs.create_release.outputs.version }} 
 
@@ -64,6 +65,7 @@ jobs:
         -p:PublishSingleFile=true \
         -p:DebugType=None \
         -p:IncludeNativeLibrariesForSelfExtract=true \
+        -p:TrimMode=partial \
         -p:PublishTrimmed=true \
         -p:Version=${{ needs.create_release.outputs.version }} 
 

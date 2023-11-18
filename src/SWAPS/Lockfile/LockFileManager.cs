@@ -21,7 +21,7 @@ namespace SWAPS.Lockfile
 
       protected string LockFileSavePath { get; set; }
 
-      protected PersistenceManager<LockFile> LockFilePersister = new PersistenceManager<LockFile>(LockFileJsonSerializerContext.Default);
+      protected PersistenceManager<LockFile> LockFilePersister = new PersistenceManager<LockFile>();
 
       public LockFileFoundMode LockFileFoundMode { get; set; } = LockFileFoundMode.Terminate;
 
@@ -307,11 +307,5 @@ namespace SWAPS.Lockfile
          Dispose(disposing: true);
          GC.SuppressFinalize(this);
       }
-   }
-
-   [JsonSourceGenerationOptions(WriteIndented = true)]
-   [JsonSerializable(typeof(LockFile))]
-   partial class LockFileJsonSerializerContext : JsonSerializerContext
-   {
    }
 }

@@ -19,11 +19,6 @@ namespace SWAPS
    /// </summary>
    public static class Program
    {
-      // Fix for https://github.com/commandlineparser/commandline/issues/848
-      [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(AbstractCmdOptions))]
-      [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(GenConfigOptions))]
-      [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(RunCmdOptions))]
-      [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(UpdateCmdOptions))]
       static void Main(string[] args)
       {
          Run(args);

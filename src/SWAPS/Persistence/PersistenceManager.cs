@@ -14,21 +14,19 @@ namespace SWAPS.Persistence
    {
       public const string DEFAULT_SAVEPATH = "config.json";
 
-      public JsonSerializerContext Context { get; set; }
-
-      public PersistenceManager(JsonSerializerContext context)
+      public JsonSerializerOptions Settings { get; set; } = new JsonSerializerOptions()
       {
-         Context = context;
-      }
+         WriteIndented = true
+      };
 
       public string SerializeToFileContent(C config)
       {
-         return JsonSerializer.Serialize(config, typeof(C), Context);
+         return JsonSerializer.Serialize<C>(config, Settings);
       }
 
       public C DeserializeFromFileContent(string filecontent)
       {
-         return (C)JsonSerializer.Deserialize(filecontent, typeof(C), Context);
+         return JsonSerializer.Deserialize<C>(filecontent, Settings);
       }
 
       public void Save(C config, string savePath = DEFAULT_SAVEPATH)

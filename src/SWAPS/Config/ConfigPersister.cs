@@ -12,16 +12,7 @@ namespace SWAPS.Config
 {
    public class ConfigPersister : PersistenceManager<Configuration>
    {
-      public static ConfigPersister Instance { get; } = new ConfigPersister(ConfigJsonSerializerContext.Default);
+      public static ConfigPersister Instance { get; } = new ConfigPersister();
 
-      public ConfigPersister(JsonSerializerContext context) : base(context)
-      {
-      }
-   }
-
-   [JsonSourceGenerationOptions(WriteIndented = true)]
-   [JsonSerializable(typeof(Configuration))]
-   partial class ConfigJsonSerializerContext : JsonSerializerContext
-   {
    }
 }

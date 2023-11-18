@@ -37,7 +37,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 6.x
+        dotnet-version: 8.x
         
     - name: Build
       run: dotnet build --configuration ${{ matrix.configuration }}
@@ -56,8 +56,8 @@ jobs:
     - name: Combine artifacts
       run: |
         mkdir buildtmp
-        Copy-Item -Recurse -Path "src/SWAPS/bin/${{ matrix.configuration }}/net6.0/${{ matrix.os }}/publish/*" -Destination "buildtmp/"
-        Copy-Item -Recurse -Path "src/SWAPS.Admin/bin/${{ matrix.configuration }}/net6.0-windows/${{ matrix.os }}/publish/*" -Destination "buildtmp/"
+        Copy-Item -Recurse -Path "src/SWAPS/bin/${{ matrix.configuration }}/net8.0/${{ matrix.os }}/publish/*" -Destination "buildtmp/"
+        Copy-Item -Recurse -Path "src/SWAPS.Admin/bin/${{ matrix.configuration }}/net8.0-windows/${{ matrix.os }}/publish/*" -Destination "buildtmp/"
         cd buildtmp
         dir
         Compress-Archive -Path * -DestinationPath all.zip

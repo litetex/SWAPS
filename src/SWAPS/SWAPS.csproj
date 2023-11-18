@@ -22,4 +22,10 @@
     <ProjectReference Include="..\SWAPS.Shared\SWAPS.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <TrimmableAssembly Include="System" />
+    <TrimmableAssembly Include="Microsoft" />
+    <TrimmableAssembly Include="WebSocketSharp" />
+  </ItemGroup>
+
 </Project>

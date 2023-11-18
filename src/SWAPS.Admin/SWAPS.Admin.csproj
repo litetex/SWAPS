@@ -24,7 +24,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <TrimmableAssembly Include="Microsoft.Windows.Compatibility" />
+    <TrimmableAssembly Include="System" />
+    <TrimmableAssembly Include="Microsoft" />
+    <TrimmableAssembly Include="WebSocketSharp" />
   </ItemGroup>
 
 </Project>

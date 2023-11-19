@@ -24,6 +24,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <TrimmableAssembly Include="Serilog" />
+    <TrimmableAssembly Include="Serilog.Enrichers.Thread" />
+    <TrimmableAssembly Include="Serilog.Sinks.Console" />
+    <TrimmableAssembly Include="Serilog.Sinks.File" />
     <TrimmableAssembly Include="websocket-sharp" />
   </ItemGroup>
 

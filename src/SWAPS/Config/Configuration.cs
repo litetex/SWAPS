@@ -1,11 +1,10 @@
-﻿using CoreFramework.Config;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace SWAPS.Config
 {
-   public class Configuration : JsonConfig
+   public class Configuration
    {
       // Increment this on major changes
       public const int CURRENT_VERSION = 2;

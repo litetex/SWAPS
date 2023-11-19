@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using CoreFramework.Config;
 using SWAPS.CMD;
 using SWAPS.Config;
+using SWAPS.Persistence;
 using SWAPS.Update;
 using SWAPS.Util;
 
@@ -24,31 +24,34 @@ namespace SWAPS.StartUp
             ConsoleController.TryHideConsole();
 
          Log.Info("MODE: Normal start");
-         ReadJsonConfig();
+         var configPath = ReadJsonConfig();
 
          using var updater = new Updater(CmdOptions.UpdateMode, CmdOptions.ByPassUpdateLoopProtection);
          updater.OnStart();
 
          var canStart = CheckConfigVersion();
          if (canStart)
-            DoStart();
+            DoStart(configPath);
          else
             Log.Error("Aborting main run due to config version mismatch");
 
          updater.OnEnd();
       }
 
-      private void ReadJsonConfig()
+      private string ReadJsonConfig()
       {
          Log.Info("Reading json config");
 
-         if (!string.IsNullOrWhiteSpace(CmdOptions.ConfigPath))
-            Config.Config.SavePath = CmdOptions.ConfigPath;
+         var configPath = !string.IsNullOrWhiteSpace(CmdOptions.ConfigPath) ? CmdOptions.ConfigPath : ConfigPersister.DEFAULT_SAVEPATH;
 
-         Log.Info($"Loading '{Config.Config.SavePath}'");
-         Config.Load();
+         Log.Info($"Loading '{configPath}'");
+         ConfigPersister.Instance.Load(Config, configPath);
 
          Log.Info($"Loading: success");
+         if(Serilog.Log.IsEnabled(Serilog.Events.LogEventLevel.Debug))
+            Log.Debug(ConfigPersister.Instance.SerializeToFileContent(Config));
+
+         return configPath;
       }
 
       private bool CheckConfigVersion()
@@ -67,10 +70,10 @@ namespace SWAPS.StartUp
          return true;
       }
 
-      private void DoStart()
+      private void DoStart(string configPath)
       {
          Log.Info("Starting");
-         new Runner(Config, CmdOptions).Run();
+         new Runner(Config, configPath, CmdOptions).Run();
          Log.Info("Done");
       }
    }

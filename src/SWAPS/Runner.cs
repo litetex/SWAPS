@@ -23,12 +23,14 @@ namespace SWAPS
       protected AdminCommunictator AdminCommunictator { get; set; }
 
       protected Configuration Config { get; set; }
+      protected string ConfigPath { get; set; } 
 
       protected RunCmdOptions CmdOptions { get; set; }
 
-      public Runner(Configuration configuration, RunCmdOptions cmdOptions)
+      public Runner(Configuration configuration, string configPath, RunCmdOptions cmdOptions)
       {
          Config = configuration;
+         ConfigPath = configPath;
          CmdOptions = cmdOptions;
       }
 
@@ -37,7 +39,7 @@ namespace SWAPS
          if (!string.IsNullOrWhiteSpace(Config.Name))
             Console.Title = Config.Name;
 
-         using (LockFileManager = new LockFileManager(Config.LockFileConfig, Config.Config.SavePath)
+         using (LockFileManager = new LockFileManager(Config.LockFileConfig, ConfigPath)
          {
             LockFileFoundMode = CmdOptions.LockFileFoundMode
          })
@@ -123,7 +125,6 @@ namespace SWAPS
 
          var tasks = Config.ProcessConfigs.Select(processConfig =>
          {
-
             var task = Task.Run(() =>
             {
                try
@@ -155,13 +156,10 @@ namespace SWAPS
 
          if (processConfig.DependsOn != null)
          {
-            foreach (var dependingKey in processConfig.DependsOn)
+            foreach (var dependingKey in processConfig.DependsOn.Where(key => keyTasks.ContainsKey(key)))
             {
-               if (keyTasks.ContainsKey(dependingKey))
-               {
-                  Log.Info($"[{identifier}] Waiting for '{dependingKey}'");
-                  keyTasks[dependingKey].Wait();
-               }
+               Log.Info($"[{identifier}] Waiting for '{dependingKey}'");
+               keyTasks[dependingKey].Wait();
             }
          }
 

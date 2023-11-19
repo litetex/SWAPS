@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Text;
 using SWAPS.CMD;
 using SWAPS.Config;
+using SWAPS.Persistence;
 using SWAPS.Update;
 
 namespace SWAPS.StartUp
@@ -27,9 +28,7 @@ namespace SWAPS.StartUp
       {
          Log.Info("Writing config file");
 
-         if (!string.IsNullOrWhiteSpace(CmdOptions.ConfigGenerationPath))
-            Config.Config.SavePath = CmdOptions.ConfigGenerationPath;
-
+         var configPath = !string.IsNullOrWhiteSpace(CmdOptions.ConfigGenerationPath) ? CmdOptions.ConfigGenerationPath : ConfigPersister.DEFAULT_SAVEPATH;
          
          Config.Version = Configuration.CURRENT_VERSION; 
          Config.ServiceConfigs.Add(new ServiceConfig()
@@ -44,8 +43,8 @@ namespace SWAPS.StartUp
             WorkDir = "dir",
          });
 
-         Log.Info($"Saving '{Config.Config.SavePath}'");
-         Config.Save();
+         Log.Info($"Saving '{configPath}'");
+         ConfigPersister.Instance.Save(Config, configPath);
 
          Log.Info($"Saving: success");
       }

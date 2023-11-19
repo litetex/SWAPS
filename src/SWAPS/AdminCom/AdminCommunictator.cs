@@ -172,7 +172,7 @@ namespace SWAPS.AdminCom
             {
                FileName = Path.Combine(
 #if DEBUG
-                   @"..\..\..\..\SWAPS.Admin\bin\Debug\net6.0-windows",
+                   @"..\..\..\..\SWAPS.Admin\bin\Debug\net8.0-windows",
 #else
                   Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName),
 #endif

@@ -23,9 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <TrimmableAssembly Include="System" />
-    <TrimmableAssembly Include="Microsoft" />
-    <TrimmableAssembly Include="WebSocketSharp" />
+    <TrimmableAssembly Include="websocket-sharp" />
   </ItemGroup>
 
 </Project>

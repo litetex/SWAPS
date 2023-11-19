@@ -64,7 +64,7 @@ jobs:
         cp -a src/SWAPS/bin/${{ matrix.configuration }}/net8.0/${{ matrix.os }}/publish/. buildtmp/
         cp -a src/SWAPS.Admin/bin/${{ matrix.configuration }}/net8.0-windows/${{ matrix.os }}/publish/. buildtmp/
         cd buildtmp
-        dir
+        ls -lha
         zip -r all.zip .
 
     - name: Upload artifact

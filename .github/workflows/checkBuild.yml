@@ -68,7 +68,7 @@ jobs:
         zip -r all.zip .
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: all-${{ matrix.os }}
         path: |

@@ -5,7 +5,6 @@ using System.Text;
 
 namespace SWAPS.Lockfile
 {
-   [Serializable]
    public class LockFileAbortException : Exception
    {
       public LockFileAbortException()
@@ -17,10 +16,6 @@ namespace SWAPS.Lockfile
       }
 
       public LockFileAbortException(string message, Exception innerException) : base(message, innerException)
-      {
-      }
-
-      protected LockFileAbortException(SerializationInfo info, StreamingContext context) : base(info, context)
       {
       }
    }

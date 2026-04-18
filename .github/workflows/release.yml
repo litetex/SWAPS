@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Release - Create Draft for a Release
         id: create_draft
-        uses: release-drafter/release-drafter@v6
+        uses: release-drafter/release-drafter@v7
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -32,12 +32,12 @@ jobs:
         os: [win-x64]
         configuration: [Release]
    steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
          
     - name: Setup .NET
       uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: 8.x
+        dotnet-version: 10.x
         
     - name: Build
       run: dotnet build --configuration ${{ matrix.configuration }}
@@ -72,14 +72,14 @@ jobs:
     - name: Combine artifacts
       run: |
         mkdir buildtmp
-        cp -a src/SWAPS/bin/${{ matrix.configuration }}/net8.0/${{ matrix.os }}/publish/. buildtmp/
-        cp -a src/SWAPS.Admin/bin/${{ matrix.configuration }}/net8.0-windows/${{ matrix.os }}/publish/. buildtmp/
+        cp -a src/SWAPS/bin/${{ matrix.configuration }}/net10.0/${{ matrix.os }}/publish/. buildtmp/
+        cp -a src/SWAPS.Admin/bin/${{ matrix.configuration }}/net10.0-windows/${{ matrix.os }}/publish/. buildtmp/
         cd buildtmp
         ls -lha
         zip -r all.zip .
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v7
       with:
         name: all-${{ matrix.os }}
         path: |
@@ -87,7 +87,7 @@ jobs:
         if-no-files-found: error
       
     - name: Release ${{ matrix.os }} - Upload Release Asset
-      uses: shogo82148/actions-upload-release-asset@v1
+      uses: shogo82148/actions-upload-release-asset@96bc1f0cb850b65efd58a6b5eaa0a69f88d38077 # v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
@@ -100,12 +100,15 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build]
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     
     - name: pull-request
-      uses: repo-sync/pull-request@v2
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        destination_branch: "dev"
-        pr_title: "Sync back"
-        pr_body: "An automated PR to sync changes back"
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        gh_pr_up() { 
+          gh pr create "$@" || gh pr edit "$@" 
+        }
+        gh_pr_up -B "dev" \
+          --title "Sync back" \
+          --body "An automated PR to sync changes back"

@@ -10,7 +10,7 @@
       "datasources": [
         "dotnet-version"
       ],
-      "allowedVersions": "<9"
+      "allowedVersions": "<11"
     },
     {
       "description": "Stick with .NET LTS",
@@ -21,7 +21,7 @@
       "datasources": [
         "nuget"
       ],
-      "allowedVersions": "<9"
+      "allowedVersions": "<11"
     }
   ]
 }

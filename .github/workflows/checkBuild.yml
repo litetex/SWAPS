@@ -61,8 +61,8 @@ jobs:
     - name: Combine artifacts
       run: |
         mkdir buildtmp
-        cp -a src/SWAPS/bin/${{ matrix.configuration }}/net8.0/${{ matrix.os }}/publish/. buildtmp/
-        cp -a src/SWAPS.Admin/bin/${{ matrix.configuration }}/net8.0-windows/${{ matrix.os }}/publish/. buildtmp/
+        cp -a src/SWAPS/bin/${{ matrix.configuration }}/net10.0/${{ matrix.os }}/publish/. buildtmp/
+        cp -a src/SWAPS.Admin/bin/${{ matrix.configuration }}/net10.0-windows/${{ matrix.os }}/publish/. buildtmp/
         cd buildtmp
         ls -lha
         zip -r all.zip .

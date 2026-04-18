@@ -28,7 +28,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: 8.x
+        dotnet-version: 10.x
         
     - name: Build
       run: dotnet build --configuration ${{ matrix.configuration }}
@@ -61,16 +61,14 @@ jobs:
     - name: Combine artifacts
       run: |
         mkdir buildtmp
-        cp -a src/SWAPS/bin/${{ matrix.configuration }}/net8.0/${{ matrix.os }}/publish/. buildtmp/
-        cp -a src/SWAPS.Admin/bin/${{ matrix.configuration }}/net8.0-windows/${{ matrix.os }}/publish/. buildtmp/
-        cd buildtmp
-        ls -lha
-        zip -r all.zip .
+        cp -a src/SWAPS/bin/${{ matrix.configuration }}/net10.0/${{ matrix.os }}/publish/. buildtmp/
+        cp -a src/SWAPS.Admin/bin/${{ matrix.configuration }}/net10.0-windows/${{ matrix.os }}/publish/. buildtmp/
+        ls -lha buildtmp
 
     - name: Upload artifact
       uses: actions/upload-artifact@v7
       with:
         name: all-${{ matrix.os }}
         path: |
-          buildtmp/all.zip
+          buildtmp/*
         if-no-files-found: error

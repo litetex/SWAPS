@@ -36,7 +36,7 @@ namespace SWAPS.AdminCom
          if (OperatingSystem.IsWindows())
             certificate.FriendlyName = certName;
 
-         return new X509Certificate2(certificate.Export(X509ContentType.Pfx, password), password);
+         return X509CertificateLoader.LoadPkcs12(certificate.Export(X509ContentType.Pfx, password), password);
       }
    }
 }
